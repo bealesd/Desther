@@ -1,0 +1,49 @@
+:root {
+    --menu-title-height: 20px;
+    --menu-tooltip-height: 40px;
+}
+
+
+
+.top-bar {
+    display: grid;
+    grid-template-columns: auto 1fr auto; /* Three columns: auto for back button and extra info, 1fr for page info */
+    align-items: center; /* Vertically center the content */
+    padding: 10px;
+    border-bottom: 2px solid #ddd;
+    color:white;
+}
+
+/* Style for the back button */
+.back-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+/* Style for the page info */
+.page-info {
+    text-align: center; /* Center the page info text */
+}
+
+/* Style for extra info on the right */
+.extra-info {
+    text-align: right; /* Align the extra info text to the right */
+}
+
+
+/* Responsive adjustments (optional) */
+@media (max-width: 600px) {
+    .top-bar {
+        grid-template-columns: 1fr; /* Stack items on smaller screens */
+        text-align: center;
+    }
+
+    .extra-info {
+        display: none; /* Hide extra info on small screens if not needed */
+    }
+}

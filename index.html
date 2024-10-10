@@ -1,0 +1,47 @@
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono&amp;display=swap" rel="stylesheet">
+
+    <link href="/index.css" rel="stylesheet">
+    <link href="/menu.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- #region Top Navigation -->
+    <div class="top-bar">
+        <button class="back-button">Back</button>
+        <div class="page-info">
+            <h1>Page Title</h1>
+            <p>Some details about this page</p>
+        </div>
+        <div class="extra-info">
+            <p>Additional Info</p>
+        </div>
+    </div>
+    <!-- #endregion Top Navigation -->
+
+    <menu-page links='[
+                        {"text": "Chat", "link": "chat.html", "css": "chat.css"}, 
+                        {"text": "Calender", "link": "calender.html"}, 
+                        {"text": "Todo", "link": "todo.html"},
+                        {"text": "Notepad", "link": "notepad.html"},
+                        {"text": "Weigh Ins", "link": "weigh-ins.html"}
+                        ]'>
+    </menu-page>
+
+    <div id="content-area">
+        <!-- Content will be loaded here -->
+        <p>Welcome to the home page!</p>
+    </div>
+
+    <script src="menuPageComponent.js" type="module"></script>
+    <script src="contentLoader.js"></script>
+
+    <script>
+        
+    </script>
+</body>
+
+</html>

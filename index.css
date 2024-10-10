@@ -1,0 +1,14 @@
+:root {
+    --menu-title-height: 20px;
+    --main-background: rgba(0, 0, 0, 1); 
+}
+
+body {
+    width: 100%;
+    height: 100vh;
+    margin: 0px;
+    font-family: 'Space Mono';
+    /* background: var(--main-background-image), var(--main-background);  */
+    background-color: var(--main-background);
+    background-size: cover; 
+}
