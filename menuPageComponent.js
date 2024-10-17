@@ -1,3 +1,6 @@
+import ContentLoader from "./contentLoader.js"
+
+
 class MenuPageComponent extends HTMLElement {
     constructor() {
         super();
@@ -12,7 +15,7 @@ class MenuPageComponent extends HTMLElement {
     render(links) {
         const ul = document.createElement('ul');
 
-        links.forEach(link => {
+        for (const link of links) {
             const li = document.createElement('li');
             const button = document.createElement('button');
             button.textContent = link.text;
@@ -20,25 +23,29 @@ class MenuPageComponent extends HTMLElement {
             button.dataset['css'] = link?.css ?? console.log('No menu css');
 
             // Add click event to navigate to the specified link
-            // button.addEventListener('click', () => {
-            //     window.location.href = link.link;
-            // });
-            // Attach click event listener
-            
+            button.addEventListener('click', async () => {
+                // TODO: add window.location.href = link.link;
+                
+                // turn off menu
+                this.shadowRoot.querySelector('#menu-area').style.display = 'none';
+
+                // turn on content area
+                const contentArea = this.shadowRoot.querySelector('#content-area');
+                contentArea.style.display = 'block';
+
+                const link = button.dataset['href'];
+                if (!link) return;
+                await ContentLoader.loadHtml(contentArea, link);
+
+                const css = button.dataset['css'];
+                if (!css) return;
+                await ContentLoader.loadCss(contentArea, css);
+
+            });
+
             li.appendChild(button);
             ul.appendChild(li);
-        });
-
-        this.shadowRoot.addEventListener('click', (event) => {
-            const button = event.target.closest('button');
-            if (button) {
-                // event.stopPropagation(); // Prevent bubbling
-                const link = button.textContent.toLowerCase() + '.html';
-                // Fetch and load content here
-                console.log('Loading:', link); // For debugging
-            }
-        });
-
+        }
 
         // Create the <link> element to load the external CSS
         const linkElem = document.createElement('link');
@@ -47,8 +54,17 @@ class MenuPageComponent extends HTMLElement {
 
         // Append the <link> and content to the shadow root
         this.shadowRoot.innerHTML = '';  // Clear previous content
-        this.shadowRoot.appendChild(linkElem);
-        this.shadowRoot.appendChild(ul);
+
+        const menuDiv = document.createElement('div');
+        menuDiv.id = 'menu-area'
+        this.shadowRoot.appendChild(menuDiv);
+        menuDiv.appendChild(linkElem);
+        menuDiv.appendChild(ul);
+
+        const cotentDiv = document.createElement('div');
+        cotentDiv.id = 'content-area'
+        this.shadowRoot.appendChild(cotentDiv);
+
     }
 }
 

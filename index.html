@@ -31,13 +31,16 @@
                         ]'>
     </menu-page>
 
-    <div id="content-area">
-        <!-- Content will be loaded here -->
+    <!-- <div id="content-area">
         <p>Welcome to the home page!</p>
-    </div>
+    </div> -->
 
     <script src="menuPageComponent.js" type="module"></script>
-    <script src="contentLoader.js"></script>
+    <script type="module">
+        //TODO this must happen after component is loaded, need to check how
+        import Listeners from './eventListeners.js'
+        Listeners.registerEvents();
+    </script>
 
     <script>
         
