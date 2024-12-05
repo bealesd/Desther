@@ -3,8 +3,6 @@
     --menu-tooltip-height: 40px;
 }
 
-
-
 .top-bar {
     display: grid;
     grid-template-columns: auto 1fr auto; /* Three columns: auto for back button and extra info, 1fr for page info */
