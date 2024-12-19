@@ -10,11 +10,17 @@ const routes = {
         js: 'pages/login/login.js',
         auth: false
     },
+    '/chatGroup': {
+        link: 'pages/chatGroup/chatGroup.html',
+        css: 'pages/chatGroup/chatGroup.css',
+        js: 'pages/chatGroup/chatGroup.js',
+        auth: true
+    },
     '/chat': {
         link: 'pages/chat/chat.html',
         css: 'pages/chat/chat.css',
         js: 'pages/chat/chat.js',
-        auth: true
+        auth: false
     },
 };
 export default routes;

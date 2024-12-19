@@ -26,7 +26,7 @@ export default new class Router {
     }
 
     handleNavigation() {
-        this.loadContent(window.location.pathname);
+        this.loadContent();
     }
 
     navigate(path) {
@@ -34,10 +34,12 @@ export default new class Router {
         history.pushState({}, '', path);
 
         // Load the content for the new path
-        this.loadContent(path);
+        this.loadContent();
     }
 
-    async loadContent(path) {
+    async loadContent() {
+        const path = window.location.pathname;
+
         if (['/', '/index', '/index.html'].includes(path))
             return this.loadHomePage();
 
@@ -49,7 +51,6 @@ export default new class Router {
             return this.loadHomePage();
         }
 
-        // this.rootElement.innerHTML = route.link;
         // Check you are logged in, if not return
         if (route.auth && !LoginHelper.loggedIn) {
             alert('Not logged in');
