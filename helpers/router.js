@@ -1,6 +1,6 @@
 import routes from './routes.js';
 import GlobalConfig from "../config.js";
-import ContentLoader from "../helpers/contentLoader.js"
+import ContentLoader from "./contentLoader.js"
 import LoginHelper from "../helpers/loginHelper.js";
 import menuHelper from "./menuHelper.js";
 

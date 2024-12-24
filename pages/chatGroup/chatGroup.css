@@ -50,6 +50,7 @@ p{
 .chat-group-box li button{
     background: #121212;
     border-radius: 8px;
+    width: 300px;
     padding: 15px;
     color: #fff;
     margin-bottom: 10px;

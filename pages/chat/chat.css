@@ -1,0 +1,46 @@
+/* Chat Container Styling */
+.chat-container {
+    background-color: #121212; /* Dark background */
+    color: #ffffff; /* Light text */
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    overflow-y: auto;
+    height: 400px;
+    box-shadow: 0 0 15px rgba(0, 162, 255, 0.5);
+    font-family: Arial, sans-serif;
+}
+
+/* Individual Chat Message Styling */
+.chat-message {
+    background-color: #1a1a1a; /* Slightly lighter dark background */
+    border-radius: 8px;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    box-shadow: 0 2px 5px rgba(0, 162, 255, 0.2);
+}
+
+/* Message Header */
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #00a2ff; /* Blue for the username and datetime */
+}
+
+.username {
+    font-weight: bold;
+}
+
+.datetime {
+    font-size: 0.8em;
+    color: #9a9a9a; /* Subtle color for the timestamp */
+}
+
+/* Message Content */
+.message-content {
+    font-size: 1em;
+    color: #ffffff; /* White text for the content */
+}

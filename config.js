@@ -1,13 +1,17 @@
 export default class GlobalConfig {
+    // TODO, make false in build step
+    static DEBUG = true;
+
     static get apis() {
-        const urls = {
+        const url = {
             // TODO add node js build step for locally and pipeline changing of config values 
             // files would have to put in dist folder for github to pick up
-            'chatCoreUrl': 'https://corechatapivwindows.azurewebsites.net',
+            chatCoreUrl: 'https://corechatapivwindows.azurewebsites.net',
         };
-        urls.auth = `${urls.chatCoreUrl}/auth`;
-        urls.chatGroup = `${urls.chatCoreUrl}/chatGroups`;
-        return urls;
+        url.auth = `${url.chatCoreUrl}/auth`;
+        url.chatGroup = `${url.chatCoreUrl}/chatGroups`;
+        url.chat = `${url.chatCoreUrl}/chat`;
+        return url;
     }
 
     static domIds = Object.freeze({

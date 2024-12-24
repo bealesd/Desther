@@ -1,7 +1,6 @@
 const routes = {
     '/index': {
         link: 'index.html',
-        // css: 'pages/login/chat.css',
         auth: false
     },
     '/login': {

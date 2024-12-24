@@ -1,7 +1,8 @@
 import GlobalConfig from "../../config.js";
-import eventHandler from "../../helpers/eventHandler.js";
+import EventHandler from "../../helpers/eventHandler.js";
 import LoginHelper from "../../helpers/loginHelper.js";
 import menuHelper from "../../helpers/menuHelper.js";
+import MessageHelper from "../../helpers/messageHelper.js";
 
 class Login {
     contentAreaId = GlobalConfig.domIds.contentArea;
@@ -10,17 +11,18 @@ class Login {
     constructor() {
         this.contentAreaElem = document.querySelector(`#${this.contentAreaId}`);
         this.registerCallbacks();
+
+        MessageHelper.printMessages();
     }
 
     registerCallbacks() {
         // When login button is clicked, login
         const loginButton = this.contentAreaElem.querySelector(`.login-btn`);
-        eventHandler.addEvent({
+        EventHandler.addEvent({
             'id': 'loginEvent', 
             'eventType': 'click', 
             'element': loginButton, 
             'callback': () => {
-                console.log('hi from login.registerCallbacks')
                 this.login();
             }
         });
