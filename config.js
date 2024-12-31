@@ -17,7 +17,6 @@ export default class GlobalConfig {
     static domIds = Object.freeze({
         contentArea: 'content-area',
         menuArea: 'menu-area',
-        chatGroupArea: 'chat-group-area',
     });
 
     static domTags = Object.freeze({
@@ -26,6 +25,5 @@ export default class GlobalConfig {
 
     static domClasses = Object.freeze({
         backButton: 'back-button',
-        chatGroupBox: 'chat-group-box'
     });
 }

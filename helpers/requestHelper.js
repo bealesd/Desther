@@ -27,7 +27,6 @@ export default class RequestHelper {
             window.location.href = '/login';
             return;
         }
-
         return response;
     }
 
@@ -68,7 +67,6 @@ export default class RequestHelper {
         }
     }
 
-
     static async GetJson(url) {
         try {
             const response = await this.#fetch(url, {
@@ -82,7 +80,6 @@ export default class RequestHelper {
             return this.handleFetchError(error);
         }
     }
-
 
     static async GetJsonWithAuth(url) {
         try {
@@ -98,15 +95,16 @@ export default class RequestHelper {
         }
     }
 
-    static async PostJson(url, object) {
+    static async PostJson(url, object, withAuth=false) {
         const myHeaders = new Headers();
         myHeaders.append('Content-Type', 'application/json');
+        const fetchMethod = withAuth ? this.#fetchWithToken : this.#fetch;
 
-        try {
-            const response = await this.#fetch(url, {
+        try { 
+            const response = await fetchMethod.call(this, url, {
                 method: 'POST',
                 headers: myHeaders,
-                body: JSON.stringify(object)
+                body: JSON.stringify(object),
             });
             this.handleNotOkResponse(response);
             const json = await response.json();
@@ -114,6 +112,10 @@ export default class RequestHelper {
         } catch (error) {
             return this.handleFetchError(error);
         }
+    }
+
+    static async PostJsonWithAuth(url, object) {
+        return this.PostJson(url, object, true);
     }
 
     static handleNotOkResponse(response) {

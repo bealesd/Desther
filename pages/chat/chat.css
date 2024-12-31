@@ -1,24 +1,60 @@
-/* Chat Container Styling */
+#chat-area {
+    padding-top: 20px;
+}
+
 .chat-container {
-    background-color: #121212; /* Dark background */
-    color: #ffffff; /* Light text */
-    border-radius: 12px;
+    border-radius: 12px 12px 0 0; /* Keeps the curve only at the top */
+    /* border-radius: 12px; */
     padding: 20px;
     max-width: 600px;
     margin: 0 auto;
     overflow-y: auto;
     height: 400px;
-    box-shadow: 0 0 15px rgba(0, 162, 255, 0.5);
+
+    background-color: #121212;
+    /* Dark background */
+    color: #9a9a9a;
     font-family: Arial, sans-serif;
+    font-size: 12px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    /* Space between messages */
 }
 
-/* Individual Chat Message Styling */
+/* Hide scrollbar for Chrome, Safari and Opera */
+.chat-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.chat-container {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
 .chat-message {
-    background-color: #1a1a1a; /* Slightly lighter dark background */
-    border-radius: 8px;
-    margin-bottom: 15px;
-    padding: 10px 15px;
-    box-shadow: 0 2px 5px rgba(0, 162, 255, 0.2);
+    max-width: 70%;
+    /* Prevent messages from being too wide */
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    /* Space between header and content */
+}
+
+/* Incoming Message Styling */
+.chat-message.incoming {
+    align-self: flex-start;
+    /* Align to the left */
+}
+
+/* Outgoing Message Styling */
+.chat-message.outgoing {
+    align-self: flex-end;
+    /* Align to the right */
 }
 
 /* Message Header */
@@ -27,20 +63,105 @@
     justify-content: space-between;
     margin-bottom: 5px;
     font-size: 0.9em;
-    color: #00a2ff; /* Blue for the username and datetime */
-}
-
-.username {
-    font-weight: bold;
-}
-
-.datetime {
-    font-size: 0.8em;
-    color: #9a9a9a; /* Subtle color for the timestamp */
 }
 
 /* Message Content */
 .message-content {
+    font-size: 14px;
+    word-wrap: break-word;
+    /* Ensure long words wrap */
+
+    padding: 10px 15px;
+    color: rgb(227, 227, 227);
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 162, 255, 0.2);
+}
+
+/* Styling for Outgoing Messages */
+.chat-message.outgoing .message-content {
+    background-color: rgb(40, 40, 40);
+    border-bottom-right-radius: 0;
+}
+
+/* Styling for Incoming Messages */
+.chat-message.incoming .message-content {
+    background-color: #1a1a1a;
+    border-bottom-left-radius: 0;
+}
+
+.chat-header {
+    align-self: center;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    font-size: 14px;
+}
+
+
+.chat-input-area {
+    border-radius: 0 0 12px 12px; /* Keeps the curve only at the bottom */
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    overflow-y: auto;
+
+    background-color: #121212;
+    /* Dark background */
+    color: #9a9a9a;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    /* Space between messages */
+}
+
+.chat-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between input and buttons */
+    padding: 10px;
+    /* border-top: 1px solid rgba(255, 255, 255, 0.2); */
+    background-color: #121212;
+}
+
+.chat-input {
+    flex-grow: 1;
+    /* Allow input to take up remaining space */
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #1a1a1a;
+    color: #fff;
     font-size: 1em;
-    color: #ffffff; /* White text for the content */
+    outline: none;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+    max-width: calc(100% - (100px + (3 * 15px)));
+}
+
+/* Chat Send Button */
+.chat-send-btn, .chat-extra-btn {
+    width: 50px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.chat-send-btn:hover, .chat-extra-btn:hover {
+    background-color: #007dbf;
+}
+
+/* Extra Button Specific Styling */
+.chat-extra-btn {
+    background-color: #555;
+}
+
+.chat-extra-btn:hover {
+    background-color: #333;
 }

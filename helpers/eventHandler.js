@@ -4,9 +4,9 @@ export default new class EventHandler {
         window.events = window.events || {};
     }
 
-    overwriteEvents(id, eventType, element, callback, callbackArgs) {
+    overwriteEvents({id, eventType, element, callback, callbackArgs}) {
         this.removeEvents(id, eventType, element);
-        this.addEvent(eventType, element, callback, callbackArgs);
+        this.addEvent({eventType, element, callback, callbackArgs});
     }
 
     addEvent({id, eventType, element, callback, callbackArgs}) {

@@ -1,20 +1,15 @@
-/* Login Container */
-.login-container {
+.login-area {
     display: flex;
     align-items: center;
     justify-content: center;
 
-    /* display: flex;
-    flex-flow: column; */
-    height: 500px;
-
-    /* min-height: calc(100vh - 20px);  */
-    padding-top: 20px; /* Provides extra padding in case of a top bar */
+    max-height: 500px;
+    padding-top: 20px;
     padding-bottom: 20px;
 }
 
 /* Login Box Styling */
-.login-box {
+.login-container {
     background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
     border-radius: 12px;
     padding: 40px;
@@ -24,7 +19,7 @@
 }
 
 /* Title */
-.login-box h1 {
+.login-container h1 {
     color: #00a2ff;
     margin-bottom: 20px;
 }

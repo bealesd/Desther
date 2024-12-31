@@ -4,6 +4,14 @@ import LoginHelper from "../../helpers/loginHelper.js";
 import RequestHelper from "../../helpers/requestHelper.js";
 
 class ChatGroup {
+    domClasses = Object.freeze({
+        chatGroupContainer: 'chat-group-container'
+    });
+
+    domIds = Object.freeze({
+        chatGroupArea: 'chat-group-area',
+    });
+
     constructor() {
         this.init();
     }
@@ -14,7 +22,7 @@ class ChatGroup {
     }
 
     renderChatGroups(chatGroups) {
-        const chatGroupElement = document.querySelector(`#${GlobalConfig.domIds.chatGroupArea} .${GlobalConfig.domClasses.chatGroupBox} ul`);
+        const chatGroupElement = document.querySelector(`#${this.domIds.chatGroupArea} .${this.domClasses.chatGroupContainer} ul`);
 
         if (chatGroups?.error) {
             chatGroupElement.innerHTML =
