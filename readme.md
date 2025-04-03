@@ -37,3 +37,8 @@ Each object can have properties:
         auth: false
     }
 `
+
+# TODO
+- Remove back button from index screen, when no page history
+- Back takes user to home screen
+- chat->scrollTobBttom called outside of chat screen

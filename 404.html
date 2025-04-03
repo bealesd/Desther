@@ -6,6 +6,7 @@
 
     <link href="/index.css" rel="stylesheet">
     <link href="/menu-bar.css" rel="stylesheet">
+    <link href="/message-helper.css" rel="stylesheet">
 </head>
 
 <body>
@@ -22,24 +23,29 @@
     </div>
     <!-- #endregion Top Navigation -->
 
+    <!-- #region Main Menu -->
     <div id="menu-area">
         <link rel="stylesheet" href="menu-page.css">
         <ul>
             <li>
-                <button data-router href="/login">
+                <button data-router="true" href="/login">
                     Login
                 </button>
             </li>
             <li>
-                <button data-router href="/chatGroup">
+                <button data-router="true" href="/chatGroup">
                     Chat
                 </button>
             </li>
         </ul>
     </div>
-
+    <!-- #endregion Main Menu -->
 
     <div id="content-area"></div>
+
+    <div id="message-area"></div>
+
+    <div class="toast-container" id="toast-container"></div>
 
     <script type="module">
         import Router from '../helpers/router.js'

@@ -6,26 +6,24 @@ import MessageHelper from "./messageHelper.js";
 
 export default class RequestHelper {
 
+    // called on every request
     static async #interceptedFetch(url, options = {}) {
-        // try {
         const response = await fetch(url, options);
 
-        if (response.status === 401) {
-            // TODO try refreshing the token
-            // const newToken = await refreshToken();
-            // if (newToken) {
-            //     return customFetchWithToken(url, options, newToken); // Retry the request with the new token
+        let responseStatus = response.status;
+        const unauthorisedResponseCode = 401;
+        if (responseStatus === unauthorisedResponseCode) {
+            const message = `Login failed. ${response.url}: ${response.status} ${response.statusText}. Redirect to login.`;
+            MessageHelper.addMessage(message, GlobalConfig.LOG_LEVEL.WARNING);
 
-            if (GlobalConfig.DEBUG)
-                await GeneralHelper.timeout(5000);
+            // Wait for code to stop executing before opening login page.
+            setTimeout(() => {
+                const loginButton = document.querySelector('button[href="/login"][data-router="true"]');
+                loginButton.click();
+            }, 100);
 
-            // TODO use mesage service, becuase this will be lost on redirect
-            const message = `${response.url}: ${response.status} ${response.statusText}. Redirect to login.`;
-            MessageHelper.addMessage(message);
-            console.error(message);
-
-            window.location.href = '/login';
-            return;
+            // Stop any other code from executing.
+            throw new Error("Unauthorized - Login required");
         }
         return response;
     }
@@ -38,7 +36,7 @@ export default class RequestHelper {
         else if (options.headers.constructor == Object)
             options.headers['Authorization'] = `Bearer ${LoginHelper.jwtToken}`;
         else
-            throw new Error('options.headers is an invalid type');
+            throw new Error('options.headers is an invalid type, cannot set Authorization header');
 
         return this.#interceptedFetch(url, options);
     }
@@ -89,18 +87,21 @@ export default class RequestHelper {
 
             this.handleNotOkResponse(response);
             const json = await response.json();
+
+            console.log(GeneralHelper.getTime());
+
             return json;
         } catch (error) {
             return this.handleFetchError(error);
         }
     }
 
-    static async PostJson(url, object, withAuth=false) {
+    static async PostJson(url, object, withAuth = false) {
         const myHeaders = new Headers();
         myHeaders.append('Content-Type', 'application/json');
         const fetchMethod = withAuth ? this.#fetchWithToken : this.#fetch;
 
-        try { 
+        try {
             const response = await fetchMethod.call(this, url, {
                 method: 'POST',
                 headers: myHeaders,

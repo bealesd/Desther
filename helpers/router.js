@@ -3,6 +3,8 @@ import GlobalConfig from "../config.js";
 import ContentLoader from "./contentLoader.js"
 import LoginHelper from "../helpers/loginHelper.js";
 import menuHelper from "./menuHelper.js";
+import PersistentMessageHelper from './persistentMessageHelper.js';
+import eventHandler from './eventHandler.js';
 
 export default new class Router {
     constructor() {
@@ -12,7 +14,11 @@ export default new class Router {
 
         // Initialize routing
         window.addEventListener('popstate', () => this.handleNavigation());
+        // Listen to any click events on website
         document.addEventListener('click', (event) => this.handleLinkClick(event));
+
+        // print any stored messages after a page redirect
+        PersistentMessageHelper.printMessages();
     }
 
     handleLinkClick(event) {
@@ -38,6 +44,13 @@ export default new class Router {
     }
 
     async loadContent() {
+        // clear events from window.events
+        // do i need to keep any events - not in eventHandler.js, these are currently temp events
+        // i should move all events to event handler if possible?
+
+        eventHandler.removeEvents();
+        eventHandler.removeIntervals();
+
         const path = window.location.pathname;
 
         if (['/', '/index', '/index.html'].includes(path))
@@ -86,7 +99,7 @@ export default new class Router {
 
     }
 
-    loadHomePage(){
+    loadHomePage() {
         // Update url
         history.replaceState({}, '', 'index.html');
 

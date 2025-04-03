@@ -46,17 +46,18 @@ class Chat {
         // Need to kill old callbacks if required. Abort controller? Or overwriteEvents in eventhandler
         // When login button is clicked, login
         const chatScrollToBottomButton = document.querySelector(`.chat-extra-btn`);
-        EventHandler.overwriteEvents({
+        EventHandler.overwriteEvent({
             'id': 'chatScrollToBottomEvent',
             'eventType': 'click',
             'element': chatScrollToBottomButton,
             'callback': () => {
+                //this is being called on leaving chat.js
                 this.scrollToBottom();
             }
         });
 
         const chatSendButton = document.querySelector(`.chat-send-btn`);
-        EventHandler.overwriteEvents({
+        EventHandler.overwriteEvent({
             'id': 'chatSendEvent',
             'eventType': 'click',
             'element': chatSendButton,
@@ -87,6 +88,10 @@ class Chat {
 
     updatePageChats(newChats) {
         const chatContainerElement = document.querySelector(`.${this.domClasses.chatContainer}`);
+        if (chatContainerElement === null){
+            console.log('Chat container not found. Unable to update page chats.')
+            return;
+        }
 
         for (const newChat of newChats) {
             const isChatConflict = this.chats.find((chat) => {
@@ -111,7 +116,7 @@ class Chat {
         // TODO kill this on leaving page?
         // Could check current page?
         // or register like events, bit different, events are so the callbacks are remembered, and not added twice
-        setInterval(async () => {
+        EventHandler.overwriteIntervals('getNewChats', async () => {
             const id = this.getLastChatId();
             const newChats = await this.#GetChatsAfterId(id);
             if (newChats?.error) {
@@ -120,7 +125,7 @@ class Chat {
             }
 
             this.updatePageChats(newChats);
-        }, this.updateIntervalInSeconds * 1000);
+        },this.updateIntervalInSeconds * 1000)
     }
 
     getLastChatId() {
@@ -132,6 +137,11 @@ class Chat {
 
     scrollToBottom() {
         const messagesContainer = document.querySelector(`.${this.domClasses.chatContainer}`);
+        if (messagesContainer === null){
+            console.log('Chat container not found. Unable to scroll to bottom of chats.')
+            return;
+        }
+            
 
         const messageHeightOutOfView = messagesContainer.scrollHeight - messagesContainer.clientHeight;
         const messageContainerScrolledToBottom = messagesContainer.scrollTop === messageHeightOutOfView;

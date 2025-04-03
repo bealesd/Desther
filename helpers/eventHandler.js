@@ -1,30 +1,98 @@
 export default new class EventHandler {
-    constructor() {
-        //TODO - move to another store?
+    LIFETIME = {
+        SHORT_LIVED: 'SHORT_LIVED',
+        LONG_LIVED: 'LONG_LIVED'
+    }
+
+    constructor() {     
+        this.initializeEventsStore();
+        this.initializeIntervalsStore();        
+    }
+
+    initializeEventsStore(){
+        //TODO - move to another store that is protected?
         window.events = window.events || {};
+        if (!window.events.hasOwnProperty(this.LIFETIME.SHORT_LIVED))
+            window.events[this.LIFETIME.SHORT_LIVED] = {};
+        
+        if (!window.events.hasOwnProperty(this.LIFETIME.LONG_LIVED))
+            window.events[this.LIFETIME.LONG_LIVED] = {};  
     }
 
-    overwriteEvents({id, eventType, element, callback, callbackArgs}) {
-        this.removeEvents(id, eventType, element);
-        this.addEvent({eventType, element, callback, callbackArgs});
+    initializeIntervalsStore(){
+        window.intervals = window.intervals || {};
+        if (!window.intervals.hasOwnProperty(this.LIFETIME.SHORT_LIVED))
+            window.intervals[this.LIFETIME.SHORT_LIVED] = {};
+        
+        if (!window.intervals.hasOwnProperty(this.LIFETIME.LONG_LIVED))
+            window.intervals[this.LIFETIME.LONG_LIVED] = {};  
     }
 
-    addEvent({id, eventType, element, callback, callbackArgs}) {
-        const eventInfo = { 'id': id, 'eventType': eventType, 'element': element, 'callback': callback, 'callbackArgs': callbackArgs }
+    overwriteEvent({ id, eventType, element, callback, callbackArgs, lifetime = this.LIFETIME.SHORT_LIVED }) {
+        this.removeEvent(id, lifetime)
+        this.addEvent({ id, eventType, element, callback, callbackArgs, lifetime });
+    }
 
-        window.events[id] = window.events[id] === undefined ?
-            [eventInfo] :
-            [...window.events[id], eventInfo];
+    addEvent({ id, eventType, element, callback, callbackArgs, lifetime = this.LIFETIME.SHORT_LIVED}) {
+        // TODO there should be event categories, like login or chat etc, to avoid naming conflicts.
+        // Not an issue yet.
+        const eventInfo = { 'eventType': eventType, 'element': element, 'callback': callback, 'callbackArgs': callbackArgs }
 
+        if (window.events[lifetime][id] !== undefined)
+            return console.warn(`Event already added with id: ${id} to window.events.${lifetime}.`);
+
+        window.events[lifetime][id] = eventInfo;
         element.addEventListener(eventType, callback, callbackArgs);
+        console.log(`Added id: ${id} to window.events.${lifetime}.`)
     }
 
-    removeEvents(id, eventType, element) {
-        if (window.events[id] !== undefined && window.events[id][eventType] !== undefined) {
-            for (let i = 0; i < window.events[id][eventType].length; i++) {
-                element.removeEventListener(eventType, window.events[id][i]['cb']);
-                window.events[id][eventType].pop(window.events[id][i]);
-            }
+    removeEvent(id, lifetime = this.LIFETIME.SHORT_LIVED) {
+        const event = window.events[lifetime][id];
+        if (event === undefined) {
+            console.warn(`Could not remove id: ${id} from window.events.${lifetime}.`)
+            return;
+        }
+
+        event['element'].removeEventListener(event['eventType'], event['cb']);
+        delete window.events[lifetime][id];
+        console.log(`Removed id: ${id} from window.events.${lifetime}.`)
+    }
+
+    removeEvents(lifetime = this.LIFETIME.SHORT_LIVED) {
+        for (const eventId of Object.keys(window.events[lifetime])) {
+            this.removeEvent(eventId);
+        }
+    }
+
+    overwriteIntervals(id, callback, ms, lifetime = this.LIFETIME.SHORT_LIVED) {
+        this.removeInterval(id, lifetime)
+        this.addInterval(id, callback, ms, lifetime);
+    }
+
+    addInterval(id, callback, ms, lifetime = this.LIFETIME.SHORT_LIVED) {
+        if (window.intervals[lifetime].hasOwnProperty(id))
+            return;
+
+        const intervalId = setInterval(callback, ms);
+        window.intervals[lifetime][id] = { 'intervalId': intervalId };
+        console.log(`Added id: ${id} to window.intervals.${lifetime}.`)
+    }
+
+    removeInterval(id, lifetime = this.LIFETIME.SHORT_LIVED) {
+        if (!window.intervals[lifetime].hasOwnProperty(id)) {
+            console.warn(`Could not remove id: ${id} from window.intervals.${lifetime}.`)
+            return;
+        }
+
+        const intervalId = window.intervals[lifetime][id].intervalId;
+        clearInterval(intervalId);
+        delete window.intervals[lifetime][id];
+        console.log(`Removed id: ${id} from window.intervals.${lifetime}.`)
+    }
+
+    removeIntervals(lifetime = this.LIFETIME.SHORT_LIVED) {
+        for (const intervalId of Object.keys(window.intervals[lifetime])) {
+            this.removeInterval(intervalId);
         }
     }
 }

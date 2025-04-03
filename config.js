@@ -26,4 +26,15 @@ export default class GlobalConfig {
     static domClasses = Object.freeze({
         backButton: 'back-button',
     });
+
+    static LOG_LEVEL = Object.freeze({
+        ERROR: 'error',
+        WARNING: 'warning',
+        INFO: 'info',
+    });
+
+    static LOG_TYPE = Object.freeze({
+        TOAST: 'toast',
+        CONSOLE: 'console'
+    });
 }

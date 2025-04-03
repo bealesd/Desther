@@ -6,19 +6,17 @@ import MessageHelper from "../../helpers/messageHelper.js";
 
 class Login {
     contentAreaId = GlobalConfig.domIds.contentArea;
-    contentAreaElem;
+    contentAreaElement;
 
     constructor() {
-        this.contentAreaElem = document.querySelector(`#${this.contentAreaId}`);
+        this.contentAreaElement = document.querySelector(`#${this.contentAreaId}`);
         this.registerCallbacks();
-
-        MessageHelper.printMessages();
     }
 
     registerCallbacks() {
         // When login button is clicked, login
-        const loginButton = this.contentAreaElem.querySelector(`.login-btn`);
-        EventHandler.addEvent({
+        const loginButton = this.contentAreaElement.querySelector(`.login-btn`);
+        EventHandler.overwriteEvent({
             'id': 'loginEvent', 
             'eventType': 'click', 
             'element': loginButton, 
@@ -38,12 +36,15 @@ class Login {
 
         await LoginHelper.login(user);
 
-        menuHelper.loadHomePage();
+        if (LoginHelper.loggedIn){
+            menuHelper.loadHomePage();
+            MessageHelper.addMessage('Logged in.', GlobalConfig.LOG_LEVEL.INFO);
+        }       
     }
 
     getCredentials() {
-        const username = this.contentAreaElem.querySelector('#username')?.value ?? null;
-        const password = this.contentAreaElem.querySelector('#password')?.value ?? null;
+        const username = this.contentAreaElement.querySelector('#username')?.value ?? null;
+        const password = this.contentAreaElement.querySelector('#password')?.value ?? null;
         return {
             username: username,
             password: password

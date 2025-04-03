@@ -12,3 +12,25 @@ body {
     background-color: var(--main-background);
     background-size: cover; 
 }
+
+button{
+    padding: 10px 20px;
+    background-color: #007bff;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    color: white;
+    border: none;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:focus {
+    outline: none;
+}
+
+button:active {
+    background-color: #004085;
+}

@@ -11,14 +11,14 @@ export default new class LoginHelper {
 
     async login(user) {
         const jwtToken = await this.#GetToken(user);
-        if (jwtToken === null) {
+        if (!jwtToken) {
             this.loggedIn = false;
             return;
         }
         this.jwtToken = jwtToken;
 
         this.usernameId = await this.#GetUsernameId(user.username);
-        if (this.usernameId === null) {
+        if (!this.usernameId) {
             this.loggedIn = false;
             return;
         }

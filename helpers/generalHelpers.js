@@ -5,4 +5,8 @@ export default class GeneralHelper {
         });
         return promise;
     }
+
+    static getTime(){
+        return (new Date()).toLocaleTimeString();
+    }
 }
