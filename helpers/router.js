@@ -3,8 +3,8 @@ import GlobalConfig from "../config.js";
 import ContentLoader from "./contentLoader.js"
 import LoginHelper from "../helpers/loginHelper.js";
 import menuHelper from "./menuHelper.js";
-import PersistentMessageHelper from './persistentMessageHelper.js';
 import eventHandler from './eventHandler.js';
+import persistentToastService from './persistentToastService.js';
 
 export default new class Router {
     constructor() {
@@ -17,8 +17,8 @@ export default new class Router {
         // Listen to any click events on website
         document.addEventListener('click', (event) => this.handleLinkClick(event));
 
-        // print any stored messages after a page redirect
-        PersistentMessageHelper.printMessages();
+        // show any stored toasts after a page redirect
+        persistentToastService.showToasts();
     }
 
     handleLinkClick(event) {

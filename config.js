@@ -33,8 +33,9 @@ export default class GlobalConfig {
         INFO: 'info',
     });
 
-    static LOG_TYPE = Object.freeze({
-        TOAST: 'toast',
-        CONSOLE: 'console'
+    static TOAST_TYPE = Object.freeze({
+        ERROR: 'error',
+        WARNING: 'warning',
+        INFO: 'info',
     });
 }

@@ -1,50 +1,61 @@
-//TODO - enable toast to be auto stacking, i..e hit stack limit, then store toasts to show later
+import GlobalConfig from "../config.js";
+import Logger from "./Logger.js";
 
 class ToastService {
     MAX_TOASTS = 4;
+    TOAST_TIMEOUT_SECONDS = 20;
+    toastQueue = [];
 
-    TOAST_TYPE = Object.freeze({
-        ERROR: 'error',
-        WARNING: 'warning',
-        INFO: 'info',
-    });
-
-    // toastMessage = [];
-
-    showToast(message, type = this.TOAST_TYPE.INFO) {
-        // this.toastMessage.push({
-        //     message: message,
-        //     type: type
-        // });
-
+    addToast(message, type = GlobalConfig.TOAST_TYPE.INFO) {
         const container = document.getElementById("toast-container");
 
-        // // Remove oldest toast if stack limit is reached
-        // if (container.children.length >= MAX_TOASTS) {
-        //     container.removeChild(container.firstChild);
-        // }
+        // Add toast to stack if limit is reached
+        if (container.children.length >= this.MAX_TOASTS) {
+            this.toastQueue.push({
+                message: message,
+                type: type
+            });
+            return;
+        }
 
         // Create toast element
-        const toast = document.createElement("div");
-        toast.classList.add("toast", type);
-        toast.innerHTML = `
+        const toastElement = document.createElement("div");
+        toastElement.classList.add("toast", type);
+        toastElement.innerHTML = `
                 <span>${message}</span>
                 <button class="close-btn">×</button>
         `;
-        toast.querySelector('.close-btn').addEventListener('click', this.removeToast.bind(this));
-        
-        container.appendChild(toast);
 
-        // // Auto-remove after 5 seconds
-        // setTimeout(() => {
-        //     if (toast.parentNode) {
-        //         toast.remove();
-        //     }
-        // }, 5000);
+        toastElement.querySelector('.close-btn').addEventListener('click', (event) => {
+            const toastElement = event.srcElement.closest('button').parentElement;
+            this.#removeToast(toastElement);
+        });
+
+        container.appendChild(toastElement);
+
+        if (type === GlobalConfig.TOAST_TYPE.INFO)
+            this.#autoRemoveToast(toastElement);
     }
 
-    removeToast(event) {
-        event.srcElement.closest('button').parentElement.remove();
+    #autoRemoveToast(toastElement) {
+        setTimeout(() => {
+            this.#removeToast(toastElement);
+        }, this.TOAST_TIMEOUT_SECONDS * 1000);
+    }
+
+    #removeToast(toastElement) {
+        if (!toastElement.parentNode) {
+            Logger.log('Could find toast container. Unable to remove toast.', GlobalConfig.LOG_LEVEL.ERROR)
+            return;
+        }
+
+        toastElement.remove();
+
+        // Add the oldest message to the screen if there is a toast queue, FIFO
+        if (this.toastQueue.length > 0) {
+            const toast = this.toastQueue.shift();
+            this.addToast(toast.message, toast.type);
+        }
     }
 }
 

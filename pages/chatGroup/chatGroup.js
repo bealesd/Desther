@@ -2,6 +2,7 @@
 import GlobalConfig from "../../config.js";
 import LoginHelper from "../../helpers/loginHelper.js";
 import RequestHelper from "../../helpers/requestHelper.js";
+import toastService from "../../helpers/toastService.js";
 
 class ChatGroup {
     domClasses = Object.freeze({
@@ -19,6 +20,7 @@ class ChatGroup {
     async init() {
         const chatGroups = await this.#GetChatGroups();
         this.renderChatGroups(chatGroups);
+        toastService.addToast('On Chat Group Page.', GlobalConfig.LOG_LEVEL.WARNING);
     }
 
     renderChatGroups(chatGroups) {

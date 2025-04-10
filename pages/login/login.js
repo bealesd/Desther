@@ -2,7 +2,7 @@ import GlobalConfig from "../../config.js";
 import EventHandler from "../../helpers/eventHandler.js";
 import LoginHelper from "../../helpers/loginHelper.js";
 import menuHelper from "../../helpers/menuHelper.js";
-import MessageHelper from "../../helpers/messageHelper.js";
+import toastService from "../../helpers/toastService.js";
 
 class Login {
     contentAreaId = GlobalConfig.domIds.contentArea;
@@ -38,7 +38,7 @@ class Login {
 
         if (LoginHelper.loggedIn){
             menuHelper.loadHomePage();
-            MessageHelper.addMessage('Logged in.', GlobalConfig.LOG_LEVEL.INFO);
+            toastService.addToast('Logged in.', GlobalConfig.LOG_LEVEL.INFO);
         }       
     }
 
