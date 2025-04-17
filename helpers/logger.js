@@ -18,7 +18,12 @@ class Logger {
     }
 
     #printMessage(message) {
-        console.log(message);
+        if (message.logLevel === GlobalConfig.LOG_LEVEL.WARNING) {
+            console.warn(message);
+        }
+        else {
+            console.log(message);
+        }
     }
 
     #getCallerFile() {

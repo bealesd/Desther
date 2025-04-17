@@ -3,6 +3,7 @@ import GlobalConfig from "../../config.js";
 import LoginHelper from "../../helpers/loginHelper.js";
 import RequestHelper from "../../helpers/requestHelper.js";
 import EventHandler from "../../helpers/eventHandler.js";
+import Logger from "../../helpers/Logger.js";
 
 class Chat {
     domClasses = Object.freeze({
@@ -89,7 +90,7 @@ class Chat {
     updatePageChats(newChats) {
         const chatContainerElement = document.querySelector(`.${this.domClasses.chatContainer}`);
         if (chatContainerElement === null){
-            console.log('Chat container not found. Unable to update page chats.')
+            Logger.log('Chat container not found. Unable to update page chats.')
             return;
         }
 
@@ -100,7 +101,7 @@ class Chat {
 
             if (isChatConflict) {
                 // Edge case: chats may have been gotten by getChatsSubscription at the same time as push
-                console.log('Chat record already added.')
+                Logger.log('Chat record already added.')
                 continue;
             }
             this.chats.push(newChat);
@@ -138,7 +139,7 @@ class Chat {
     scrollToBottom() {
         const messagesContainer = document.querySelector(`.${this.domClasses.chatContainer}`);
         if (messagesContainer === null){
-            console.log('Chat container not found. Unable to scroll to bottom of chats.')
+            Logger.log('Chat container not found. Unable to scroll to bottom of chats.')
             return;
         }
             

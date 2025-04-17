@@ -5,6 +5,7 @@ import LoginHelper from "../helpers/loginHelper.js";
 import menuHelper from "./menuHelper.js";
 import eventHandler from './eventHandler.js';
 import persistentToastService from './persistentToastService.js';
+import Logger from './Logger.js';
 
 export default new class Router {
     constructor() {
@@ -44,10 +45,6 @@ export default new class Router {
     }
 
     async loadContent() {
-        // clear events from window.events
-        // do i need to keep any events - not in eventHandler.js, these are currently temp events
-        // i should move all events to event handler if possible?
-
         eventHandler.removeEvents();
         eventHandler.removeIntervals();
 
@@ -60,7 +57,7 @@ export default new class Router {
 
         if (!route) {
             // No matching route, go to home page
-            alert(`Invalid page: ${route}`);
+            alert(`Invalid page: ${path}`);
             return this.loadHomePage();
         }
 
@@ -84,9 +81,12 @@ export default new class Router {
 
         // Load assets
         const link = route.link;
-        if (!link) return;
-        const htmlLoaded = await ContentLoader.loadHtml(contentArea, link);
-        if (!htmlLoaded) return;
+        let htmlLoaded = false;
+        if (link)
+            htmlLoaded = await ContentLoader.loadHtml(contentArea, link);
+
+        if (!link || !htmlLoaded)
+            Logger.log(`No HTML loaded for : ${path}`, GlobalConfig.LOG_LEVEL.WARNING);
 
         const css = route.css;
         const js = route.js;
@@ -96,13 +96,10 @@ export default new class Router {
         if (js) {
             await ContentLoader.loadJs(contentArea, js);
         }
-
     }
 
     loadHomePage() {
-        // Update url
-        history.replaceState({}, '', 'index.html');
-
+        // Update url      
         menuHelper.loadHomePage();
     }
 }

@@ -9,6 +9,10 @@ const routes = {
         js: 'pages/login/login.js',
         auth: false
     },
+    '/logout': {
+        js: 'pages/logout/logout.js',
+        auth: false
+    },
     '/chatGroup': {
         link: 'pages/chatGroup/chatGroup.html',
         css: 'pages/chatGroup/chatGroup.css',

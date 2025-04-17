@@ -1,3 +1,6 @@
+import GlobalConfig from "../config.js";
+import Logger from './Logger.js';
+
 export default new class EventHandler {
     LIFETIME = {
         SHORT_LIVED: 'SHORT_LIVED',
@@ -39,23 +42,23 @@ export default new class EventHandler {
         const eventInfo = { 'eventType': eventType, 'element': element, 'callback': callback, 'callbackArgs': callbackArgs }
 
         if (window.events[lifetime][id] !== undefined)
-            return console.warn(`Event already added with id: ${id} to window.events.${lifetime}.`);
+            return Logger.log(`Event already added with id: ${id} to window.events.${lifetime}.`, GlobalConfig.LOG_LEVEL.WARNING)
 
         window.events[lifetime][id] = eventInfo;
         element.addEventListener(eventType, callback, callbackArgs);
-        console.log(`Added id: ${id} to window.events.${lifetime}.`)
+        Logger.log(`Added id: ${id} to window.events.${lifetime}.`)
     }
 
     removeEvent(id, lifetime = this.LIFETIME.SHORT_LIVED) {
         const event = window.events[lifetime][id];
         if (event === undefined) {
-            console.warn(`Could not remove id: ${id} from window.events.${lifetime}.`)
+            Logger.log(`Could not remove id: ${id} from window.events.${lifetime}.`, GlobalConfig.LOG_LEVEL.WARNING)
             return;
         }
 
         event['element'].removeEventListener(event['eventType'], event['cb']);
         delete window.events[lifetime][id];
-        console.log(`Removed id: ${id} from window.events.${lifetime}.`)
+        Logger.log(`Removed id: ${id} from window.events.${lifetime}.`)
     }
 
     removeEvents(lifetime = this.LIFETIME.SHORT_LIVED) {
@@ -75,19 +78,19 @@ export default new class EventHandler {
 
         const intervalId = setInterval(callback, ms);
         window.intervals[lifetime][id] = { 'intervalId': intervalId };
-        console.log(`Added id: ${id} to window.intervals.${lifetime}.`)
+        Logger.log(`Added id: ${id} to window.intervals.${lifetime}.`)
     }
 
     removeInterval(id, lifetime = this.LIFETIME.SHORT_LIVED) {
         if (!window.intervals[lifetime].hasOwnProperty(id)) {
-            console.warn(`Could not remove id: ${id} from window.intervals.${lifetime}.`)
+            Logger.log(`Could not remove id: ${id} from window.intervals.${lifetime}.`, GlobalConfig.LOG_LEVEL.INFO)
             return;
         }
 
         const intervalId = window.intervals[lifetime][id].intervalId;
         clearInterval(intervalId);
         delete window.intervals[lifetime][id];
-        console.log(`Removed id: ${id} from window.intervals.${lifetime}.`)
+        Logger.log(`Removed id: ${id} from window.intervals.${lifetime}.`)
     }
 
     removeIntervals(lifetime = this.LIFETIME.SHORT_LIVED) {

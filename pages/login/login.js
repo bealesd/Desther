@@ -1,4 +1,5 @@
 import GlobalConfig from "../../config.js";
+import Logger from "../../helpers/Logger.js";
 import EventHandler from "../../helpers/eventHandler.js";
 import LoginHelper from "../../helpers/loginHelper.js";
 import menuHelper from "../../helpers/menuHelper.js";
@@ -9,6 +10,7 @@ class Login {
     contentAreaElement;
 
     constructor() {
+        // Should be called every time login button is clicked
         this.contentAreaElement = document.querySelector(`#${this.contentAreaId}`);
         this.registerCallbacks();
     }
@@ -30,16 +32,19 @@ class Login {
         const user = this.getCredentials();
         // move to general validate user
         if (!user.username | !user.password) {
-            console.log('Could not get user details from login form.')
+            Logger.log('Could not get user details from login form.', GlobalConfig.LOG_LEVEL.WARNING);
             return;
         }
 
         await LoginHelper.login(user);
 
         if (LoginHelper.loggedIn){
-            menuHelper.loadHomePage();
             toastService.addToast('Logged in.', GlobalConfig.LOG_LEVEL.INFO);
-        }       
+            menuHelper.loadHomePage();
+        }
+        else{
+            toastService.addToast('Failed to log in.', GlobalConfig.LOG_LEVEL.ERROR);
+        }    
     }
 
     getCredentials() {

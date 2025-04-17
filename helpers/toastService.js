@@ -45,7 +45,7 @@ class ToastService {
 
     #removeToast(toastElement) {
         if (!toastElement.parentNode) {
-            Logger.log('Could find toast container. Unable to remove toast.', GlobalConfig.LOG_LEVEL.ERROR)
+            Logger.log('Could not find toast container. Unable to remove toast.', GlobalConfig.LOG_LEVEL.ERROR)
             return;
         }
 

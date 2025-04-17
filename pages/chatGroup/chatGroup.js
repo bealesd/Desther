@@ -1,5 +1,6 @@
 
 import GlobalConfig from "../../config.js";
+import Logger from "../../helpers/Logger.js";
 import LoginHelper from "../../helpers/loginHelper.js";
 import RequestHelper from "../../helpers/requestHelper.js";
 import toastService from "../../helpers/toastService.js";
@@ -60,7 +61,7 @@ class ChatGroup {
     }
 
     async #GetChatGroups() {
-        console.log(LoginHelper.usernameId);
+        Logger.log(LoginHelper.usernameId);
         const url = `${GlobalConfig.apis.chatGroup}/GetChatGroupsById/${LoginHelper.usernameId}`;
 
         const records = await RequestHelper.GetJsonWithAuth(url);

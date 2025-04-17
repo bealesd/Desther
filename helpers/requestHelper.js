@@ -1,6 +1,7 @@
 
 import GlobalConfig from "../../config.js";
 import LoginHelper from "../../helpers/loginHelper.js";
+import Logger from "./Logger.js";
 import GeneralHelper from "./generalHelpers.js";
 import toastService from "./toastService.js";
 
@@ -23,7 +24,7 @@ export default class RequestHelper {
             }, 100);
 
             // Stop any other code from executing.
-            throw new Error("Unauthorized - Login required");
+            // throw new Error("Unauthorized - Login required");
         }
         return response;
     }
@@ -43,12 +44,6 @@ export default class RequestHelper {
 
     static async #fetch(url, options = {}) {
         return this.#interceptedFetch(url, options);
-    }
-
-    async refreshToken() {
-        // Implement your token refresh logic here
-        console.log('Refreshing token...');
-        return 'new-token-here'; // Replace with actual refreshed token
     }
 
     static async GetText(url) {
@@ -88,7 +83,7 @@ export default class RequestHelper {
             this.handleNotOkResponse(response);
             const json = await response.json();
 
-            console.log(GeneralHelper.getTime());
+            Logger.log(GeneralHelper.getTime());
 
             return json;
         } catch (error) {
