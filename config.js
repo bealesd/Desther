@@ -11,6 +11,7 @@ export default class GlobalConfig {
         url.auth = `${url.chatCoreUrl}/auth`;
         url.chatGroup = `${url.chatCoreUrl}/chatGroups`;
         url.chat = `${url.chatCoreUrl}/chat`;
+        url.weighIns = `${url.chatCoreUrl}/weighIns`;
         return url;
     }
 

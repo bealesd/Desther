@@ -6,8 +6,12 @@
 
     <link href="/index.css" rel="stylesheet">
     <link href="/menu-bar.css" rel="stylesheet">
-    <link href="/menu-page.css" rel="stylesheet" >
+    <link href="/menu-page.css" rel="stylesheet">
     <link href="/message-helper.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
 
 <body>
@@ -28,7 +32,7 @@
 
 
     <!-- #region Main Menu -->
-    <div id="menu-area">   
+    <div id="menu-area">
         <ul class="menu-ul">
 
             <li class="menu-li">
@@ -43,9 +47,15 @@
                 </button>
             </li>
 
-            <li>
+            <li class="menu-li">
                 <button class="menu-button" data-router="true" href="/chatGroup">
                     Chat
+                </button>
+            </li>
+
+            <li class="menu-li">
+                <button class="menu-button" data-router="true" href="/weighIns">
+                    Weigh Ins
                 </button>
             </li>
 
@@ -59,7 +69,7 @@
 
     <div id="message-area"></div>
 
-    
+
     <div class="toast-container" id="toast-container"></div>
 
     <script type="module">

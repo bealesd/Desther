@@ -25,5 +25,17 @@ const routes = {
         js: 'pages/chat/chat.js',
         auth: false
     },
+    '/weighIns': {
+        link: 'pages/weighIns/weighIns.html',
+        css: 'pages/weighIns/weighIns.css',
+        js: 'pages/weighIns/weighIns.js',
+        auth: false
+    },
+    '/weighInsGraph': {
+        link: 'pages/weighInsGraph/weighInsGraph.html',
+        css: 'pages/weighInsGraph/weighInsGraph.css',
+        js: 'pages/weighInsGraph/weighInsGraph.js',
+        auth: false
+    },
 };
 export default routes;
