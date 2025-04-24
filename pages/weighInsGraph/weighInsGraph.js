@@ -1,9 +1,7 @@
 
 import GlobalConfig from "../../config.js";
-import LoginHelper from "../../helpers/loginHelper.js";
 import RequestHelper from "../../helpers/requestHelper.js";
-import EventHandler from "../../helpers/eventHandler.js";
-import Logger from "../../helpers/Logger.js";
+import toastService from "../../helpers/toastService.js";
 
 class WeightChartSetup {
     domClasses = Object.freeze({
@@ -23,6 +21,12 @@ class WeightChartSetup {
 
     async init() {
         this.weighIns = await this.#GetWeighIns();
+        if (this.weighIns.length === 0){
+            const message = `No weigh ins found.`;
+            toastService.addToast(message, GlobalConfig.LOG_LEVEL.WARNING);
+            return;
+        }
+            
         const ctx = this.canvas.getContext('2d');
         new WeightChart(ctx, this.weighIns);
     }
@@ -30,6 +34,8 @@ class WeightChartSetup {
     async #GetWeighIns() {
         const url = `${GlobalConfig.apis.weighIns}/GetWeighIns`;
         const weights = await RequestHelper.GetJsonWithAuth(url);
+        if (weights?.error)
+            return [];
         return weights;
     }
 }

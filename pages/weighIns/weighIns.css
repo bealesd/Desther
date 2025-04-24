@@ -2,7 +2,7 @@ p{
     color: white;
 }
 
-#chat-group-area{
+#weigh-ins-area{
     padding: 20px;
 
     display: flex;
@@ -11,7 +11,7 @@ p{
 }
 
 /* List Styling */
-.chat-group-container {
+.weigh-ins-container {
     background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
     border-radius: 12px;
     padding: 20px;
@@ -21,13 +21,13 @@ p{
 }
 
 /* List Items */
-.chat-group-container ul {
+.weigh-ins-container ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
-.chat-group-container details {
+.weigh-ins-container details {
     background: #121212;
     border-radius: 8px;
     padding: 15px;
@@ -35,19 +35,19 @@ p{
     font-size: 1em;
 }
 
-.chat-group-container summary {
+.weigh-ins-container summary {
     transition: background-color 0.3s, transform 0.2s;
     cursor: pointer;
 }
 
-.chat-group-container summary:hover {
+.weigh-ins-container summary:hover {
     background-color: #00a2ff;
     transform: scale(1.03);
     color: #fff;
     box-shadow: 0 0 10px rgba(0, 162, 255, 0.5);
 }
 
-.chat-group-container li button{
+.weigh-ins-container li button{
     background: #121212;
     border-radius: 8px;
     width: 300px;
@@ -59,7 +59,7 @@ p{
     cursor: pointer;
 }
 
-.chat-group-container li button:hover {
+.weigh-ins-container li button:hover {
     background-color: #00a2ff;
     transform: scale(1.03);
     color: #fff;

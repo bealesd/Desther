@@ -36,9 +36,27 @@
         transform: translateX(0);
     }
 }
-.toast.info { background-color: #007BFF; }  /* Blue */
-.toast.warning { background-color: #FFC107; color: #333; } /* Yellow */
-.toast.error { background-color: #DC3545; } /* Red */
+.toast.info { 
+    background-color: #007BFF; 
+}  /* Blue */
+.toast.info button:hover {
+    background-color: #0357b1;
+}
+
+.toast.warning { 
+    background-color: #FFC107; color: #333; 
+} /* Yellow */
+.toast.warning button:hover {
+    background-color: #c79707;
+}
+
+.toast.error { 
+    background-color: #DC3545; 
+} /* Red */
+.toast.error button:hover {
+    background-color: #8d1b27;
+}
+
 .close-btn {
     background: none;
     border: none;
@@ -51,3 +69,4 @@
     opacity: 0.5;
     pointer-events: none;
 }
+

@@ -35,6 +35,12 @@ const routes = {
         link: 'pages/weighInsGraph/weighInsGraph.html',
         css: 'pages/weighInsGraph/weighInsGraph.css',
         js: 'pages/weighInsGraph/weighInsGraph.js',
+        auth: true
+    },
+    '/weighInsEntry': {
+        link: 'pages/weighInsEntry/weighInsEntry.html',
+        css: 'pages/weighInsEntry/weighInsEntry.css',
+        js: 'pages/weighInsEntry/weighInsEntry.js',
         auth: false
     },
 };

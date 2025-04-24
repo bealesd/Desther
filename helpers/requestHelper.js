@@ -15,7 +15,7 @@ export default class RequestHelper {
         const unauthorisedResponseCode = 401;
         if (responseStatus === unauthorisedResponseCode) {
             const message = `Login failed. ${response.url}: ${response.status} ${response.statusText}. Redirect to login.`;
-            toastService.addToast(message, GlobalConfig.LOG_LEVEL.WARNING)
+            toastService.addToast(message, GlobalConfig.LOG_LEVEL.ERROR);
 
             // Wait for code to stop executing before opening login page.
             setTimeout(() => {

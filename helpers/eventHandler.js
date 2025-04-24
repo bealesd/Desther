@@ -32,7 +32,8 @@ export default new class EventHandler {
     }
 
     overwriteEvent({ id, eventType, element, callback, callbackArgs, lifetime = this.LIFETIME.SHORT_LIVED }) {
-        this.removeEvent(id, lifetime)
+        if (window.events[lifetime][id])
+            this.removeEvent(id, lifetime);
         this.addEvent({ id, eventType, element, callback, callbackArgs, lifetime });
     }
 

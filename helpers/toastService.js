@@ -27,7 +27,7 @@ class ToastService {
         `;
 
         toastElement.querySelector('.close-btn').addEventListener('click', (event) => {
-            const toastElement = event.srcElement.closest('button').parentElement;
+            const toastElement = event.target.closest('button').parentElement;
             this.#removeToast(toastElement);
         });
 
@@ -38,9 +38,11 @@ class ToastService {
     }
 
     #autoRemoveToast(toastElement) {
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
             this.#removeToast(toastElement);
         }, this.TOAST_TIMEOUT_SECONDS * 1000);
+        
+        toastElement.dataset['timeoutId'] = timeoutId;
     }
 
     #removeToast(toastElement) {
@@ -49,6 +51,10 @@ class ToastService {
             return;
         }
 
+        // stop toast auto removing once it is gone
+        const timeoutId = toastElement.dataset.timeoutId;
+        if (timeoutId)
+            clearTimeout(timeoutId)
         toastElement.remove();
 
         // Add the oldest message to the screen if there is a toast queue, FIFO

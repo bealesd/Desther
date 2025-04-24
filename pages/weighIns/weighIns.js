@@ -8,7 +8,7 @@ import toastService from "../../helpers/toastService.js";
 class WeighIns {
 
     constructor() {
-        toastService.addToast('On Weigh Ins Page.', GlobalConfig.LOG_LEVEL.WARNING);
+        toastService.addToast('On Weigh Ins Page.', GlobalConfig.LOG_LEVEL.INFO);
     }
 
 }

@@ -18,6 +18,9 @@ class Logger {
     }
 
     #printMessage(message) {
+        if (message?.message === "Could not find toast container. Unable to remove toast."){
+            let a = 1;
+        }
         if (message.logLevel === GlobalConfig.LOG_LEVEL.WARNING) {
             console.warn(message);
         }
