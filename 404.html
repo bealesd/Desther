@@ -6,44 +6,69 @@
 
     <link href="/index.css" rel="stylesheet">
     <link href="/menu-bar.css" rel="stylesheet">
+    <link href="/menu-page.css" rel="stylesheet">
     <link href="/message-helper.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
 
 <body>
+
+
     <!-- #region Top Navigation -->
     <div class="top-bar">
-        <button data-router href="/index" class="back-button">Back</button>
+        <button data-router href="/index" id="home-button">Home</button>
         <div class="page-info">
-            <h1>Page Title</h1>
-            <p>Some details about this page</p>
+            <h1 id="page-info-title">Page Title</h1>
+            <p id="page-info-content">Some details about this page</p>
         </div>
-        <div class="extra-info">
-            <p>Additional Info</p>
+        <div class="page-info-extra">
+            <p id="page-info-extra-content">Additional Info</p>
         </div>
     </div>
     <!-- #endregion Top Navigation -->
 
+
     <!-- #region Main Menu -->
     <div id="menu-area">
-        <link rel="stylesheet" href="menu-page.css">
-        <ul>
-            <li>
-                <button data-router="true" href="/login">
+        <ul class="menu-ul">
+
+            <li class="menu-li">
+                <button class="menu-button" data-router="true" href="/login">
                     Login
                 </button>
             </li>
-            <li>
-                <button data-router="true" href="/chatGroup">
+
+            <li class="menu-li">
+                <button class="menu-button" data-router="true" href="/logout" style="display: none;">
+                    Logout
+                </button>
+            </li>
+
+            <li class="menu-li">
+                <button class="menu-button" data-router="true" href="/chatGroup">
                     Chat
                 </button>
             </li>
+
+            <li class="menu-li">
+                <button class="menu-button" data-router="true" href="/weighIns">
+                    Weigh Ins
+                </button>
+            </li>
+
         </ul>
     </div>
     <!-- #endregion Main Menu -->
 
+
     <div id="content-area"></div>
 
+
     <div id="message-area"></div>
+
 
     <div class="toast-container" id="toast-container"></div>
 

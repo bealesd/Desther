@@ -18,6 +18,7 @@ export default class GlobalConfig {
     static domIds = Object.freeze({
         contentArea: 'content-area',
         menuArea: 'menu-area',
+        homeButton: 'home-button',
     });
 
     static domTags = Object.freeze({
@@ -25,7 +26,6 @@ export default class GlobalConfig {
     });
 
     static domClasses = Object.freeze({
-        backButton: 'back-button',
     });
 
     static LOG_LEVEL = Object.freeze({

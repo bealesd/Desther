@@ -1,6 +1,28 @@
-canvas {
-    background: #fff;
-    border-radius: 10px;
-    max-width: 90vw;
-    max-height: calc(100vh - 300px);
+:root {
+  --weigh-in-canvas-width: 90vw;
+  --weigh-in-canvas-margin-left: 5vw;
+
+}
+
+@media screen and (max-width: 700px) {
+  :root {
+    --weigh-in-canvas-width: 100vw;
+    --weigh-in-canvas-margin-left: 0vw;
   }
+}
+
+canvas {
+  background: #fff;
+  border-radius: 10px;
+  
+  max-height: calc(100vh - 300px);
+}
+
+#weigh-ins-graph-area{
+  margin-left: var(--weigh-in-canvas-margin-left);
+  max-width: var(--weigh-in-canvas-width);
+}
+
+#weigh-ins-buttons button{
+  margin-top: 10px;
+}

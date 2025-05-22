@@ -1,34 +1,28 @@
 
 import GlobalConfig from "../../config.js";
+import EventHandler from "../../helpers/eventHandler.js";
+import PageInfo from "../../helpers/pageInfo.js";
 import RequestHelper from "../../helpers/requestHelper.js";
 import toastService from "../../helpers/toastService.js";
 
 class WeightChartSetup {
-    domClasses = Object.freeze({
-        weighInsContainer: 'weigh-ins-container',
-    });
-
-    domIds = Object.freeze({
-    });
-
     weighIns = [];
     updateIntervalInSeconds = 10;
 
     constructor() {
-        this.canvas = document.getElementById('weighInChart');
         this.init();
     }
 
     async init() {
         this.weighIns = await this.#GetWeighIns();
-        if (this.weighIns.length === 0){
+        if (this.weighIns.length === 0) {
             const message = `No weigh ins found.`;
             toastService.addToast(message, GlobalConfig.LOG_LEVEL.WARNING);
             return;
         }
-            
-        const ctx = this.canvas.getContext('2d');
-        new WeightChart(ctx, this.weighIns);
+
+        // const ctx = this.canvas.getContext('2d');
+        new WeightChart(this.weighIns);
     }
 
     async #GetWeighIns() {
@@ -45,32 +39,36 @@ window.scripts = { init: () => { new WeightChartSetup(); } }
 
 
 class WeightChart {
-    constructor(ctx, weighIns) {
+    domIds = Object.freeze({
+        weighInChart: 'weighInChart',
+        weighInsGraphArea: 'weigh-ins-graph-area',
+        weighInsButtons: 'weigh-ins-buttons'
+    });
+
+    constructor(weighIns) {
+        this.canvas = document.getElementById(this.domIds.weighInChart);
+        const ctx = this.canvas.getContext('2d');
+
         this.ctx = ctx;
         this.weighIns = weighIns;
         this._averageWeightDavid = this.calculateAverage('David');
         this._averageWeightEsther = this.calculateAverage('Esther');
         this.chart = this.createChart();
-        this.createResetButton();
+
+        this.addResetButtonHandler();
     }
 
-    createResetButton() {
-        const button = document.createElement('button');
-        button.innerText = 'Reset Zoom';
-        button.style.position = 'absolute';
-        button.style.top = '10px';
-        button.style.right = '10px';
-        button.style.padding = '6px 12px';
-        button.style.background = 'rgba(0, 0, 255, 0.8)';
-        button.style.color = '#fff';
-        button.style.border = 'none';
-        button.style.borderRadius = '6px';
-        button.style.fontSize = '14px';
-        button.style.cursor = 'pointer';
-        button.style.zIndex = 10; // make sure it's above the canvas
-        button.onclick = () => this.chart.resetZoom();
-
-        document.querySelector('#weigh-ins-area').appendChild(button);
+    addResetButtonHandler() {
+        // is this done many times?
+        const weighInButton = document.querySelector(`#${this.domIds.weighInsButtons} button`);
+        EventHandler.overwriteEvent({
+            'id': 'resetWeighInButtonEvent',
+            'eventType': 'click',
+            'element': weighInButton,
+            'callback': () => {
+                this.chart.resetZoom();
+            }
+        });
     }
 
     calculateAverage(person) {

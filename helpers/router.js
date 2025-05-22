@@ -6,10 +6,12 @@ import menuHelper from "./menuHelper.js";
 import eventHandler from './eventHandler.js';
 import persistentToastService from './persistentToastService.js';
 import Logger from './Logger.js';
+import PageInfo from './pageInfo.js';
 
 export default new class Router {
     constructor() {
         this.menuAreaId = GlobalConfig.domIds.menuArea;
+        this.homeButtonId = GlobalConfig.domIds.homeButton;
         this.contentAreaId = GlobalConfig.domIds.contentArea;
         this.rootElement = document.getElementById('content');
 
@@ -44,20 +46,37 @@ export default new class Router {
         this.loadContent();
     }
 
+    setPageInfo(route) {
+        let title = '';
+
+        // Set the title based on the route
+        if (route?.title) {
+            title = route.title;
+        } else if (route?.link) {
+            title = `${route.link.split('/').pop().replace('.html', '')} page`;
+        } else {
+            title = window.location.pathname.replace('.html', '');
+        }
+
+
+        const content = route?.content ?? '';
+
+        PageInfo.setInfo({
+            title: title,
+            content: content,
+            extraContent: `${LoginHelper.loggedIn ? 'Hello ' + LoginHelper.username : 'Not Logged In'}`
+        });
+    }
+
     async loadContent() {
         eventHandler.removeEvents();
         eventHandler.removeIntervals();
 
-        const path = window.location.pathname;
-
-        if (['/', '/index', '/index.html'].includes(path))
-            return this.loadHomePage();
-
+        const path = window.location.pathname.replace('.html', '');
         const route = routes[path];
 
-        if (!route) {
-            // No matching route, go to home page
-            alert(`Invalid page: ${path}`);
+        if (path === '/index' || !route) {
+            // If no route is found, or if the path is index, load the home page
             return this.loadHomePage();
         }
 
@@ -67,8 +86,14 @@ export default new class Router {
             return;
         }
 
+        this.setPageInfo(route);
+
         // Turn off home menu
         document.querySelector(`#${this.menuAreaId}`).style.display = 'none';
+
+        // Turn on home button
+        const homeButton = document.querySelector(`#${this.homeButtonId}`);
+        homeButton.style.display = 'block';
 
         // Turn on content area
         const contentArea = document.querySelector(`#${this.contentAreaId}`);
@@ -78,6 +103,7 @@ export default new class Router {
         while (contentArea.firstChild) {
             contentArea.removeChild(contentArea.firstChild);
         }
+
 
         // Load assets
         const link = route.link;
@@ -99,7 +125,6 @@ export default new class Router {
     }
 
     loadHomePage() {
-        // Update url      
         menuHelper.loadHomePage();
     }
 }

@@ -15,10 +15,11 @@
 /* Style for the page info */
 .page-info {
     text-align: center; /* Center the page info text */
+    grid-column: 2; /* Center the page info in the grid */
 }
 
 /* Style for extra info on the right */
-.extra-info {
+.page-info-extra {
     text-align: right; /* Align the extra info text to the right */
 }
 
@@ -30,7 +31,7 @@
         text-align: center;
     }
 
-    .extra-info {
+    .page-info-extra{
         display: none; /* Hide extra info on small screens if not needed */
     }
 }

@@ -114,6 +114,23 @@ export default class RequestHelper {
         return this.PostJson(url, object, true);
     }
 
+    static async DeleteWithAuth(url) {
+        return this.Delete(url, true);
+    }
+
+    static async Delete(url, withAuth = false) {
+        const fetchMethod = withAuth ? this.#fetchWithToken : this.#fetch;
+        try {
+            const response = await fetchMethod.call(this, url, {
+                method: 'DELETE'
+            });
+            this.handleNotOkResponse(response);
+            return true;
+        } catch (error) {
+            return this.handleFetchError(error);
+        }
+    }
+
     static handleNotOkResponse(response) {
         if (!response.ok)
             throw new Error(`${response.status} ${response.statusText}`);

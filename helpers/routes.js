@@ -1,7 +1,9 @@
 const routes = {
     '/index': {
         link: 'index.html',
-        auth: false
+        auth: false,
+        title: 'Home',
+        content: 'Welcome'
     },
     '/login': {
         link: 'pages/Login/Login.html',
@@ -29,7 +31,9 @@ const routes = {
         link: 'pages/weighIns/weighIns.html',
         css: 'pages/weighIns/weighIns.css',
         js: 'pages/weighIns/weighIns.js',
-        auth: false
+        auth: false,
+        title: 'Weigh Ins Graph',
+        content: 'Weigh Ins Graph1'
     },
     '/weighInsGraph': {
         link: 'pages/weighInsGraph/weighInsGraph.html',
