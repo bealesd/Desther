@@ -11,7 +11,7 @@ class WeighInsEntry {
         toastService.addToast('On Weigh Ins Entry Page.', GlobalConfig.LOG_LEVEL.INFO);
 
         document.querySelector('#addWeighIn').addEventListener('click', (evt) => {
-            this.addEntry(evt);
+            this.addWeighIn(evt);
         });
 
         document.querySelector('.dateInput').value = this.#dateOfToday();
@@ -22,24 +22,28 @@ class WeighInsEntry {
     async init() {
         const weighIns = await this.#GetWeighIns();
         for (const weighIn of weighIns) {
-            this.renderWeightRow(weighIn.Id, weighIn.Date, weighIn.DavidStone, weighIn.DavidPounds, weighIn.EstherStone, weighIn.EstherPounds);
+            // weighIn format:
+            // {
+            //     "Id": 149,
+            //     "DavidStone": 10,
+            //     "DavidPounds": 6,
+            //     "EstherStone": 8,
+            //     "EstherPounds": 6,
+            //     "Date": instanceof Date
+            // }
+            this.renderWeightRow(weighIn);
         }
-    }
-
-    #dateOfToday() {
-        return this.#getISO8060DateStringFromDateObject(new Date());
-    }
-
-    #getISO8060DateStringFromDateObject(dateObject) {
-        return dateObject.toISOString().split('T')[0];
     }
 
     async #GetWeighIns() {
         const url = `${GlobalConfig.apis.weighIns}/GetWeighIns`;
         const weights = await RequestHelper.GetJsonWithAuth(url);
-        if (weights?.error)
+        if (weights?.error) {
+            toastService.addToast('Failed to load weigh ins.', GlobalConfig.LOG_LEVEL.ERROR);
+            Logger.log(`Failed to load weigh ins: ${JSON.stringify(weights)}`, GlobalConfig.LOG_LEVEL.ERROR);
             return [];
-        
+        }
+
         weights.forEach(weight => {
             weight.Date = new Date(weight.Date);
         });
@@ -48,23 +52,39 @@ class WeighInsEntry {
         // Sort by date in ascending order
         weights.sort((a, b) => {
             const dateA = a.Date;
-            const dateB =b.Date;
+            const dateB = b.Date;
             return dateA - dateB;
         });
 
         return weights;
     }
 
-    renderWeightRow(id, date, dStone, dPounds, eStone, ePounds) {
+    renderWeightRow(weighIn) {
+        // if (!this.validateWeighInResponse(weighIn)){
+        //     toastService.addToast('Invalid weigh in data.', GlobalConfig.LOG_LEVEL.ERROR);
+        //     Logger.log(`Invalid weigh in data: ${JSON.stringify(weighIn)}`, GlobalConfig.LOG_LEVEL.ERROR);
+        //     return;
+        // }
+
+        // weighIn format:
+        // {
+        //     "Id": 149,
+        //     "DavidStone": 10,
+        //     "DavidPounds": 6,
+        //     "EstherStone": 8,
+        //     "EstherPounds": 6,
+        //     "Date": instanceof Date
+        // }
+
         const row = document.createElement('tr');
-        date = this.#getISO8060DateStringFromDateObject(date);
+        const isoDate = this.#getISO8060DateStringFromDateObject(weighIn.Date);
         row.innerHTML = `
-          <td hidden class="weight-Id" data-id=${id}></td>
-          <td class="dateInput" value=${date}>${date}</td>
-          <td class="dStoneInput">${dStone}</td>
-          <td class="dPoundsInput">${dPounds}</td>
-          <td class="eStoneInput">${eStone}</td>
-          <td class="ePoundsInput">${ePounds}</td>
+          <td hidden class="weight-Id" data-id=${weighIn.Id}></td>
+          <td class="dateInput" value=${isoDate}>${isoDate}</td>
+          <td class="dStoneInput">${weighIn.DavidStone}</td>
+          <td class="dPoundsInput">${weighIn.DavidPounds}</td>
+          <td class="eStoneInput">${weighIn.EstherStone}</td>
+          <td class="ePoundsInput">${weighIn.EstherPounds}</td>
           <td><button class="delete">Delete</button></td>
         `;
 
@@ -74,92 +94,145 @@ class WeighInsEntry {
         document.getElementById('tableBody').appendChild(row);
     }
 
-    async addEntry(evt) {
-        const weighInTableRow = evt.target.closest('tr')
-        const weightDateValue = weighInTableRow.querySelector('.dateInput').value;
-        const weightDaveStoneValue = weighInTableRow.querySelector('.dStoneInput').value;
-        const weightDavePoundsValue = weighInTableRow.querySelector('.dPoundsInput').value;
-        const weightEstherStoneValue = weighInTableRow.querySelector('.eStoneInput').value;
-        const weightEstherPoundsValue = weighInTableRow.querySelector('.ePoundsInput').value;
+    async addWeighIn(clickAddButtonEvent) {
+        const weighIn = this.getWeighInObject(clickAddButtonEvent);
+        if (!weighIn) return;
 
-        if (!this.#isValidStone(weightDaveStoneValue)) return alert(`Dave weight stone is invalid: ${weightDaveStoneValue}`);
-        if (!this.#isValidPound(weightDavePoundsValue)) return alert(`Dave weight pounds is invalid: ${weightDavePoundsValue}`);
-        if (!this.#isValidStone(weightEstherStoneValue)) return alert(`Esther weight stone is invalid: ${weightEstherStoneValue}`);
-        if (!this.#isValidPound(weightEstherPoundsValue)) return alert(`Esther weight pounds is invalid: ${weightEstherPoundsValue}`);
-        if (!this.#isValidDate(weightDateValue)) return alert(`Date is invalid: ${weightDateValue}`);
+        const weighInResponse = await this.postWeighIn(weighIn);
+        if (!weighInResponse) return;
 
-        const dateObject = new Date(weightDateValue);
-
-        const weighIn = {
-            Id: null,
-            DavidStone: parseFloat(weightDaveStoneValue),
-            DavidPounds: parseFloat(weightDavePoundsValue),
-            EstherStone: parseFloat(weightEstherStoneValue),
-            EstherPounds: parseFloat(weightEstherPoundsValue),
-            Date: dateObject
-        };
-
-        const weighInAdded = await this.postWeighIn(weighIn);
-        if (!weighInAdded) return;
-
-        this.renderWeightRow(weighIn.Id, this.#getISO8060DateStringFromDateObject(dateObject), weighIn.DavidStone, weighIn.DavidPounds, weighIn.EstherStone, weighIn.EstherPounds);
-
-        // Reset inputs
-        document.getElementById('dateInput').value = '';
-        document.getElementById('dStoneInput').value = '';
-        document.getElementById('dPoundsInput').value = '';
-        document.getElementById('eStoneInput').value = '';
-        document.getElementById('ePoundsInput').value = '';
+        this.renderWeightRow(weighInResponse);
+        this.resetAddRow();
     }
 
-    deleteRow(evt) {
-        const btn = evt.target;
-        const row = btn.parentNode.parentNode;
+    getWeighInObject(clickAddButtonEvent) {
+        const weighInTableRow = clickAddButtonEvent.target.closest('tr')
+        const rawDate = weighInTableRow.querySelector('.dateInput').value;
+        const rawDavidStone = weighInTableRow.querySelector('.dStoneInput').value;
+        const rawDavidPounds = weighInTableRow.querySelector('.dPoundsInput').value;
+        const rawEstherStone = weighInTableRow.querySelector('.eStoneInput').value;
+        const rawEstherPounds = weighInTableRow.querySelector('.ePoundsInput').value;
 
-        const id = row.querySelector('.weight-Id')?.getAttribute('data-id');
-        if (!id) {
-            toastService.addToast('Failed to delete weigh in, no ID.', GlobalConfig.LOG_LEVEL.ERROR);
+        if (!this.validateWeighInRequest({
+            DavidStone: rawDavidStone,
+            DavidPounds: rawDavidPounds,
+            EstherStone: rawEstherStone,
+            EstherPounds: rawEstherPounds,
+            Date: rawDate
+        })) {
+            toastService.addToast('Invalid weigh in data.', GlobalConfig.LOG_LEVEL.ERROR);
+            return false;
         }
 
-        if (!confirm('Are you sure you want to delete this weigh in?')) {
-            return;
-        }
-
-        const url = `${GlobalConfig.apis.weighIns}/DeleteWeighIn?id=${id}`;
-        const response = RequestHelper.DeleteWithAuth(url);
-        if (response?.error) {
-            toastService.addToast('Failed to delete weigh in.', GlobalConfig.LOG_LEVEL.ERROR);
-            return;
-        }
-
-        row.parentNode.removeChild(row);
+        // Convert the input values to numbers and create a weighIn object
+        // Note: Date is already in ISO 8601 format, so we can use it directly
+        const weighIn = {
+            DavidStone: parseFloat(rawDavidStone),
+            DavidPounds: parseFloat(rawDavidPounds),
+            EstherStone: parseFloat(rawEstherStone),
+            EstherPounds: parseFloat(rawEstherPounds),
+            Date: new Date(rawDate)
+        };
+        return weighIn;
     }
 
     async postWeighIn(weighIn) {
         const url = `${GlobalConfig.apis.weighIns}/AddWeighIn`;
-        const data = {
-            Id: weighIn.Id,
-            DavidStone: weighIn.DavidStone,
-            DavidPounds: weighIn.DavidPounds,
-            EstherStone: weighIn.EstherStone,
-            EstherPounds: weighIn.EstherPounds,
-            Date: weighIn.Date
-        };
+        const response = await RequestHelper.PostJsonWithAuth(url, weighIn);
 
-        const response = await RequestHelper.PostJsonWithAuth(url, data);
         if (response?.error) {
             toastService.addToast('Failed to add weigh in.', GlobalConfig.LOG_LEVEL.ERROR);
             return false;
-        } else {
+        } else if (this.validateWeighInResponse(response)) {
             toastService.addToast('Weigh in added successfully.', GlobalConfig.LOG_LEVEL.INFO);
+            response.Date = new Date(response.Date);
+            return response;
+        }
+        else {
+            toastService.addToast('Unexpected weigh in response.', GlobalConfig.LOG_LEVEL.ERROR);
+            Logger.log(`Unexpected weigh in response: ${JSON.stringify(response)}`, GlobalConfig.LOG_LEVEL.ERROR);
+            return false;
+        }
+    }
+
+    resetAddRow() {
+        document.querySelector('.dateInput').value = '';
+        document.querySelector('.dStoneInput').value = '';
+        document.querySelector('.dPoundsInput').value = '';
+        document.querySelector('.eStoneInput').value = '';
+        document.querySelector('.ePoundsInput').value = '';
+    }
+
+    async deleteRow(evt) {
+        const btn = evt.target;
+        const row = btn.parentNode.parentNode;
+
+        const id = row.querySelector('.weight-Id')?.getAttribute('data-id');
+        if (!id)
+            toastService.addToast('Failed to delete weigh in, no ID.', GlobalConfig.LOG_LEVEL.ERROR);
+
+        if (!confirm('Are you sure you want to delete this weigh in?'))
+            return;
+
+        const url = `${GlobalConfig.apis.weighIns}/DeleteWeighIn?id=${id}`;
+        const response = await RequestHelper.DeleteWithAuth(url);
+        if (response?.error)
+            return toastService.addToast('Failed to delete weigh in.', GlobalConfig.LOG_LEVEL.ERROR);
+
+        row.parentNode.removeChild(row);
+    }
+
+    #dateOfToday() {
+        return this.#getISO8060DateStringFromDateObject(new Date());
+    }
+
+    #getISO8060DateStringFromDateObject(dateObject) {
+        // Get YYYY-MM-DD in local time, not UTC
+        const year = dateObject.getFullYear();
+        const month = String(dateObject.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObject.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    validateWeighInRequest(weighIn) {
+        // Check if the request has the required properties
+        if (weighIn && weighIn.DavidStone !== undefined && weighIn.DavidPounds !== undefined &&
+            weighIn.EstherStone !== undefined && weighIn.EstherPounds !== undefined && weighIn.Date) {
+
+            const { DavidStone, DavidPounds, EstherStone, EstherPounds, Date } = weighIn;
+            if (!this.#isValidStone(DavidStone)) return alert(`Dave weight stone is invalid: ${DavidStone}`);
+            if (!this.#isValidPound(DavidPounds)) return alert(`Dave weight pounds is invalid: ${weightDavePoundDavidPoundsValue}`);
+            if (!this.#isValidStone(EstherStone)) return alert(`Esther weight stone is invalid: ${EstherStone}`);
+            if (!this.#isValidPound(EstherPounds)) return alert(`Esther weight pounds is invalid: ${EstherPounds}`);
+            if (!this.#isValidDate(Date)) return alert(`Date is invalid: ${Date}`);
+
             return true;
         }
+        return false;
+    }
+
+    validateWeighInResponse(response) {
+        // Check if the response has the required properties
+        // response format:
+        // {
+        //     "Id": 149,
+        //     "DavidStone": 10,
+        //     "DavidPounds": 6,
+        //     "EstherStone": 8,
+        //     "EstherPounds": 6,
+        //     "Date": "2025-06-05T00:00:00"
+        // }
+        if (response && response.Id && response.DavidStone !== undefined && response.DavidPounds !== undefined &&
+            response.EstherStone !== undefined && response.EstherPounds !== undefined && response.Date && this.#isValidDate(response.Date)) {
+            return true;
+        }
+        return false;
     }
 
     #isValidDate(weightDate) {
         try {
             const dateObject = new Date(weightDate);
-            return this.#getISO8060DateStringFromDateObject(dateObject) === weightDate;
+            return weightDate.startsWith(this.#getISO8060DateStringFromDateObject(dateObject));
         } catch (_) {
             return false;
         }
