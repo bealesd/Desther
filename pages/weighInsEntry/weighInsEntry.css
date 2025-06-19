@@ -1,91 +1,116 @@
 @media (max-width: 600px) {
-    table, thead, tbody, th, td, tr {
-      display: block;
-      width: 100%;
-    }
-  
-    thead {
-      display: none;
-    }
-  
-    tr {
-      margin-bottom: 1rem;
-      border: 1px solid #3b4d63;
-      border-radius: 5px;
-      padding: 0.5rem;
-    }
-  
-    td {
-      text-align: right;
-      padding-left: 50%;
-      position: relative;
-    }
-  
-    td::before {
-      content: attr(data-label);
-      position: absolute;
-      left: 0.75rem;
-      width: 45%;
-      padding-right: 0.5rem;
-      white-space: nowrap;
-      text-align: left;
-      color: #8da5cc;
-    }
+
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+    width: 100%;
   }
-  
+
+  thead {
+    display: none;
+  }
+
+  tr {
+    margin-bottom: 1rem;
+    border: 1px solid #3b4d63;
+    border-radius: 5px;
+    padding: 0.5rem;
+  }
+
+  td {
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+  }
+
+  td input[type="number"] {
+    width: 50px;
+    max-width: 50px;
+  }
+
+  td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0.75rem;
+    width: 45%;
+    padding-right: 0.5rem;
+    white-space: nowrap;
+    text-align: left;
+    color: #8da5cc;
+  }
+
+  /* 🔧 NEW: restrict input width in mobile view */
+  td input {
+    width: 95%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  td button {
+    width: 95%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+}
+
 #weigh-ins-entry-area {
-    font-family: sans-serif;
-    background-color: #0d1117;
-    margin: 2rem;
+  font-family: sans-serif;
+  background-color: #0d1117;
+  margin: 2rem;
 }
 
 #weigh-ins-entry-area table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #1c2e4a;
-    color: white;
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #1c2e4a;
+  color: white;
 }
 
 #weigh-ins-entry-area th,
 #weigh-ins-entry-area td {
-    border: 1px solid #3b4d63;
-    padding: 0.75rem;
-    text-align: center;
+  border: 1px solid #3b4d63;
+  padding: 0.75rem;
+  text-align: center;
 }
 
 #weigh-ins-entry-area th {
-    background-color: #2a3f5f;
+  background-color: #2a3f5f;
 }
 
 #weigh-ins-entry-area input {
-    background-color: #0d1117;
-    color: #ffffff;
-    border: 1px solid #3b4d63;
-    padding: 0.5rem;
-    width: 90%;
+  background-color: #0d1117;
+  color: #ffffff;
+  border: 1px solid #3b4d63;
+  padding: 0.5rem;
+  width: 90%;
 }
 
 #weigh-ins-entry-area button {
-    background-color: #238636;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
+  background-color: #238636;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
 }
 
 #weigh-ins-entry-area button:hover {
-    background-color: #2ea043;
-  }
+  background-color: #2ea043;
+}
 
 #weigh-ins-entry-area button.delete {
-    background-color: #da3633;
+  background-color: #da3633;
 }
 
 #weigh-ins-entry-area button.delete:hover {
-    background-color: #e55350;
+  background-color: #e55350;
 }
 
 #weigh-ins-entry-area button:disabled {
-    background-color: #555;
-    cursor: not-allowed;
+  background-color: #555;
+  cursor: not-allowed;
 }

@@ -6,6 +6,13 @@ import RequestHelper from "../../helpers/requestHelper.js";
 import toastService from "../../helpers/toastService.js";
 
 class WeighInsEntry {
+    domClasses = Object.freeze({
+        weighInContainer: 'weigh-ins-entry-container',
+    });
+
+    domIds = Object.freeze({
+        weighInTableFooter: 'weigh-in-table-footer'
+    });
 
     constructor() {
         toastService.addToast('On Weigh Ins Entry Page.', GlobalConfig.LOG_LEVEL.INFO);
@@ -33,6 +40,7 @@ class WeighInsEntry {
             // }
             this.renderWeightRow(weighIn);
         }
+        this.scrollToBottom();
     }
 
     async #GetWeighIns() {
@@ -60,12 +68,6 @@ class WeighInsEntry {
     }
 
     renderWeightRow(weighIn) {
-        // if (!this.validateWeighInResponse(weighIn)){
-        //     toastService.addToast('Invalid weigh in data.', GlobalConfig.LOG_LEVEL.ERROR);
-        //     Logger.log(`Invalid weigh in data: ${JSON.stringify(weighIn)}`, GlobalConfig.LOG_LEVEL.ERROR);
-        //     return;
-        // }
-
         // weighIn format:
         // {
         //     "Id": 149,
@@ -81,13 +83,14 @@ class WeighInsEntry {
         row.innerHTML = `
           <td hidden class="weight-Id" data-id=${weighIn.Id}></td>
           <td class="dateInput" value=${isoDate}>${isoDate}</td>
-          <td class="dStoneInput">${weighIn.DavidStone}</td>
-          <td class="dPoundsInput">${weighIn.DavidPounds}</td>
-          <td class="eStoneInput">${weighIn.EstherStone}</td>
-          <td class="ePoundsInput">${weighIn.EstherPounds}</td>
+          <td data-label="D St" class="dStoneInput">${weighIn.DavidStone}</td>
+          <td data-label="D Lb" class="dPoundsInput">${weighIn.DavidPounds}</td>
+          <td data-label="E St" class="eStoneInput">${weighIn.EstherStone}</td>
+          <td data-label="E Lb" class="ePoundsInput">${weighIn.EstherPounds}</td>
           <td><button class="delete">Delete</button></td>
         `;
 
+        // Delete events are cleared on leaving this page, so no need to use eventHandler.js.
         row.querySelector('button').addEventListener('click', (evt) => {
             this.deleteRow(evt);
         })
@@ -103,6 +106,7 @@ class WeighInsEntry {
 
         this.renderWeightRow(weighInResponse);
         this.resetAddRow();
+        this.scrollToBottom();
     }
 
     getWeighInObject(clickAddButtonEvent) {
@@ -255,6 +259,11 @@ class WeighInsEntry {
         } catch (_) {
             return false;
         }
+    }
+
+    scrollToBottom() {
+        const weighInTableFooter = document.querySelector(`#${this.domIds.weighInTableFooter}`);
+        weighInTableFooter?.scrollIntoViewIfNeeded();
     }
 }
 
