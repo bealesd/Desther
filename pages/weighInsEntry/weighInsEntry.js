@@ -15,7 +15,7 @@ class WeighInsEntry {
     });
 
     constructor() {
-        toastService.addToast('On Weigh Ins Entry Page.', GlobalConfig.LOG_LEVEL.INFO);
+        toastService.addToast('On Weigh Ins Entry Page.', GlobalConfig.LOG_LEVEL.INFO, true);
 
         document.querySelector('#addWeighIn').addEventListener('click', (evt) => {
             this.addWeighIn(evt);
@@ -83,10 +83,10 @@ class WeighInsEntry {
         row.innerHTML = `
           <td hidden class="weight-Id" data-id=${weighIn.Id}></td>
           <td class="dateInput" value=${isoDate}>${isoDate}</td>
-          <td data-label="D St" class="dStoneInput">${weighIn.DavidStone}</td>
-          <td data-label="D Lb" class="dPoundsInput">${weighIn.DavidPounds}</td>
-          <td data-label="E St" class="eStoneInput">${weighIn.EstherStone}</td>
-          <td data-label="E Lb" class="ePoundsInput">${weighIn.EstherPounds}</td>
+          <td data-label="David Stone" class="dStoneInput">${weighIn.DavidStone}</td>
+          <td data-label="David Pounds" class="dPoundsInput">${weighIn.DavidPounds}</td>
+          <td data-label="Esther Stone" class="eStoneInput">${weighIn.EstherStone}</td>
+          <td data-label="Esther Pounds" class="ePoundsInput">${weighIn.EstherPounds}</td>
           <td><button class="delete">Delete</button></td>
         `;
 
@@ -242,20 +242,31 @@ class WeighInsEntry {
         }
     }
 
+    // Check if the weight is a number and within the valid range
     #isValidStone(rawWeight) {
-        try {
-            const weight = parseFloat(rawWeight);
-            // Check if the weight is a number and within the valid range
+        if (this.#isInteger(rawWeight)) {
+            const weight = parseInt(rawWeight, 10);
             return weight < 20 && weight > 5;
-        } catch (_) {
-            return false;
         }
+        return false;
     }
 
     #isValidPound(rawWeight) {
-        try {
-            const weight = parseFloat(rawWeight);
+        if (this.#isInteger(rawWeight)) {
+            const weight = parseInt(rawWeight, 10);
             return weight < 14 && weight >= 0;
+        }
+        return false;
+    }
+
+    /* Check if the value is a whole integer
+     * @param {any} value - The value to check, integer or string or float
+     * @returns {boolean} - True if the value is an integer, false otherwise
+     */
+    #isInteger(value) {
+        try {
+            value = value?.toString().trim()
+            return `${parseInt(value)}` === `${value}`;
         } catch (_) {
             return false;
         }

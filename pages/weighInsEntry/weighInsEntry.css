@@ -1,4 +1,4 @@
-@media (max-width: 600px) {
+@media (max-width: 700px) {
 
   table,
   thead,
@@ -7,7 +7,6 @@
   td,
   tr {
     display: block;
-    width: 100%;
   }
 
   thead {
@@ -18,44 +17,40 @@
     margin-bottom: 1rem;
     border: 1px solid #3b4d63;
     border-radius: 5px;
-    padding: 0.5rem;
+    /* padding: 0.5rem; */
   }
 
   td {
-    text-align: right;
-    padding-left: 50%;
     position: relative;
   }
 
   td input[type="number"] {
     width: 50px;
-    max-width: 50px;
+    max-width: 60px;
   }
 
   td::before {
     content: attr(data-label);
     position: absolute;
     left: 0.75rem;
-    width: 45%;
-    padding-right: 0.5rem;
     white-space: nowrap;
-    text-align: left;
     color: #8da5cc;
+    font-size: 10px;
   }
 
-  /* 🔧 NEW: restrict input width in mobile view */
-  td input {
-    width: 95%;
-    max-width: 100%;
+   tfoot,
+  tfoot tr,
+  tfoot td {
+    display: block;
+    width: 100%;
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
 
-  td button {
-    width: 95%;
-    max-width: 100%;
-    box-sizing: border-box;
+   tfoot td {
+    padding-bottom: 0.5rem;
   }
-
 }
 
 #weigh-ins-entry-area {
@@ -69,6 +64,10 @@
   border-collapse: collapse;
   background-color: #1c2e4a;
   color: white;
+}
+
+#weigh-ins-entry-area .weight-Id {
+  display: none;
 }
 
 #weigh-ins-entry-area th,

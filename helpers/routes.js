@@ -32,13 +32,14 @@ const routes = {
         css: 'pages/weighIns/weighIns.css',
         js: 'pages/weighIns/weighIns.js',
         auth: false,
-        title: 'Weigh Ins Graph',
-        content: 'Weigh Ins Graph1'
+        title: 'Weigh Ins',
+        
     },
     '/weighInsGraph': {
         link: 'pages/weighInsGraph/weighInsGraph.html',
         css: 'pages/weighInsGraph/weighInsGraph.css',
         js: 'pages/weighInsGraph/weighInsGraph.js',
+        title: 'Weigh Ins Graph',
         auth: true
     },
     '/weighInsEntry': {

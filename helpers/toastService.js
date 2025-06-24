@@ -6,7 +6,11 @@ class ToastService {
     TOAST_TIMEOUT_SECONDS = 20;
     toastQueue = [];
 
-    addToast(message, type = GlobalConfig.TOAST_TYPE.INFO) {
+    addToast(message, type = GlobalConfig.TOAST_TYPE.INFO, debug = false) {
+        // Only show toast if not debug, or if debug is true and global debug is enabled
+        if (debug && !GlobalConfig.DEBUG) {
+            return;
+        }
         const container = document.getElementById("toast-container");
 
         // Add toast to stack if limit is reached

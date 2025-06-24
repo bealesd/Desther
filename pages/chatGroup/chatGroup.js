@@ -21,7 +21,7 @@ class ChatGroup {
     async init() {
         const chatGroups = await this.#GetChatGroups();
         this.renderChatGroups(chatGroups);
-        toastService.addToast('On Chat Group Page.', GlobalConfig.LOG_LEVEL.WARNING);
+        toastService.addToast('On Chat Group Page.', GlobalConfig.LOG_LEVEL.WARNING, true);
     }
 
     renderChatGroups(chatGroups) {

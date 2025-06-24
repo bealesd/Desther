@@ -5,33 +5,67 @@
 
 .top-bar {
     display: grid;
-    grid-template-columns: auto 1fr auto; /* Three columns: auto for back button and extra info, 1fr for page info */
-    align-items: center; /* Vertically center the content */
+    grid-template-columns: auto 1fr auto;
+    /* Three columns: auto for back button and extra info, 1fr for page info */
+    align-items: center;
+    text-align: center;
+    /* Vertically center the content */
     padding: 10px;
     border-bottom: 2px solid #ddd;
-    color:white;
+    color: white;
+
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+#home-button {
+    width: 80px;
+}
+
+#page-info-title {
+    font-size: 20px;
+    font-weight: bold;
 }
 
 /* Style for the page info */
 .page-info {
-    text-align: center; /* Center the page info text */
-    grid-column: 2; /* Center the page info in the grid */
+    grid-column: 2;
+    font-size: 16px;
 }
 
 /* Style for extra info on the right */
 .page-info-extra {
-    text-align: right; /* Align the extra info text to the right */
+    text-align: right;
+    /* Align the extra info text to the right */
+    font-size: 14px;
 }
 
 
 /* Responsive adjustments (optional) */
 @media (max-width: 600px) {
     .top-bar {
-        grid-template-columns: 1fr; /* Stack items on smaller screens */
-        text-align: center;
+        grid-template-columns: 1fr;
+        /* Stack items on smaller screens */
+        gap: 10px;
     }
 
-    .page-info-extra{
-        display: none; /* Hide extra info on small screens if not needed */
+    #home-button {
+        width: 100%;
+    }
+
+    #page-info-title {
+        font-size: 14px;
+        font-weight: normal;
+    }
+
+    .page-info {
+        grid-column: 1;
+        font-size: 10px;
+    }
+
+    .page-info-extra {
+        grid-column: 1;
+        font-size: 10px;
     }
 }
