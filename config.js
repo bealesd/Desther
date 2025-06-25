@@ -1,6 +1,6 @@
 export default class GlobalConfig {
     // TODO, make false in build step
-    static DEBUG = true;
+    static DEBUG = false;
 
     static get apis() {
         const url = {

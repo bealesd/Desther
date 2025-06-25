@@ -63,7 +63,7 @@ export default new class Router {
         PageInfo.setInfo({
             title: title,
             content: content,
-            extraContent: `${LoginHelper.loggedIn ? LoginHelper.username : 'Not Logged In'}`
+            extraContent: `${LoginHelper.loggedIn ? 'Hello ' + LoginHelper.username : 'Not Logged In'}`
         });
     }
 
