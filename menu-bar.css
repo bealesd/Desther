@@ -69,3 +69,64 @@
         font-size: 10px;
     }
 }
+
+.page-info-tooltip-container {
+    /* Enable relative positioning for the tooltip */
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    /* Indicate it's interactive */
+}
+
+.page-info-tooltip {
+    /* Hidden by default */
+    visibility: hidden;
+    opacity: 0;
+    /* Smooth transition for opacity and the 'right' position */
+    transition: opacity 0.3s ease, right 0.3s ease;
+
+    /* Positioning for the tooltip */
+    position: absolute;
+    z-index: 10;
+    /* Ensure it's above other content */
+    right: calc(100% + 20px);
+    /* Start further left from the icon (more negative right) */
+    top: 50%;
+    /* Vertically center with the icon */
+    transform: translateY(-50%);
+    /* Adjust for tooltip's own height to truly center */
+
+    /* Styling */
+    background-color: #333;
+    /* Dark background */
+    color: #fff;
+    /* White text */
+    padding: 8px 12px;
+    border-radius: 6px;
+    /* Rounded corners */
+    white-space: nowrap;
+    /* Prevent text wrapping */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    /* Subtle shadow */
+    font-size: 0.9rem;
+    /* Slightly smaller text */
+    pointer-events: none;
+    /* Allows clicks/hovers to pass through to elements behind */
+}
+
+/* Show the tooltip on hover */
+.page-info-tooltip-container:hover .page-info-tooltip {
+    visibility: visible;
+    opacity: 1;
+    right: calc(100% + 10px);
+    /* Move 10px closer to the icon (slide-in effect) */
+}
+
+/* Adjust icon size and color */
+.page-info-icon svg {
+    width: 28px;
+    /* Larger icon size */
+    height: 28px;
+    color: #2563eb;
+    /* Blue color */
+}

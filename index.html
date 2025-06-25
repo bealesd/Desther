@@ -24,9 +24,25 @@
             <div id="page-info-title">Page Title</div>
             <p id="page-info-content">Some details about this page</p>
         </div>
+
         <div class="page-info-extra">
-            <p id="page-info-extra-content">Additional Info</p>
+            <div id="page-info-extra-content">
+                <div class="page-info-tooltip-container">
+                    <!-- Info icon (SVG for better control and scalability) -->
+                    <span class="page-info-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                        </svg>
+                    </span>
+                    <!-- Tooltip text that appears on hover -->
+                    <div class="page-info-tooltip">
+                        JS not enabled or not supported by your browser.
+                    </div>
+                </div>
+            </div>
         </div>
+
     </div>
     <!-- #endregion Top Navigation -->
 

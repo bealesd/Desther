@@ -1,7 +1,7 @@
 export default class PageInfo {
     static pageInfoTitle = 'page-info-title';
     static pageInfoContent = 'page-info-content';
-    static pageInfoExtraContent = 'page-info-extra-content';
+    static pageInfoExtraContent = 'page-info-tooltip';
 
     static setInfo({title, content, extraContent}) {
         PageInfo.#setTitle(title);
@@ -20,7 +20,7 @@ export default class PageInfo {
     }
 
     static #setExtraContent(content) {
-        const pageExtraContentElement = document.querySelector(`#${PageInfo.pageInfoExtraContent}`);
+        const pageExtraContentElement = document.querySelector(`.${PageInfo.pageInfoExtraContent}`);
         pageExtraContentElement.textContent = content;
     }
 }
