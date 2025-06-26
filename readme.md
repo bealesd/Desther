@@ -49,3 +49,4 @@ Each object can have properties:
 |All|Share red button across pages|&cross;|
 |All|move showCustomConfirm to allow for re-use|&cross;|
 | Chat | Add Profile Pics | &cross; |
+| Deploy | Add Yaml for github pages | &cross; |
