@@ -42,14 +42,14 @@ const routes = {
         link: 'pages/recipesUpload/recipesUpload.html',
         css: 'pages/recipesUpload/recipesUpload.css',
         js: 'pages/recipesUpload/recipesUpload.js',
-        auth: false,
+        auth: true,
         title: 'Upload a Recipe',
     },
     '/recipesView': {
         link: 'pages/recipesView/recipesView.html',
         css: 'pages/recipesView/recipesView.css',
         js: 'pages/recipesView/recipesView.js',
-        auth: false,
+        auth: true,
         title: 'Recipes',
     },
     '/weighIns': {
