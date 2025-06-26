@@ -11,7 +11,7 @@ The entry point is index.html.
 
 # Build
 1. node build.mjs
-2. install npm i http-server
+2. install npm global http-server
 3. http-server
 
 # Adding a Menu Page
@@ -39,6 +39,13 @@ Each object can have properties:
 `
 
 # TODO
-- Remove back button from index screen, when no page history
-- Back takes user to home screen
-- chat->scrollTobBttom called outside of chat screen
+
+|Area|Task|Status
+|---|---|---|
+|Recipes|get delete to work| &check;|
+|Recipes|migrate from dester|&check;|
+|Recipes|update recipe|&cross;|
+|All|Share green button across pages|&cross;|
+|All|Share red button across pages|&cross;|
+|All|move showCustomConfirm to allow for re-use|&cross;|
+| Chat | Add Profile Pics | &cross; |

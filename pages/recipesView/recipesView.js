@@ -10,122 +10,7 @@ class RecipeApp {
 
     // Initialization method
     async init() {
-        this.recipes= await this.getRecipes(); // Fetch recipes from the server
-
-//         this.recipes = [
-//             {
-//                 title: "Classic Spaghetti Bolognese",
-//                 ingredients: [
-//                     "1 tbsp olive oil",
-//                     "1 onion, chopped",
-//                     "2 cloves garlic, minced",
-//                     "500g minced beef",
-//                     "400g chopped tomatoes",
-//                     "150ml red wine (optional)",
-//                     "1 tbsp tomato puree",
-//                     "1 beef stock cube",
-//                     "Fresh basil to serve",
-//                     "Spaghetti to serve"
-//                 ],
-//                 instructions: `1. Heat oil in a large pan and add the onion. Cook until softened.
-// 2. Add garlic and minced beef, cooking until browned. Drain excess fat.
-// 3. Pour in red wine (if using) and simmer until reduced.
-// 4. Stir in chopped tomatoes, tomato puree, and stock cube. Bring to a simmer.
-// 5. Cover and cook on low heat for at least 30 minutes (longer for more flavor).
-// 6. Serve hot with cooked spaghetti and fresh basil.`,
-//                 prepTime: "15 mins",
-//                 cookTime: "30-60 mins"
-//             },
-//             {
-//                 title: "Quick Chicken Stir-Fry",
-//                 ingredients: [
-//                     "2 chicken breasts, sliced",
-//                     "1 tbsp soy sauce",
-//                     "1 tbsp sesame oil",
-//                     "1 bell pepper, sliced",
-//                     "1 carrot, julienned",
-//                     "1 cup broccoli florets",
-//                     "2 tbsp stir-fry sauce",
-//                     "Cooked rice or noodles to serve"
-//                 ],
-//                 instructions: `1. Marinate chicken in soy sauce and sesame oil for 10 minutes.
-// 2. Heat a large wok or pan over high heat. Add chicken and stir-fry until cooked through. Remove chicken and set aside.
-// 3. Add bell pepper, carrot, and broccoli to the wok. Stir-fry for 3-5 minutes until crisp-tender.
-// 4. Return chicken to the wok. Pour in stir-fry sauce and toss to coat.
-// 5. Serve immediately with rice or noodles.`,
-//                 prepTime: "10 mins",
-//                 cookTime: "15 mins"
-//             },
-//             {
-//                 title: "Vegetarian Lentil Soup",
-//                 ingredients: [
-//                     "1 tbsp olive oil",
-//                     "1 onion, diced",
-//                     "2 carrots, diced",
-//                     "2 celery stalks, diced",
-//                     "2 cloves garlic, minced",
-//                     "1 cup brown or green lentils, rinsed",
-//                     "6 cups vegetable broth",
-//                     "1 (14.5 oz) can diced tomatoes, undrained",
-//                     "1 tsp dried thyme",
-//                     "Salt and pepper to taste",
-//                     "Fresh parsley for garnish"
-//                 ],
-//                 instructions: `1. Heat olive oil in a large pot over medium heat. Add onion, carrots, and celery. Cook until softened, about 8-10 minutes.
-// 2. Stir in garlic and cook for 1 minute until fragrant.
-// 3. Add rinsed lentils, vegetable broth, diced tomatoes, and dried thyme. Bring to a boil.
-// 4. Reduce heat to low, cover, and simmer for 25-30 minutes, or until lentils are tender.
-// 5. Season with salt and pepper. Garnish with fresh parsley before serving.`,
-//                 prepTime: "15 mins",
-//                 cookTime: "30 mins"
-//             },
-//             {
-//                 title: "Decadent Chocolate Cake",
-//                 ingredients: [
-//                     "2 cups all-purpose flour",
-//                     "3/4 cup unsweetened cocoa powder",
-//                     "2 cups granulated sugar",
-//                     "1 tsp baking soda",
-//                     "1 tsp salt",
-//                     "1 cup buttermilk",
-//                     "1/2 cup vegetable oil",
-//                     "2 large eggs",
-//                     "1 tsp vanilla extract",
-//                     "1 cup boiling water"
-//                 ],
-//                 instructions: `1. Preheat oven to 350°F (175°C). Grease and flour two 9-inch round baking pans.
-// 2. In a large bowl, whisk together flour, cocoa powder, sugar, baking soda, and salt.
-// 3. In a separate bowl, whisk together buttermilk, oil, eggs, and vanilla extract.
-// 4. Add the wet ingredients to the dry ingredients and mix until just combined.
-// 5. Slowly pour in the boiling water, mixing until the batter is smooth. The batter will be thin.
-// 6. Pour evenly into prepared pans.
-// 7. Bake for 30-35 minutes, or until a wooden skewer inserted into the center comes out clean.
-// 8. Cool in pans for 10 minutes before inverting onto a wire rack to cool completely.`,
-//                 prepTime: "20 mins",
-//                 cookTime: "30-35 mins"
-//             },
-//             {
-//                 title: "Healthy Quinoa Salad",
-//                 ingredients: [
-//                     "1 cup quinoa, rinsed",
-//                     "2 cups vegetable broth",
-//                     "1 cucumber, diced",
-//                     "1 cup cherry tomatoes, halved",
-//                     "1/2 red onion, finely diced",
-//                     "1/4 cup fresh parsley, chopped",
-//                     "Juice of 1 lemon",
-//                     "2 tbsp olive oil",
-//                     "Salt and pepper to taste"
-//                 ],
-//                 instructions: `1. Combine quinoa and vegetable broth in a saucepan. Bring to a boil, then reduce heat to low, cover, and simmer for 15 minutes, or until all liquid is absorbed. Fluff with a fork and let cool.
-// 2. In a large bowl, combine cooled quinoa, cucumber, cherry tomatoes, red onion, and parsley.
-// 3. In a small bowl, whisk together lemon juice, olive oil, salt, and pepper.
-// 4. Pour dressing over the quinoa mixture and toss to combine.
-// 5. Serve chilled.`,
-//                 prepTime: "15 mins",
-//                 cookTime: "15 mins"
-//             }
-//         ];
+        this.recipes = await this.getRecipes(); // Fetch recipes from the server
 
         this.expandedRecipes = new Set(); // Set to store titles of expanded recipes to maintain state
 
@@ -153,6 +38,7 @@ class RecipeApp {
 
         for (const recipeResult of recipeResults) {
             const recipe = await this.getRecipe(recipeResult.Id);
+            recipe.Id = recipeResult.Id; // Store the ID for deletion purposes
             recipes.push(recipe);
         }
 
@@ -226,14 +112,14 @@ class RecipeApp {
             recipeCard.className = 'recipe-card';
 
             // Check if this recipe was previously expanded
-            if (this.expandedRecipes.has(recipe.title)) {
+            if (this.expandedRecipes.has(recipe.id)) {
                 recipeCard.classList.add('expanded');
             }
 
             recipeCard.innerHTML = `
                         <div class="recipe-card-header">
-                            <h3>${recipe.title}</h3>
-                            <span class="toggle-icon">${this.expandedRecipes.has(recipe.title) ? '&#9660;' : '&#9658;'}</span>
+                            <h3 data-id=${recipe.id}>${recipe.title}</h3>
+                            <span class="toggle-icon">${this.expandedRecipes.has(recipe.id) ? '&#9660;' : '&#9658;'}</span>
                         </div>
                         <div class="recipe-card-content">
                             ${recipe.prepTime || recipe.cookTime ? `<p class="text-sm"><strong>Prep:</strong> ${recipe.prepTime || 'N/A'} | <strong>Cook:</strong> ${recipe.cookTime || 'N/A'}</p>` : ''}
@@ -252,7 +138,7 @@ class RecipeApp {
                             </div>
                         </div>
                     `;
-            recipeCard.querySelector('button').addEventListener('click', (event) => { this.deleteRecipe(recipe.title) });
+            recipeCard.querySelector('button').addEventListener('click', (event) => { this.deleteRecipe(recipe.Id) });
 
             this.recipesContainer.appendChild(recipeCard);
 
@@ -271,27 +157,32 @@ class RecipeApp {
      * @param {string} recipeTitle - The title of the recipe (used as a unique ID for state).
      * @param {HTMLElement} cardElement - The recipe card DOM element.
      */
-    toggleExpand(recipeTitle, cardElement) {
+    toggleExpand(recipeId, cardElement) {
         const isExpanded = cardElement.classList.contains('expanded');
         if (isExpanded) {
             cardElement.classList.remove('expanded');
-            this.expandedRecipes.delete(recipeTitle);
+            this.expandedRecipes.delete(recipeId);
             cardElement.querySelector('.toggle-icon').innerHTML = '&#9658;'; // Right arrow
         } else {
             cardElement.classList.add('expanded');
-            this.expandedRecipes.add(recipeTitle);
+            this.expandedRecipes.add(recipeId);
             cardElement.querySelector('.toggle-icon').innerHTML = '&#9660;'; // Down arrow
         }
     }
 
     /**
      * Deletes a recipe from the array based on its title.
-     * @param {string} recipeTitle - The title of the recipe to delete.
+     * @param {string} recipeId - The id of the recipe to delete.
      */
-    deleteRecipe(recipeTitle) {
-        this.showCustomConfirm('Are you sure you want to delete this recipe?', () => {
-            this.recipes = this.recipes.filter(recipe => recipe.title !== recipeTitle);
-            this.expandedRecipes.delete(recipeTitle); // Also remove from expanded state
+    async deleteRecipe(id) {
+        this.showCustomConfirm('Are you sure you want to delete this recipe?', async () => {
+            const url = `${GlobalConfig.apis.recipes}/DeleteNotepad?id=${id}`;
+            const response = await RequestHelper.DeleteWithAuth(url);
+            if (response?.error)
+                return toastService.addToast('Failed to delete recipe.', GlobalConfig.LOG_LEVEL.ERROR);
+
+            this.recipes = this.recipes.filter(recipe => recipe.Id !== id);
+            this.expandedRecipes.delete(id); // Also remove from expanded state
             this.renderRecipes(this.searchInput.value); // Re-render with current search filter
         });
     }
@@ -301,10 +192,10 @@ class RecipeApp {
      */
     expandAllRecipes() {
         document.querySelectorAll('.recipe-card').forEach(card => {
-            const title = card.querySelector('h3').textContent;
+            const id = card.querySelector('h3').dataset.id;;
             if (!card.classList.contains('expanded')) {
                 card.classList.add('expanded');
-                this.expandedRecipes.add(title);
+                this.expandedRecipes.add(id);
                 card.querySelector('.toggle-icon').innerHTML = '&#9660;'; // Down arrow
             }
         });
@@ -315,10 +206,10 @@ class RecipeApp {
      */
     collapseAllRecipes() {
         document.querySelectorAll('.recipe-card').forEach(card => {
-            const title = card.querySelector('h3').textContent;
+            const id = card.querySelector('h3').dataset.id;
             if (card.classList.contains('expanded')) {
                 card.classList.remove('expanded');
-                this.expandedRecipes.delete(title);
+                this.expandedRecipes.delete(id);
                 card.querySelector('.toggle-icon').innerHTML = '&#9658;'; // Right arrow
             }
         });

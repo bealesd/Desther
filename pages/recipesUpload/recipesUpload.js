@@ -13,7 +13,6 @@ class RecipesUpload {
     }
 
     init() {
-        // recipeForm.addEventListener('submit', handleFormSubmit);
         EventHandler.overwriteEvent({
             'id': 'recipeUpload',
             'eventType': 'submit',
