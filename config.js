@@ -12,6 +12,7 @@ export default class GlobalConfig {
         url.chatGroup = `${url.chatCoreUrl}/chatGroups`;
         url.chat = `${url.chatCoreUrl}/chat`;
         url.weighIns = `${url.chatCoreUrl}/weighIns`;
+        url.recipes = `${url.chatCoreUrl}/notepad`;
         return url;
     }
 

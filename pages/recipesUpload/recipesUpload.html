@@ -1,0 +1,38 @@
+<div id="app">
+        <section id="recipeUploader" class="">
+            <form id="recipeForm">
+                <div class="form-group">
+                    <label for="recipeTitle">Recipe Title</label>
+                    <input type="text" id="recipeTitle" name="title" required placeholder="e.g. Delicious Chocolate Chip Cookies">
+                </div>
+                <div class="form-group">
+                    <label for="ingredients">Ingredients (one per line)</label>
+                    <textarea id="ingredients" name="ingredients" required placeholder="e.g.
+1 cup flour
+1/2 cup sugar
+2 eggs"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="instructions">Instructions</label>
+                    <textarea id="instructions" name="instructions" required placeholder="e.g.
+1. Preheat oven to 375°F.
+2. Mix ingredients.
+3. Bake for 10-12 minutes."></textarea>
+                </div>
+                <div class="form-grid-columns">
+                    <div class="form-group">
+                        <label for="prepTime">Preparation Time</label>
+                        <input type="text" id="prepTime" name="prepTime" placeholder="e.g. 20 mins">
+                    </div>
+                    <div class="form-group">
+                        <label for="cookTime">Cook Time</label>
+                        <input type="text" id="cookTime" name="cookTime" placeholder="e.g. 30 mins">
+                    </div>
+                </div>
+                <div class="form-group flex-justify-end">
+                    <button type="submit">Add Recipe</button>
+                </div>
+            </form>
+        </section>
+    </div>
+    
