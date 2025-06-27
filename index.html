@@ -1,6 +1,8 @@
 <html>
 
 <head>
+    <link rel="manifest" href="./manifest.json">
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono&amp;display=swap" rel="stylesheet">
 
@@ -102,6 +104,14 @@
     <script type="module">
         import Router from './helpers/router.js'
         Router.handleNavigation();
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(() => console.log('✅ Service Worker registered'))
+                .catch(err => console.log('❌ Service Worker registration failed:', err));
+        }
     </script>
 
 </body>

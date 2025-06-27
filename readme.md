@@ -45,6 +45,7 @@ Each object can have properties:
 |Recipes|get delete to work| &check;|
 |Recipes|migrate from dester|&check;|
 |Recipes|update recipe|&cross;|
+|PWA|make a PWA| &check;|
 |All|Share green button across pages|&cross;|
 |All|Share red button across pages|&cross;|
 |All|move showCustomConfirm to allow for re-use|&cross;|
