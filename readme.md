@@ -42,7 +42,7 @@ Each object can have properties:
 
 |Area|Task|Status
 |---|---|---|
-|Recipes|get delete to work| &check;|
+|Recipes|get delete to work| &check;
 |Recipes|migrate from dester|&check;|
 |Recipes|update recipe|&cross;|
 |PWA|make a PWA| &check;|
