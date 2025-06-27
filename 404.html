@@ -3,6 +3,8 @@
 <head>
     <link rel="manifest" href="./manifest.json">
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono&amp;display=swap" rel="stylesheet">
 
@@ -50,39 +52,41 @@
 
     <!-- #region Main Menu -->
     <div id="menu-area">
-        <ul class="menu-ul">
+        <div id="menu-container">
+            <ul class="menu-ul">
 
-            <li class="menu-li">
-                <button class="menu-button" data-router="true" href="/login">
-                    Login
-                </button>
-            </li>
+                <li class="menu-li">
+                    <button class="menu-button" data-router="true" href="/login">
+                        Login
+                    </button>
+                </li>
 
-            <li class="menu-li">
-                <button class="menu-button" data-router="true" href="/logout" style="display: none;">
-                    Logout
-                </button>
-            </li>
+                <li class="menu-li">
+                    <button class="menu-button" data-router="true" href="/logout" style="display: none;">
+                        Logout
+                    </button>
+                </li>
 
-            <li class="menu-li">
-                <button class="menu-button" data-router="true" href="/chatGroup">
-                    Chat
-                </button>
-            </li>
+                <li class="menu-li">
+                    <button class="menu-button" data-router="true" href="/chatGroup">
+                        Chat
+                    </button>
+                </li>
 
-            <li class="menu-li">
-                <button class="menu-button" data-router="true" href="/weighIns">
-                    Weigh Ins
-                </button>
-            </li>
+                <li class="menu-li">
+                    <button class="menu-button" data-router="true" href="/weighIns">
+                        Weigh Ins
+                    </button>
+                </li>
 
-            <li class="menu-li">
-                <button class="menu-button" data-router="true" href="/recipes">
-                    Recipes
-                </button>
-            </li>
+                <li class="menu-li">
+                    <button class="menu-button" data-router="true" href="/recipes">
+                        Recipes
+                    </button>
+                </li>
 
-        </ul>
+            </ul>
+        </div>
     </div>
     <!-- #endregion Main Menu -->
 
