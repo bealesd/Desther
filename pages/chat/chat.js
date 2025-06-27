@@ -3,7 +3,7 @@ import GlobalConfig from "../../config.js";
 import LoginHelper from "../../helpers/loginHelper.js";
 import RequestHelper from "../../helpers/requestHelper.js";
 import EventHandler from "../../helpers/eventHandler.js";
-import Logger from "../../helpers/Logger.js";
+import Logger from "../../helpers/logger.js";
 
 class Chat {
     domClasses = Object.freeze({

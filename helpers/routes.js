@@ -6,7 +6,7 @@ const routes = {
         content: 'Welcome'
     },
     '/login': {
-        link: 'pages/Login/Login.html',
+        link: 'pages/Login/login.html',
         css: 'pages/login/login.css',
         js: 'pages/login/login.js',
         auth: false,

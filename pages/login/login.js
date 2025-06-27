@@ -1,5 +1,5 @@
 import GlobalConfig from "../../config.js";
-import Logger from "../../helpers/Logger.js";
+import Logger from "../../helpers/logger.js";
 import EventHandler from "../../helpers/eventHandler.js";
 import LoginHelper from "../../helpers/loginHelper.js";
 import menuHelper from "../../helpers/menuHelper.js";
