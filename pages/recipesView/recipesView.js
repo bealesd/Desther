@@ -38,7 +38,7 @@ class RecipeApp {
 
         for (const recipeResult of recipeResults) {
             const recipe = await this.getRecipe(recipeResult.Id);
-            recipe.Id = recipeResult.Id; // Store the ID for deletion purposes
+            recipe.id = recipeResult.Id; // Store the ID for deletion purposes
             recipes.push(recipe);
         }
 
@@ -58,7 +58,7 @@ class RecipeApp {
     addEventListeners() {
         EventHandler.overwriteEvent({
             'id': 'renderRecipes',
-            'eventType': 'click',
+            'eventType': 'keydown',
             'element': this.searchInput,
             'callback': (event) => this.renderRecipes(event.target.value)
         });
@@ -138,7 +138,7 @@ class RecipeApp {
                             </div>
                         </div>
                     `;
-            recipeCard.querySelector('button').addEventListener('click', (event) => { this.deleteRecipe(recipe.Id) });
+            recipeCard.querySelector('button').addEventListener('click', (event) => { this.deleteRecipe(recipe.id) });
 
             this.recipesContainer.appendChild(recipeCard);
 
