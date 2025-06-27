@@ -1,4 +1,4 @@
-export default class GlobalConfig {
+class GlobalConfig {
     // TODO, make false in build step
     static DEBUG = false;
 
@@ -41,3 +41,20 @@ export default class GlobalConfig {
         INFO: 'info',
     });
 }
+
+// ✅ Safely expose a debug hook via namespaced global
+if (!window.GlobalConfig) {
+    window.GlobalConfig = {};
+}
+
+// ✅ Only define debug if not already there
+if (!Object.getOwnPropertyDescriptor(window.GlobalConfig, 'DEBUG')) {
+    Object.defineProperty(window.GlobalConfig, 'DEBUG', {
+        get: () => GlobalConfig.DEBUG,
+        // !! to coerce any value into a strict boolean (true or false)
+        set: (val) => { GlobalConfig.DEBUG = !!val; },
+        configurable: true
+    });
+}
+
+export default GlobalConfig;

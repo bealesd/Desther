@@ -40,14 +40,17 @@ Each object can have properties:
 
 # TODO
 
-|Area|Task|Status
-|---|---|---|
-|Recipes|get delete to work| &check;
-|Recipes|migrate from dester|&check;|
-|Recipes|update recipe|&cross;|
-|PWA|make a PWA| &check;|
-|All|Share green button across pages|&cross;|
-|All|Share red button across pages|&cross;|
-|All|move showCustomConfirm to allow for re-use|&cross;|
-| Chat | Add Profile Pics | &cross; |
-| Deploy | Add Yaml for github pages | &cross; |
+| Area | Task | Status |
+| --- | --- | --- |
+| Recipes | get delete to work | ✅ |
+| Recipes | migrate from dester | ✅ |
+| Recipes | update recipe | ❌ |
+| PWA | make a PWA | ✅ |
+| PWA | fix PWA caching | ❌ |
+| All | Share green button across pages| ❌ |
+| All | Share red button across pages| ❌ |
+| All | move showCustomConfirm to allow for re-use| ❌ |
+| Chat | Add Profile Pics | ❌ |
+| Deploy | Add Yaml for github pages | ❌ |
+
+✅⚠️❌❓🤔➕➖

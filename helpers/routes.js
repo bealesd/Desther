@@ -3,7 +3,7 @@ const routes = {
         link: 'index.html',
         auth: false,
         title: 'Home',
-        content: 'Welcome'
+        content: 'Navigate'
     },
     '/login': {
         link: 'pages/login/login.html',

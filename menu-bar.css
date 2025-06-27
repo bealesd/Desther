@@ -6,8 +6,8 @@
 
 .top-bar {
     display: grid;
-    grid-template-columns: var(--menu-home-button-width) 1fr auto;
-    /* Three columns: auto for back button and extra info, 1fr for page info */
+    grid-template-columns: var(--menu-home-button-width) auto var(--menu-home-button-width);
+    /* Three columns: same width for back button and extra info, 1fr for page info. This puts main info in the centre.*/
     align-items: center;
     text-align: center;
     /* Vertically center the content */
@@ -48,12 +48,12 @@
 /* Responsive adjustments (optional) */
 @media (max-width: 600px) {
     #page-info-title {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: normal;
     }
 
     .page-info {
-        font-size: 10px;
+        font-size: 12px;
     }
 
     .page-info-extra {

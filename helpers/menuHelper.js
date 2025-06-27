@@ -1,6 +1,7 @@
 import GlobalConfig from "../config.js";
 import loginHelper from "./loginHelper.js";
 import PageInfo from "./pageInfo.js";
+import routes from './routes.js';
 
 export default new class MenuHelper {
     constructor() {
@@ -38,11 +39,10 @@ export default new class MenuHelper {
      * Set the page info with the title and content.
      */
     setPageInfo() {
-        const content = 'Welcome to the home page!';
-        const title = 'Home';
+        const route = routes['/index'];
         PageInfo.setInfo({
-            title: title,
-            content: content,
+            title: route.title,
+            content: route.content,
             extraContent: `${loginHelper.loggedIn ? 'Hello ' + loginHelper.username : 'Not Logged In'}`
         });
     }
