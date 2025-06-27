@@ -10,6 +10,7 @@ import PageInfo from './pageInfo.js';
 
 export default new class Router {
     constructor() {
+        this.basePath = window.location.pathname.startsWith('/Desther') ? '/Desther' : '';
         this.menuAreaId = GlobalConfig.domIds.menuArea;
         this.homeButtonId = GlobalConfig.domIds.homeButton;
         this.contentAreaId = GlobalConfig.domIds.contentArea;
@@ -19,7 +20,7 @@ export default new class Router {
         window.addEventListener('popstate', () => this.handleNavigation());
         // Listen to any click events on website
         document.addEventListener('click', (event) => this.handleLinkClick(event));
-
+        
         // show any stored toasts after a page redirect
         persistentToastService.showToasts();
     }
@@ -40,7 +41,8 @@ export default new class Router {
 
     navigate(path) {
         // Push the path to the browser's history
-        history.pushState({}, '', path);
+        const fullPath = this.basePath + path;
+        history.pushState({}, '', fullPath);
 
         // Load the content for the new path
         this.loadContent();
@@ -58,7 +60,6 @@ export default new class Router {
             title = window.location.pathname.replace('.html', '');
         }
 
-
         const content = route?.content ?? '';
         PageInfo.setInfo({
             title: title,
@@ -71,7 +72,14 @@ export default new class Router {
         eventHandler.removeEvents();
         eventHandler.removeIntervals();
 
-        const path = window.location.pathname.replace('.html', '');
+        let path = window.location.pathname;
+
+        // Strip base path and .html
+        if (path.startsWith(this.basePath)) {
+            path = path.slice(this.basePath.length);
+        }
+        path = path.replace(/\.html$/, '') || '/index';
+
         const route = routes[path];
 
         if (path === '/index' || !route) {
@@ -103,24 +111,17 @@ export default new class Router {
             contentArea.removeChild(contentArea.firstChild);
         }
 
-
-        // Load assets
-        const link = route.link;
         let htmlLoaded = false;
-        if (link)
-            htmlLoaded = await ContentLoader.loadHtml(contentArea, link);
+        if (route.link)
+            htmlLoaded = await ContentLoader.loadHtml(contentArea, route.link);
 
-        if (!link || !htmlLoaded)
+        if (!route.link || !htmlLoaded)
             Logger.log(`No HTML loaded for : ${path}`, GlobalConfig.LOG_LEVEL.WARNING);
 
-        const css = route.css;
-        const js = route.js;
-
-        if (css)
-            await ContentLoader.loadCss(contentArea, css);
-        if (js) {
-            await ContentLoader.loadJs(contentArea, js);
-        }
+        if (route.css)
+            await ContentLoader.loadCss(contentArea, route.css);
+        if (route.js)
+            await ContentLoader.loadJs(contentArea, route.js);
     }
 
     loadHomePage() {
