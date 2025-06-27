@@ -5,7 +5,7 @@ import LoginHelper from "../helpers/loginHelper.js";
 import menuHelper from "./menuHelper.js";
 import eventHandler from './eventHandler.js';
 import persistentToastService from './persistentToastService.js';
-import Logger from './Logger.js';
+import Logger from './logger.js';
 import PageInfo from './pageInfo.js';
 
 export default new class Router {
