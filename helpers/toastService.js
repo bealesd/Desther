@@ -1,5 +1,5 @@
 import GlobalConfig from "../config.js";
-import Logger from "./Logger.js";
+import Logger from "./logger.js";
 
 class ToastService {
     MAX_TOASTS = 4;
