@@ -9,9 +9,9 @@ const urlsToCache = [
   "./config.js",
   './helpers/logger.js',
   './helpers/loginHelper.js',
-  '.assets//icons/icon-72x72.png',
-  '.assets//icons/icon-96x96.png',
-  '.assets//icons/icon-128x128.png',
+  '.assets/icons/icon-72x72.png',
+  '.assets/icons/icon-96x96.png',
+  '.assets/icons/icon-128x128.png',
 ];
 
 self.addEventListener("install", (event) => {
