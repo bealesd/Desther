@@ -1,7 +1,6 @@
 
 import GlobalConfig from "../../config.js";
 import Logger from "../../helpers/logger.js";
-import LoginHelper from "../../helpers/loginHelper.js";
 import RequestHelper from "../../helpers/requestHelper.js";
 import toastService from "../../helpers/toastService.js";
 

@@ -110,8 +110,29 @@ export default class RequestHelper {
         }
     }
 
+    static async PutJson(url, object, withAuth = false) {
+        const myHeaders = new Headers();
+        myHeaders.append('Content-Type', 'application/json');
+        const fetchMethod = withAuth ? this.#fetchWithToken : this.#fetch;
+
+        try {
+            const response = await fetchMethod.call(this, url, {
+                method: 'PUT',
+                headers: myHeaders,
+                body: JSON.stringify(object),
+            });
+            this.handleNotOkResponse(response);
+        } catch (error) {
+            return this.handleFetchError(error);
+        }
+    }
+
     static async PostJsonWithAuth(url, object) {
         return this.PostJson(url, object, true);
+    }
+
+    static async PutJsonWithAuth(url, object) {
+        return this.PutJson(url, object, true);
     }
 
     static async DeleteWithAuth(url) {

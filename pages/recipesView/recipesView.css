@@ -205,10 +205,10 @@
             display: flex;
             justify-content: flex-end;
             margin-top: 16px;
+            gap: 10px; /* Space between buttons */
         }
 
-        .recipe-card button.delete-btn {
-            background-color: #dc2626; /* Darker red */
+        .recipe-card button{
             color: #ffffff;
             padding: 8px 16px;
             border-radius: 9999px;
@@ -216,10 +216,22 @@
             border: none;
             cursor: pointer;
             transition: background-color 0.2s ease-in-out;
+          }
+
+        .recipe-card button.delete-btn {
+            background-color: #dc2626; /* Darker red */
+        }
+
+        .recipe-card button.edit-btn {
+            background-color: #2641dc; /* Darker red */
         }
 
         .recipe-card button.delete-btn:hover {
             background-color: #b91c1c; /* Even darker red on hover */
+        }
+
+        .recipe-card button.edit-btn:hover {
+            background-color: #191cb6; /* Even darker red on hover */
         }
 
         #noRecipesMessage {

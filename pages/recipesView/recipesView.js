@@ -2,10 +2,31 @@ import GlobalConfig from "../../config.js";
 import toastService from "../../helpers/toastService.js";
 import EventHandler from "../../helpers/eventHandler.js";
 import RequestHelper from "../../helpers/requestHelper.js";
+import RecipeFormManager from "../../helpers/recipeFormManager/recipeFormManager.js";
+import eventEmitter from "../../helpers/eventEmitter.js";
 
 class RecipeApp {
+     domClasses = Object.freeze({
+        recipeCard: 'recipe-card',
+    });
+
+    domIds = Object.freeze({
+        recipesContainer: 'recipesContainer',
+        searchInput: 'searchInput',
+        expandAllBtn: 'expandAllBtn',
+        collapseAllBtn: 'collapseAllBtn',
+        noRecipesMessage: 'noRecipesMessage',
+    });
+
+    getRecipesUrl = `${GlobalConfig.apis.recipes}/GetNotepadDirectChildren?path=home/Recipes/Json`;
+
     constructor() {
         toastService.addToast('On Recipes View Page.', GlobalConfig.LOG_LEVEL.INFO, true);
+        
+        // Listen for recipe edit events to re-render recipes
+        eventEmitter.on('recipe:edit', () => {
+            this.init();
+        });
     }
 
     // Initialization method
@@ -15,11 +36,11 @@ class RecipeApp {
         this.expandedRecipes = new Set(); // Set to store titles of expanded recipes to maintain state
 
         // Get references to HTML elements
-        this.recipesContainer = document.getElementById('recipesContainer');
-        this.noRecipesMessage = document.getElementById('noRecipesMessage');
-        this.searchInput = document.getElementById('searchInput');
-        this.expandAllBtn = document.getElementById('expandAllBtn');
-        this.collapseAllBtn = document.getElementById('collapseAllBtn');
+        this.recipesContainer = document.getElementById(this.domIds.recipesContainer);
+        this.searchInput = document.getElementById(this.domIds.searchInput);
+        this.expandAllBtn = document.getElementById(this.domIds.expandAllBtn);
+        this.collapseAllBtn = document.getElementById(this.domIds.collapseAllBtn);
+        this.noRecipesMessage = document.getElementById(this.domIds.noRecipesMessage);
 
         // Bind event listeners
         this.addEventListeners();
@@ -28,11 +49,8 @@ class RecipeApp {
     }
 
     async getRecipes() {
-        // const url = `${GlobalConfig.apis.recipes}/GetNotepad?id=${id}`;
         const recipes = [];
-        const url = `${GlobalConfig.apis.recipes}/GetNotepadDirectChildren?path=home/Recipes/Json`
-
-        const recipeResults = await RequestHelper.GetJsonWithAuth(url);
+        const recipeResults = await RequestHelper.GetJsonWithAuth(this.getRecipesUrl);
         if (recipeResults?.error)
             return [];
 
@@ -83,7 +101,13 @@ class RecipeApp {
      * @param {string} searchTerm - Optional search term to filter recipes.
      */
     renderRecipes(searchTerm = '') {
-        this.recipesContainer.innerHTML = ''; // Clear previous recipes
+        // Clear previous recipes, but keep the no recipes message
+        Array.from(this.recipesContainer.children).forEach(child => {
+            if (child.id !== this.domIds.noRecipesMessage) {
+                child.remove();
+            }
+        });
+
         const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
 
         const filteredRecipes = this.recipes.filter(recipe => {
@@ -101,7 +125,6 @@ class RecipeApp {
 
         if (filteredRecipes.length === 0) {
             this.noRecipesMessage.style.display = 'block'; // Show "No recipes found" message
-            this.recipesContainer.appendChild(this.noRecipesMessage);
             return;
         } else {
             this.noRecipesMessage.style.display = 'none'; // Hide the message
@@ -110,6 +133,7 @@ class RecipeApp {
         filteredRecipes.forEach((recipe, index) => {
             const recipeCard = document.createElement('div');
             recipeCard.className = 'recipe-card';
+            recipeCard.dataset.editing = false;
 
             // Check if this recipe was previously expanded
             if (this.expandedRecipes.has(recipe.id)) {
@@ -134,21 +158,31 @@ class RecipeApp {
                                 <p class="whitespace-pre-wrap">${recipe.instructions}</p>
                             </div>
                             <div class="flex-justify-end">
+                                <button class="edit-btn">Edit</button>
                                 <button class="delete-btn">Delete</button>
                             </div>
                         </div>
                     `;
-            recipeCard.querySelector('button').addEventListener('click', (event) => { this.deleteRecipe(recipe.id) });
 
-            this.recipesContainer.appendChild(recipeCard);
+            recipeCard.querySelector('.delete-btn').addEventListener('click', (event) => {
+                this.deleteRecipe(recipe.id)
+            });
 
-            // Use arrow functions for event listeners to maintain 'this' context
-            recipeCard.querySelector('.recipe-card-header').addEventListener('click', () => this.toggleExpand(recipe.title, recipeCard));
+            recipeCard.querySelector('.edit-btn').addEventListener('click', (event) => {
+                const recipeFormManager = new RecipeFormManager();
+                recipeFormManager.renderEditForm({ oldRecipe: recipe, containerElement: recipeCard });
+                recipeCard.dataset.editing = true;
+            });
+
             recipeCard.addEventListener('click', (event) => {
-                if (!event.target.classList.contains('delete-btn')) {
+                if (!event.target.classList.contains('delete-btn') &&
+                    !event.target.classList.contains('edit-btn') &&
+                    recipeCard.dataset.editing !== 'true') {
                     this.toggleExpand(recipe.title, recipeCard);
                 }
             });
+
+            this.recipesContainer.appendChild(recipeCard);
         });
     }
 
@@ -180,8 +214,10 @@ class RecipeApp {
             const response = await RequestHelper.DeleteWithAuth(url);
             if (response?.error)
                 return toastService.addToast('Failed to delete recipe.', GlobalConfig.LOG_LEVEL.ERROR);
+            else
+                toastService.addToast('Recipe deleted.', GlobalConfig.LOG_LEVEL.INFO);
 
-            this.recipes = this.recipes.filter(recipe => recipe.Id !== id);
+            this.recipes = this.recipes.filter(recipe => recipe.id !== id);
             this.expandedRecipes.delete(id); // Also remove from expanded state
             this.renderRecipes(this.searchInput.value); // Re-render with current search filter
         });

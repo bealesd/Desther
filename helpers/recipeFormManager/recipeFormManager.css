@@ -1,0 +1,189 @@
+
+/* .edit-btn {
+  display: none!important;
+}
+*/
+.add-btn {
+  display: none!important;
+} 
+
+#app-recipe-upload {
+     background-color: #ffffff;
+     border-radius: 12px;
+     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+     /* padding: 20px; */
+     /* margin: 20px;  */
+     /* Add some margin around the app for better spacing */
+     max-width: 600px;
+     width: 100%;
+     margin: 0 auto;
+     display: flex;
+     flex-direction: column;
+     gap: 20px;
+     background-color: #121212;
+     color: rgb(227, 227, 227);
+ }
+
+ #recipeUploader input,
+ #recipeUploader textarea {
+     background-color: #1a1a1a;
+     color: rgb(227, 227, 227);
+ }
+
+ /* Section Styling (Recipe Viewer/Uploader) */
+ section {
+     padding: 24px;
+     /* p-6 equivalent */
+ }
+
+ section h2 {
+     font-size: 30px;
+     /* text-3xl equivalent */
+     font-weight: 700;
+     /* font-bold equivalent */
+     margin-bottom: 24px;
+     /* mb-6 equivalent */
+     text-align: center;
+     /* text-center equivalent */
+ }
+
+ /* Recipe Card Styling */
+ #recipesContainer {
+     display: grid;
+     grid-template-columns: 1fr;
+     /* Default to 1 column on small screens */
+     gap: 24px;
+     /* gap-6 equivalent */
+ }
+
+ @media (min-width: 768px) {
+
+     /* md: breakpoint */
+     #recipesContainer {
+         grid-template-columns: repeat(2, 1fr);
+         /* md:grid-cols-2 equivalent */
+     }
+ }
+
+ @media (min-width: 1024px) {
+
+     /* lg: breakpoint */
+     #recipesContainer {
+         grid-template-columns: repeat(2, 1fr);
+         /* lg:grid-cols-2 equivalent (keeping 2 for max-width 900px) */
+     }
+ }
+
+ /* Recipe Uploader Form Styling */
+ #recipeUploader.hidden {
+     display: none;
+ }
+
+ #recipeForm {
+     display: flex;
+     flex-direction: column;
+     gap: 24px;
+     /* space-y-6 equivalent */
+ }
+
+ .form-group label {
+     display: block;
+     font-size: 14px;
+     /* text-sm equivalent */
+     font-weight: 500;
+     /* font-medium equivalent */
+     margin-bottom: 4px;
+     /* mb-1 equivalent */
+ }
+
+ .form-group input,
+ .form-group textarea {
+     margin-top: 4px;
+     /* mt-1 equivalent */
+     display: block;
+     width: 100%;
+     padding: 10px 16px;
+     /* px-4 py-2 equivalent */
+     border: 1px solid #cbd5e0;
+     /* border border-gray-300 equivalent */
+     border-radius: 8px;
+     /* rounded-md equivalent, changed to rounded-lg for consistency */
+     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+     /* shadow-sm equivalent */
+     font-size: 14px;
+     /* sm:text-sm equivalent */
+     outline: none;
+     /* Remove default focus outline */
+ }
+
+ .form-group input:focus,
+ .form-group textarea:focus {
+     border-color: #3182ce;
+     /* focus:border-blue-500 equivalent */
+     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+     /* focus:ring-blue-500 equivalent with custom ring */
+ }
+
+ .form-group textarea {
+     min-height: 100px;
+     /* min-h-[100px] equivalent */
+     resize: vertical;
+     /* Allow vertical resizing */
+ }
+
+ .form-grid-columns {
+     /* For prepTime/cookTime section */
+     display: grid;
+     grid-template-columns: 1fr;
+     /* Default to 1 column */
+     gap: 16px;
+     /* gap-4 equivalent */
+ }
+
+ @media (min-width: 768px) {
+
+     /* md: breakpoint */
+     .form-grid-columns {
+         grid-template-columns: repeat(2, 1fr);
+         /* md:grid-cols-2 equivalent */
+     }
+ }
+
+ .form-group.flex-justify-end {
+     display: flex;
+     justify-content: flex-end;
+ }
+
+ .form-group button[type="submit"] {
+     display: inline-flex;
+     justify-content: center;
+     padding: 8px 24px;
+     /* py-2 px-6 equivalent */
+     border: 1px solid transparent;
+     /* border border-transparent equivalent */
+     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+     /* shadow-sm equivalent */
+     font-size: 16px;
+     /* text-base equivalent */
+     font-weight: 500;
+     /* font-medium equivalent */
+     border-radius: 8px;
+     /* rounded-md equivalent, changed to rounded-lg */
+     color: #ffffff;
+     background-color: #10b981;
+     /* bg-green-600 equivalent */
+     cursor: pointer;
+     transition: background-color 0.2s ease-in-out;
+     outline: none;
+     /* focus:outline-none equivalent */
+ }
+
+ .form-group button[type="submit"]:hover {
+     background-color: #059669;
+     /* hover:bg-green-700 equivalent */
+ }
+
+ .form-group button[type="submit"]:focus {
+     box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.5);
+     /* focus:ring-2 focus:ring-offset-2 focus:ring-green-500 equivalent with custom ring */
+ }

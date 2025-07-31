@@ -39,8 +39,7 @@ const routes = {
         title: 'Recipes',
     },
     '/recipesUpload': {
-        link: 'pages/recipesUpload/recipesUpload.html',
-        css: 'pages/recipesUpload/recipesUpload.css',
+        // no html, reliant on js to load component
         js: 'pages/recipesUpload/recipesUpload.js',
         auth: true,
         title: 'Upload a Recipe',
