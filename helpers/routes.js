@@ -16,6 +16,12 @@ const routes = {
         js: 'pages/logout/logout.js',
         auth: true
     },
+    '/calendar': {
+        link: 'pages/calendar/calendar.html',
+        js: 'pages/calendar/calendar.js',
+        auth: true,
+        title: 'Calendar',
+    },
     '/chatGroup': {
         link: 'pages/chatGroup/chatGroup.html',
         css: 'pages/chatGroup/chatGroup.css',
@@ -71,6 +77,13 @@ const routes = {
         js: 'pages/weighInsEntry/weighInsEntry.js',
         auth: false,
         title: 'Weigh Ins Entry',
+    },
+     '/pension': {
+        link: 'pages/civilServicePension/pension.html',
+        css: 'pages/civilServicePension/pension.css',
+        js: 'pages/civilServicePension/pension.js',
+        auth: true,
+        title: 'Civil Service Pension',
     },
 };
 export default routes;
