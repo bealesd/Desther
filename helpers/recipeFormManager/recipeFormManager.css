@@ -1,11 +1,8 @@
 
-/* .edit-btn {
+
+.hidden-btn {
   display: none!important;
 }
-*/
-.add-btn {
-  display: none!important;
-} 
 
 #app-recipe-upload {
      background-color: #ffffff;

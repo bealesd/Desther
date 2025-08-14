@@ -40,7 +40,8 @@ export default class RecipeFormManager {
     async renderAddForm() {
         const contentArea = document.querySelector(`#${GlobalConfig.domIds.contentArea}`);
         await this.renderForm(contentArea);
-        document.querySelector(`#${this.domIds.recipeAddButton}`).classList.toggle(this.domClasses.addButton);
+        document.querySelector(`#${this.domIds.recipeEditButton}`).classList.add('hidden-btn');
+        document.querySelector(`#${this.domIds.recipeCloseButton}`).classList.add('hidden-btn');
 
         EventHandler.overwriteEvent({
             'id': 'recipeAdd',
@@ -52,11 +53,10 @@ export default class RecipeFormManager {
 
     async renderEditForm({ oldRecipe, containerElement }) {
         // Store recipe card
-        this.recipeCard = containerElement.innerHTML;
+        this.recipeCard = containerElement.cloneNode(true);
 
         await this.renderForm(containerElement);
-        containerElement.querySelector(`#${this.domIds.recipeEditButton}`).classList.toggle(this.domClasses.editButton);
-        containerElement.querySelector(`#${this.domIds.recipeCloseButton}`).classList.toggle(this.domClasses.editButton);
+        containerElement.querySelector(`#${this.domIds.recipeAddButton}`).classList.add('hidden-btn');
 
         this.editRecipeId = oldRecipe.id;
 
@@ -80,7 +80,7 @@ export default class RecipeFormManager {
             'element': document.querySelector(`#${this.domIds.recipeCloseButton}`),
             'callback': (event) => {
                 event.preventDefault(); // Prevent default action
-                containerElement.innerHTML = this.recipeCard; // Clear the container element
+                containerElement.replaceWith(this.recipeCard.cloneNode(true)); // Clear the container element
                 toastService.addToast('Edit cancelled.', GlobalConfig.LOG_LEVEL.INFO); // Optional: Show a toast message
             }
         });

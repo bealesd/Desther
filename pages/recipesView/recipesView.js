@@ -6,7 +6,7 @@ import RecipeFormManager from "../../helpers/recipeFormManager/recipeFormManager
 import eventEmitter from "../../helpers/eventEmitter.js";
 
 class RecipeApp {
-     domClasses = Object.freeze({
+    domClasses = Object.freeze({
         recipeCard: 'recipe-card',
     });
 
@@ -22,7 +22,7 @@ class RecipeApp {
 
     constructor() {
         toastService.addToast('On Recipes View Page.', GlobalConfig.LOG_LEVEL.INFO, true);
-        
+
         // Listen for recipe edit events to re-render recipes
         eventEmitter.on('recipe:edit', () => {
             this.init();
@@ -46,6 +46,8 @@ class RecipeApp {
         this.addEventListeners();
 
         this.renderRecipes();
+
+        this.handleRecipeCardClick(); // Handle clicks on recipe cards
     }
 
     async getRecipes() {
@@ -110,7 +112,7 @@ class RecipeApp {
 
         const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
 
-        const filteredRecipes = this.recipes.filter(recipe => {
+        this.filteredRecipes = this.recipes.filter(recipe => {
             if (lowerCaseSearchTerm === '') return true; // Show all if no search term
 
             // Check title
@@ -123,14 +125,14 @@ class RecipeApp {
             return false;
         });
 
-        if (filteredRecipes.length === 0) {
+        if (this.filteredRecipes.length === 0) {
             this.noRecipesMessage.style.display = 'block'; // Show "No recipes found" message
             return;
         } else {
             this.noRecipesMessage.style.display = 'none'; // Hide the message
         }
 
-        filteredRecipes.forEach((recipe, index) => {
+        this.filteredRecipes.forEach((recipe, index) => {
             const recipeCard = document.createElement('div');
             recipeCard.className = 'recipe-card';
             recipeCard.dataset.editing = false;
@@ -141,8 +143,8 @@ class RecipeApp {
             }
 
             recipeCard.innerHTML = `
-                        <div class="recipe-card-header">
-                            <h3 data-id=${recipe.id}>${recipe.title}</h3>
+                        <div data-recipe-id=${recipe.id} class="recipe-card-header">
+                            <h3>${recipe.title}</h3>
                             <span class="toggle-icon">${this.expandedRecipes.has(recipe.id) ? '&#9660;' : '&#9658;'}</span>
                         </div>
                         <div class="recipe-card-content">
@@ -150,7 +152,7 @@ class RecipeApp {
                             <div>
                                 <strong>Ingredients:</strong>
                                 <ul>
-                                    ${recipe.ingredients.map(ing => `<li>${ing}</li>`).join('')}
+                                    ${recipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
                                 </ul>
                             </div>
                             <div>
@@ -164,25 +166,50 @@ class RecipeApp {
                         </div>
                     `;
 
-            recipeCard.querySelector('.delete-btn').addEventListener('click', (event) => {
-                this.deleteRecipe(recipe.id)
-            });
+            this.recipesContainer.appendChild(recipeCard);
+        });
+    }
 
-            recipeCard.querySelector('.edit-btn').addEventListener('click', (event) => {
+    /**
+     * Handles click events on recipe cards for edit, delete, and expand/collapse actions.
+     * This method is bound to the recipesContainer element.
+     * It uses event delegation to handle clicks on recipe cards.
+     */
+    handleRecipeCardClick() {
+        this.recipesContainer.addEventListener('click', (event) => {
+            if (document.querySelector('#noRecipesMessage')?.checkVisibility())
+                return; // Ignore clicks if no recipes are displayed
+
+            const recipeCard = event.target.closest('.recipe-card');
+            if (!recipeCard) return; // Ignore clicks outside recipe cards
+
+            const notEditing = recipeCard.dataset.editing !== 'true';
+            if (!notEditing)
+                return; // Ignore clicks if the card is in edit mode
+
+            const stringRecipeId = recipeCard.querySelector('.recipe-card-header')?.dataset?.recipeId;
+            const recipeId = Number(stringRecipeId, 10);
+            if (isNaN(recipeId)) {
+                toastService.addToast(`Invalid recipe ID: ${stringRecipeId}.`, GlobalConfig.LOG_LEVEL.ERROR);
+                return; // Ignore clicks if recipeId is not a valid number
+            }
+            const recipe = this.filteredRecipes.find(recipe => recipe.id === recipeId);
+
+            const isDeleteBtnClick = event.target.classList.contains('delete-btn');
+            const isEditBtnClick = event.target.classList.contains('edit-btn');
+
+            if (isDeleteBtnClick) {
+                this.deleteRecipe(recipe.id)
+            }
+            else if (isEditBtnClick) {
                 const recipeFormManager = new RecipeFormManager();
                 recipeFormManager.renderEditForm({ oldRecipe: recipe, containerElement: recipeCard });
                 recipeCard.dataset.editing = true;
-            });
-
-            recipeCard.addEventListener('click', (event) => {
-                if (!event.target.classList.contains('delete-btn') &&
-                    !event.target.classList.contains('edit-btn') &&
-                    recipeCard.dataset.editing !== 'true') {
+            }
+            else {
+                if (notEditing)
                     this.toggleExpand(recipe.title, recipeCard);
-                }
-            });
-
-            this.recipesContainer.appendChild(recipeCard);
+            }
         });
     }
 
@@ -228,7 +255,7 @@ class RecipeApp {
      */
     expandAllRecipes() {
         document.querySelectorAll('.recipe-card').forEach(card => {
-            const id = card.querySelector('h3').dataset.id;;
+            const id = card.querySelector('h3').dataset.id;
             if (!card.classList.contains('expanded')) {
                 card.classList.add('expanded');
                 this.expandedRecipes.add(id);
