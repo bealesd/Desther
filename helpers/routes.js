@@ -3,7 +3,6 @@ const routes = {
         link: 'index.html',
         auth: false,
         title: 'Home',
-        content: 'Navigate'
     },
     '/login': {
         link: 'pages/login/login.html',
@@ -18,6 +17,7 @@ const routes = {
     },
     '/calendar': {
         link: 'pages/calendar/calendar.html',
+        css: 'pages/calendar/calendar.css',
         js: 'pages/calendar/calendar.js',
         auth: true,
         title: 'Calendar',
@@ -28,7 +28,6 @@ const routes = {
         js: 'pages/chatGroup/chatGroup.js',
         auth: true,
         title: 'My Chats',
-        content: 'Pick a chat group'
     },
     '/chat': {
         link: 'pages/chat/chat.html',

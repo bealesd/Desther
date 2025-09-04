@@ -42,7 +42,6 @@ export default new class MenuHelper {
         const route = routes['/index'];
         PageInfo.setInfo({
             title: route.title,
-            content: route.content,
             extraContent: `${loginHelper.loggedIn ? 'Hello ' + loginHelper.username : 'Not Logged In'}`
         });
     }

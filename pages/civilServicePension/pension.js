@@ -8,8 +8,8 @@ class Pension {
     constructor() {
         toastService.addToast('On Pension Page.', GlobalConfig.LOG_LEVEL.INFO, true);
 
-        const defaults = {
-            '25_26':{
+        this.defaults = {
+            '25_26': {
                 "age": 39,
                 "oneTimeAddedPensionPayment": 0,
                 "oneTimeAddedPensionType": "self+dependants",
@@ -19,7 +19,7 @@ class Pension {
                 "addedPensionType1": "self+dependants",
                 "addedPensionType2": "self",
             },
-            '24_25':{
+            '24_25': {
                 "age": 38,
                 "oneTimeAddedPensionPayment": 2129,
                 "oneTimeAddedPensionType": "self+dependants",
@@ -51,20 +51,34 @@ class Pension {
             }
         }
 
-        this.parameters = defaults['24_25'];
+        this.parameters = this.defaults['24_25'];
 
-        document.querySelector("#params").value = JSON.stringify(defaults['24_25'], null, 4);
+        // document.querySelector("#params").value = JSON.stringify(defaults['24_25'], null, 4);
+        this.setFormValues(this.defaults['24_25']);
         document.querySelector("#yearSelector").selected = "24_25";
 
-        document.querySelector("#yearSelector").addEventListener("change", (event) => {
-            const year = event.target.value;
-            document.querySelector("#params").value = JSON.stringify(defaults[`${year}`], null, 4);    
-        });
-        
-        document.querySelector("#calculate").addEventListener("click", () => {
+        this.addYearListener();
+        // document.querySelector("#yearSelector").addEventListener("change", (event) => {
+        //     const year = event.target.value;
+        //     document.querySelector("#params").value = JSON.stringify(defaults[`${year}`], null, 4);
+        // });
+        document.getElementById("pensionForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            // document.querySelector("#calculate").addEventListener("click", () => {
             try {
-                this.parameters = JSON.parse(document.querySelector("#params").value);
-                const p = this.parameters;
+                const p = {
+                    age: parseInt(document.getElementById("age").value, 10),
+                    oneTimeAddedPensionPayment: parseFloat(document.getElementById("oneTimeAddedPensionPayment").value) || 0,
+                    oneTimeAddedPensionType: document.getElementById("oneTimeAddedPensionType").value,
+                    monthlyAddedPensionPaymentType1: parseFloat(document.getElementById("monthlyAddedPensionPaymentType1").value) || 0,
+                    monthlyAddedPensionPaymentType2: parseFloat(document.getElementById("monthlyAddedPensionPaymentType2").value) || 0,
+                    normalPensionAge: parseInt(document.getElementById("normalPensionAge").value, 10),
+                    addedPensionType1: document.getElementById("addedPensionType1").value,
+                    addedPensionType2: document.getElementById("addedPensionType2").value
+                };
+
+                // this.parameters = JSON.parse(document.querySelector("#params").value);
+                // const p = this.parameters;
                 const defaults = {
                     "age": { min: 18, max: 100 },
                     "normalPensionAge": { min: 58, max: 80 },
@@ -75,7 +89,7 @@ class Pension {
                     alert(`Age must be between ${defaults.age.min} and ${defaults.age.max}.`);
                     return;
                 }
-                if (typeof p.normalPensionAge !== "number" || p.normalPensionAge < defaults.normalPensionAge.min || p.normalPensionAge > defaults.normalPensionAge.max)  {
+                if (typeof p.normalPensionAge !== "number" || p.normalPensionAge < defaults.normalPensionAge.min || p.normalPensionAge > defaults.normalPensionAge.max) {
                     alert(`Normal pension age must be between ${defaults.normalPensionAge.min} and ${defaults.normalPensionAge.max}.`);
                     return;
                 }
@@ -107,10 +121,10 @@ class Pension {
             }
 
             let addedPensionForOneTimePayment = this.calculateAddedPensionForYearForGivenAge(this.parameters.oneTimeAddedPensionPayment, this.parameters.age, this.parameters.addedPensionType1);
-           
+
             let totalContributionsForYearType1 = 12 * this.parameters.monthlyAddedPensionPaymentType1;
             let addedPensionForYearType1 = this.calculateAddedPensionForYearForGivenAge(totalContributionsForYearType1, this.parameters.age, this.parameters.addedPensionType1);
-            
+
             let totalContributionsForYearType2 = 12 * this.parameters.monthlyAddedPensionPaymentType2;
             let addedPensionForYearType2 = this.calculateAddedPensionForYearForGivenAge(totalContributionsForYearType2, this.parameters.age, this.parameters.addedPensionType2);
 
@@ -128,9 +142,84 @@ class Pension {
                     <p>total contributions for one time payment: ${this.parameters.addedPensionType1}: £${this.parameters.oneTimeAddedPensionPayment}</p>
                     <p>added pension one time payment for ${this.parameters.addedPensionType1}: £${addedPensionForOneTimePayment}</p>
             `;
+            resultElement.innerHTML = `
+                    <div class="results-container">
+                        <h3>Forecast Results</h3>
+                        
+                        <div class="results-block">
+                        <h4>${this.parameters.addedPensionType1.toUpperCase()}</h4>
+                        <table>
+                            <tr>
+                            <td>Monthly Contribution:</td>
+                            <td>£${this.parameters.monthlyAddedPensionPaymentType1}</td>
+                            <td class="calc">→ £${totalContributionsForYearType1} total</td>
+                            </tr>
+                            <tr>
+                            <td>Calculated Pension:</td>
+                            <td></td>
+                            <td class="calc">£${addedPensionForYearType1}</td>
+                            </tr>
+                        </table>
+                        </div>
+
+                        <div class="results-block">
+                        <h4>${this.parameters.addedPensionType2.toUpperCase()}</h4>
+                        <table>
+                            <tr>
+                            <td>Monthly Contribution:</td>
+                            <td>£${this.parameters.monthlyAddedPensionPaymentType2}</td>
+                            <td class="calc">→ £${totalContributionsForYearType2} total</td>
+                            </tr>
+                            <tr>
+                            <td>Calculated Pension:</td>
+                            <td></td>
+                            <td class="calc">£${addedPensionForYearType2}</td>
+                            </tr>
+                        </table>
+                        </div>
+
+                        <div class="results-block">
+                        <h4>One-Time Payment (${this.parameters.addedPensionType1.toUpperCase()})</h4>
+                        <table>
+                            <tr>
+                            <td>Contribution:</td>
+                            <td>£${this.parameters.oneTimeAddedPensionPayment}</td>
+                            <td class="calc">→ £${this.parameters.oneTimeAddedPensionPayment}</td>
+                            </tr>
+                            <tr>
+                            <td>Calculated Pension:</td>
+                            <td></td>
+                            <td class="calc">£${addedPensionForOneTimePayment}</td>
+                            </tr>
+                        </table>
+                        </div>
+                    </div>
+                    `;
+
 
             document.querySelector("#results").appendChild(resultElement);
         });
+    }
+
+    addYearListener() {
+        document.getElementById("yearSelector").addEventListener("change", (e) => {
+            const year = e.target.value;
+            const data = this.defaults[year];
+            if (!data) return;
+
+            this.setFormValues(data);
+        });
+    }
+
+    setFormValues(data) {
+        document.getElementById("age").value = data.age;
+        document.getElementById("oneTimeAddedPensionPayment").value = data.oneTimeAddedPensionPayment;
+        document.getElementById("oneTimeAddedPensionType").value = data.oneTimeAddedPensionType;
+        document.getElementById("monthlyAddedPensionPaymentType1").value = data.monthlyAddedPensionPaymentType1;
+        document.getElementById("monthlyAddedPensionPaymentType2").value = data.monthlyAddedPensionPaymentType2;
+        document.getElementById("normalPensionAge").value = data.normalPensionAge;
+        document.getElementById("addedPensionType1").value = data.addedPensionType1;
+        document.getElementById("addedPensionType2").value = data.addedPensionType2;
     }
 
     /**

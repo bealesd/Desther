@@ -60,10 +60,8 @@ export default new class Router {
             title = window.location.pathname.replace('.html', '');
         }
 
-        const content = route?.content ?? '';
         PageInfo.setInfo({
             title: title,
-            content: content,
             extraContent: `${LoginHelper.loggedIn ? 'Hello ' + LoginHelper.username : 'Not Logged In'}`
         });
     }
