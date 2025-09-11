@@ -1,92 +1,58 @@
-<div id="pension-area2">
-
-     <div class="options-bar">
-            <label for="yearSelector">Tax Year:</label>
-            <select id="yearSelector">
-                <option value="24_25">2024–2025</option>
-                <option value="23_24">2023–2024</option>
-                <option value="22_23">2022–2023</option>
-            </select>
-        </div>
-
-
-    <!-- <select id="yearSelector">
-        <option value="24_25">24_25</option>
-        <option value="23_24">23_24</option>
-        <option value="22_23">22_23</option>
-    </select> -->
-
-
-
-    <!-- <textarea id="params" rows="20" cols="50" placeholder="Parameters will be displayed here..."></textarea>
-    <button id="calculate">Calculate</button> -->
 <div id="pension-area">
 
+    <div class="options-bar">
+        <label for="yearSelector">Tax Year:</label>
+        <select id="yearSelector">
+            <option value="24_25">2024–2025</option>
+            <option value="23_24">2023–2024</option>
+            <option value="22_23">2022–2023</option>
+        </select>
+    </div>
 
+    <form id="pensionForm" class="pension-form">
+        <h2>Added Pension Forecaster</h2>
 
-<form id="pensionForm" class="pension-form">
-  <h2>Added Pension Forecaster</h2>
+        <label>
+            Age
+            <input type="number" id="age" name="age" min="16" max="100" required>
+        </label>
 
-  <label>
-    Age
-    <input type="number" id="age" name="age" min="16" max="100" required>
-  </label>
+        <div class="added-pension-payment">
+            <div class="form-row">
+                <label>
+                    Type
+                    <select class="addedPensionType" name="addedPensionType">
+                        <option value="self">Self</option>
+                        <option value="self+dependants">Self + Dependants</option>
+                    </select>
+                </label>
 
-  <label>
-    One-time Added Pension Payment (£)
-    <input type="number" id="oneTimeAddedPensionPayment" name="oneTimeAddedPensionPayment" min="0" step="1">
-  </label>
+                <label>
+                    Period
+                    <select class="addedPensionPeriod" name="addedPensionPeriod">
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </label>
+            </div>
 
-  <label>
-    One-time Added Pension Type
-    <select id="oneTimeAddedPensionType" name="oneTimeAddedPensionType">
-      <option value="self">Self</option>
-      <option value="self+dependants">Self + Dependants</option>
-    </select>
-  </label>
+            <label>
+                Amount
+                <input type="number" class="added-pension-amount" name="" min="0" step="1">
+            </label>
+        </div>
 
-  <label>
-    Monthly Added Pension Payment (Type 1) (£)
-    <input type="number" id="monthlyAddedPensionPaymentType1" name="monthlyAddedPensionPaymentType1" min="0" step="1">
-  </label>
+        <button type="button" id="addAnotherPensionPayment">Add Another</button>
+        <br>
+        <label>
+            Normal Pension Age
+            <input type="number" id="normalPensionAge" name="normalPensionAge" min="50" max="75" required>
+        </label>
 
-  <label>
-    Monthly Added Pension Payment (Type 2) (£)
-    <input type="number" id="monthlyAddedPensionPaymentType2" name="monthlyAddedPensionPaymentType2" min="0" step="1">
-  </label>
+        <button type="submit">Calculate Forecast</button>
+    </form>
 
-  <label>
-    Normal Pension Age
-    <input type="number" id="normalPensionAge" name="normalPensionAge" min="50" max="75" required>
-  </label>
-
-  <label>
-    Added Pension Type 1
-    <select id="addedPensionType1" name="addedPensionType1">
-      <option value="self">Self</option>
-      <option value="self+dependants">Self + Dependants</option>
-    </select>
-  </label>
-
-  <label>
-    Added Pension Type 2
-    <select id="addedPensionType2" name="addedPensionType2">
-      <option value="self">Self</option>
-      <option value="self+dependants">Self + Dependants</option>
-    </select>
-  </label>
-
-  <button type="submit">Calculate Forecast</button>
-</form>
-
-</div>
-
-
-    <br />
-
-    <h2>Calculation Results</h2>
-    <div id="results">
-
+    <div id="pension-results">
     </div>
 
 </div>

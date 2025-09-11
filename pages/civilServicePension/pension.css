@@ -1,20 +1,16 @@
-/* #pension-area2 p {
-    word-break: break-all;
-    white-space: normal;
-    text-wrap: wrap;
+#pension-area .pension-form, 
+#pension-area #pension-results{
+  max-width: 400px;
+  width: 100%; /* Ensures all wrappers are the same width */
+  margin: 10px 0; /* Adds a little space between the tables */
 }
-
-#pension-area2 #results {
-    color: aliceblue;
-} */
 
 #pension-area {
   background-color: #0d0d0d; /* black background */
   font-family: Arial, sans-serif;
   color: #e0e0e0;
-  display: flex;
-  justify-content: center;
-  padding: 2rem;
+  display: grid;
+  place-items: center;
 }
 
 .options-bar {
@@ -22,7 +18,6 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #b0b0b0;
   font-size: 0.9rem;
 }
 
@@ -42,19 +37,31 @@
 }
 
 
-.pension-form {
+.pension-form,
+#pension-results {
   background: #1a1a1a; /* dark grey panel */
-  padding: 2rem;
+  color: #e0e0e0;
   border-radius: 12px;
-  max-width: 400px;
-  width: 100%;
   box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  padding: 2rem;
 }
 
-.pension-form h2 {
+.pension-form h2,
+.results-container h2 {
   color: #66b2ff; /* light blue accent */
   margin-bottom: 1.5rem;
   text-align: center;
+}
+
+.pension-form .form-row {
+  display: flex;
+  flex-direction: row; /* Arranges the two labels horizontally */
+  gap: 20px; /* Adds space between the two stacked label/input pairs */
+  justify-content: space-between; 
+}
+
+.pension-form .form-row label {
+  flex: 1; /* Makes each label and its content take up equal space */
 }
 
 .pension-form label {
@@ -102,19 +109,10 @@
 
 .results-container {
   margin-top: 1.5rem;
-  padding: 1rem;
-  border: 1px solid #333;
+  border-bottom: 1px solid #333;
   border-radius: 8px;
   background: #1a1a1a;
   color: #e0e0e0;
-}
-
-.results-container h3 {
-  margin-bottom: 1rem;
-  color: #3399ff;
-  font-size: 1.3rem;
-  border-bottom: 1px solid #333;
-  padding-bottom: 0.5rem;
 }
 
 .results-block {

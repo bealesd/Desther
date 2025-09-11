@@ -82,7 +82,7 @@ const routes = {
         css: 'pages/civilServicePension/pension.css',
         js: 'pages/civilServicePension/pension.js',
         auth: true,
-        title: 'Civil Service Pension',
+        title: 'Alpha Pension',
     },
 };
 export default routes;
