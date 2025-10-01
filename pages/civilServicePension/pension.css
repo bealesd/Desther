@@ -64,6 +64,21 @@
   flex: 1; /* Makes each label and its content take up equal space */
 }
 
+.added-pension-payment {
+    border-bottom: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px; /* Space between sections */
+}
+
+.section-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 5px;
+}
+
 .pension-form label {
   display: flex;
   flex-direction: column;

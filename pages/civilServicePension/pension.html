@@ -17,37 +17,20 @@
             <input type="number" id="age" name="age" min="16" max="100" required>
         </label>
 
-        <div class="added-pension-payment">
-            <div class="form-row">
-                <label>
-                    Type
-                    <select class="addedPensionType" name="addedPensionType">
-                        <option value="self">Self</option>
-                        <option value="self+dependants">Self + Dependants</option>
-                    </select>
-                </label>
-
-                <label>
-                    Period
-                    <select class="addedPensionPeriod" name="addedPensionPeriod">
-                        <option value="monthly">Monthly</option>
-                        <option value="yearly">Yearly</option>
-                    </select>
-                </label>
-            </div>
-
-            <label>
-                Amount
-                <input type="number" class="added-pension-amount" name="" min="0" step="1">
-            </label>
-        </div>
-
-        <button type="button" id="addAnotherPensionPayment">Add Another</button>
         <br>
+
         <label>
             Normal Pension Age
             <input type="number" id="normalPensionAge" name="normalPensionAge" min="50" max="75" required>
         </label>
+
+        <br>
+
+        <div id="addedPensionContainer"></div>
+
+        <button type="button" id="addAnotherPensionPayment">Add Another</button>
+
+        <br>
 
         <button type="submit">Calculate Forecast</button>
     </form>

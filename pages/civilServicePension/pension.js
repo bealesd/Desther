@@ -73,97 +73,7 @@ class Pension {
         this.addYearListener();
         this.addAnotherPensionPaymentListener();
 
-        document.getElementById("pensionForm").addEventListener("submit", (e) => {
-            e.preventDefault();
-            try {
-                const defaults = {
-                    "age": { min: 18, max: 100 },
-                    "normalPensionAge": { min: 58, max: 80 },
-                    "type": ["self", "self+dependants"],
-                    'period': ['monthly', 'yearly'],
-                };
-
-                const payments = [];
-                const paymentElements = [...document.querySelectorAll('.added-pension-payment')];
-                for (const paymentElement of paymentElements) {
-                    const type = paymentElement.querySelector('.addedPensionType').value;
-                    if (!defaults.type.includes(type)) {
-                        alert(`type must be one of: ${defaults.type.join(", ")}`);
-                        return;
-                    }
-
-                    const period = paymentElement.querySelector('.addedPensionPeriod').value;
-                    if (!defaults.period.includes(period)) {
-                        alert(`period must be one of: ${defaults.period.join(", ")}`);
-                        return;
-                    }
-
-                    const amount = parseFloat(paymentElement.querySelector('.added-pension-amount').value);
-                    if (isNaN(amount) || amount < 0) {
-                        alert("amount must be a positive number.");
-                        return;
-                    }
-                    payments.push({ type: type, period: period, amount: amount });
-                }
-
-                const age = parseInt(document.getElementById("age").value, 10);
-                if (typeof age !== "number" || age < defaults.age.min || age > defaults.age.max) {
-                    alert(`Age must be between ${defaults.age.min} and ${defaults.age.max}.`);
-                    return;
-                }
-
-                const normalPensionAge = parseInt(document.getElementById("normalPensionAge").value, 10);
-                if (typeof normalPensionAge !== "number" || normalPensionAge < normalPensionAge.min || normalPensionAge > defaults.normalPensionAge.max) {
-                    alert(`Normal pension age must be between ${defaults.normalPensionAge.min} and ${defaults.normalPensionAge.max}.`);
-                    return;
-                }
-
-                this.parameters = {
-                    age: age,
-                    normalPensionAge: normalPensionAge,
-                    payments: payments
-                }
-            }
-            catch (error) {
-                alert("Invalid JSON format in parameters. Please check your input.");
-                return;
-            }
-
-            const resultElement = document.createElement("div");
-            const resultContainer = document.createElement("div");
-            resultContainer.classList.add("results-container");
-            resultElement.appendChild(resultContainer);
-
-            let resultContainerHTML = '';
-            for (const payment of this.parameters.payments) {
-                let totalContributionsForYear;
-                if (payment.period === 'monthly')
-                    totalContributionsForYear = 12 * payment.amount;
-                else if (payment.period === 'yearly')
-                    totalContributionsForYear = payment.amount;
-                const addedPension = this.calculateAddedPensionForYearForGivenAge(totalContributionsForYear, this.parameters.age, payment.type);
-                resultContainerHTML +=
-                    `
-                        <div class="results-block">
-                            <h4>${payment.period.toUpperCase()} - ${payment.type.toUpperCase()}</h4>
-                            <table>
-                                <tr>
-                                <td>${payment.period} Contribution:</td>
-                                <td>£${payment.amount}</td>
-                                <td class="calc">→ £${totalContributionsForYear} total</td>
-                                </tr>
-                                <tr>
-                                <td>Calculated Pension:</td>
-                                <td></td>
-                                <td class="calc">£${addedPension}</td>
-                                </tr>
-                            </table>
-                        </div>
-                `;
-            }
-            resultContainer.innerHTML = resultContainerHTML;
-            document.querySelector("#pension-results").appendChild(resultElement.firstElementChild);
-        });
+        this.addPensionFormSubmitListener();
     }
 
     addPensionFormSubmitListener() {
@@ -277,44 +187,72 @@ class Pension {
         });
     }
 
-    addHtmlPaymentRow() {
-        const allPensionDivs = document.querySelectorAll('.added-pension-payment');
-        const lastDiv = allPensionDivs[allPensionDivs.length - 1];
-        const newDiv = lastDiv.cloneNode(true);
-
-        // 3. Find all input, select, and textarea elements within the new clone.
-        const inputs = newDiv.querySelectorAll('input, select, textarea');
-        inputs.forEach(input => {
-            // A. For text-based inputs and textareas, clear the value.
-            if (input.type === 'text' || input.type === 'number' || input.type === 'email' || input.tagName === 'TEXTAREA') {
-                input.value = '';
-            }
-            // B. For checkboxes and radio buttons, uncheck them.
-            else if (input.type === 'checkbox' || input.type === 'radio') {
-                input.checked = false;
-            }
-            // C. For select elements, reset to the first option.
-            else if (input.tagName === 'SELECT') {
-                input.selectedIndex = 0;
-            }
+    removePensionPaymentListener(index) {
+        document.querySelectorAll(".remove-section-btn")[index].addEventListener("click", (e) => {
+            e.preventDefault();
+            e.target.closest(".added-pension-payment").remove();
         });
+    }
 
-        // Append the new div to the last existing one
-        if (lastDiv) {
-            lastDiv.appendChild(newDiv);
+    addHtmlPaymentRow() {
+        const rows = [...document.querySelectorAll('.added-pension-payment')].length;
+        const index = rows;
+
+        const addedPensionPayment = document.createElement('div');
+        addedPensionPayment.classList.add('added-pension-payment');
+        addedPensionPayment.dataset.index = rows - 1;
+
+        const html = `
+            <div class="section-header-row">
+                <h3 class="pension-section-header">Pension Payment ${index}</h3>
+                <button type="button" class="remove-section-btn">Remove Section</button>
+            </div>
+
+            <div class="form-row">
+                <label>
+                    Type
+                    <select class="addedPensionType" name="addedPensionType">
+                        <option value="self">Self</option>
+                        <option value="self+dependants">Self + Dependants</option>
+                    </select>
+                </label>
+
+                <label>
+                    Period
+                    <select class="addedPensionPeriod" name="addedPensionPeriod">
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </label>
+            </div>
+
+            <label>
+                Amount
+                <input type="number" class="added-pension-amount" name="amount" min="0" step="1">
+            </label>
+        `;
+        addedPensionPayment.innerHTML = html;
+
+        const addedPensionContainer = document.querySelector('#addedPensionContainer');
+        addedPensionContainer.appendChild(addedPensionPayment);
+
+        this.removePensionPaymentListener(index);
+    }
+
+    resetForm() {
+        const allPensionDivs = [...document.querySelectorAll('.added-pension-payment')];
+        for (let i = 0; i < allPensionDivs.length; i++) {
+            allPensionDivs[i].remove();
         }
     }
 
     setFormValues(pension) {
+        this.resetForm();
+
         const pensionPaymentsTotal = pension.pensionPayments.length;
-        if (pensionPaymentsTotal > 1) {
-            for (let i = 1; i < pensionPaymentsTotal; i++) {
-                this.addHtmlPaymentRow();
-                this.setHtmlValuesForPayment(i, pension.pensionPayments[i]);
-            }
-        }
-        else {
-             this.setHtmlValuesForPayment(0, pension.pensionPayments[0]);
+        for (let i = 0; i < pensionPaymentsTotal; i++) {
+            this.addHtmlPaymentRow();
+            this.setHtmlValuesForPayment(i, pension.pensionPayments[i]);
         }
 
         document.getElementById("age").value = pension.age;
