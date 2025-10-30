@@ -3,8 +3,13 @@ import GlobalConfig from "../../config.js";
 import Logger from "../../helpers/logger.js";
 import RequestHelper from "../../helpers/requestHelper.js";
 import toastService from "../../helpers/toastService.js";
+import LoadingScreen from "../../helpers/loadingScreen.js";
 
 class WeighInsEntry {
+    _cancelled = false;
+    _activeController = null;
+    signal = null;
+
     domClasses = Object.freeze({
         weighInContainer: 'weigh-ins-entry-container',
     });
@@ -13,20 +18,22 @@ class WeighInsEntry {
         weighInTableFooter: 'weigh-in-table-footer'
     });
 
-    constructor() {
-        toastService.addToast('On Weigh Ins Entry Page.', GlobalConfig.LOG_LEVEL.INFO, true);
+    async init() {
+        this._activeController = new AbortController();
+        this.signal = this._activeController?.signal;
 
         document.querySelector('#addWeighIn').addEventListener('click', (evt) => {
             this.addWeighIn(evt);
         });
-
+        
         document.querySelector('.dateInput').value = this.#dateOfToday();
 
-        this.init();
-    }
-
-    async init() {
+        LoadingScreen.showFullScreenLoader();
         const weighIns = await this.#GetWeighIns();
+        LoadingScreen.hideFullScreenLoader();
+
+        if (this._cancelled) return;
+
         for (const weighIn of weighIns) {
             // weighIn format:
             // {
@@ -44,7 +51,7 @@ class WeighInsEntry {
 
     async #GetWeighIns() {
         const url = `${GlobalConfig.apis.weighIns}/GetWeighIns`;
-        const weights = await RequestHelper.GetJsonWithAuth(url);
+        const weights = await RequestHelper.GetJsonWithAuth(url, this.signal);
         if (weights?.error) {
             toastService.addToast('Failed to load weigh ins.', GlobalConfig.LOG_LEVEL.ERROR);
             Logger.log(`Failed to load weigh ins: ${JSON.stringify(weights)}`, GlobalConfig.LOG_LEVEL.ERROR);
@@ -100,7 +107,10 @@ class WeighInsEntry {
         const weighIn = this.getWeighInObject(clickAddButtonEvent);
         if (!weighIn) return;
 
+        LoadingScreen.showFullScreenLoader();
         const weighInResponse = await this.postWeighIn(weighIn);
+        LoadingScreen.hideFullScreenLoader();
+
         if (!weighInResponse) return;
 
         this.renderWeightRow(weighInResponse);
@@ -203,11 +213,11 @@ class WeighInsEntry {
             weighIn.EstherStone !== undefined && weighIn.EstherPounds !== undefined && weighIn.Date) {
 
             const { DavidStone, DavidPounds, EstherStone, EstherPounds, Date } = weighIn;
-            if (!this.#isValidStone(DavidStone)) return alert(`Dave weight stone is invalid: ${DavidStone}`);
-            if (!this.#isValidPound(DavidPounds)) return alert(`Dave weight pounds is invalid: ${weightDavePoundDavidPoundsValue}`);
-            if (!this.#isValidStone(EstherStone)) return alert(`Esther weight stone is invalid: ${EstherStone}`);
-            if (!this.#isValidPound(EstherPounds)) return alert(`Esther weight pounds is invalid: ${EstherPounds}`);
-            if (!this.#isValidDate(Date)) return alert(`Date is invalid: ${Date}`);
+            if (!this.#isValidStone(DavidStone)) return toastService.addToast(`Dave weight stone is invalid: ${DavidStone}`, GlobalConfig.LOG_LEVEL.ERROR);
+            if (!this.#isValidPound(DavidPounds)) return toastService.addToast(`Dave weight pounds is invalid: ${DavidPounds}`, GlobalConfig.LOG_LEVEL.ERROR);
+            if (!this.#isValidStone(EstherStone)) return toastService.addToast(`Esther weight stone is invalid: ${EstherStone}`, GlobalConfig.LOG_LEVEL.ERROR);
+            if (!this.#isValidPound(EstherPounds)) return toastService.addToast(`Esther weight pounds is invalid: ${EstherPounds}`, GlobalConfig.LOG_LEVEL.ERROR);
+            if (!this.#isValidDate(Date)) return toastService.addToast(`Date is invalid: ${Date}`, GlobalConfig.LOG_LEVEL.ERROR);
 
             return true;
         }
@@ -278,4 +288,16 @@ class WeighInsEntry {
 }
 
 // Called by contentLoader, when loading the correspond page.
-window.scripts = { init: () => { new WeighInsEntry(); } }
+window.scripts = {
+    app: null,
+
+    init: function () {
+        this.app = new WeighInsEntry();
+        this.app.init();
+    },
+
+    destroy: function () {
+        this.app?._activeController?.abort();
+        this.app._cancelled = true;
+    }
+}

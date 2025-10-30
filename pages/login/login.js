@@ -4,12 +4,17 @@ import EventHandler from "../../helpers/eventHandler.js";
 import LoginHelper from "../../helpers/loginHelper.js";
 import menuHelper from "../../helpers/menuHelper.js";
 import toastService from "../../helpers/toastService.js";
+import LoadingScreen from "../../helpers/loadingScreen.js";
 
 class Login {
+    _cancelled = false;
+    _activeController = null;
+    signal = null;
+
     contentAreaId = GlobalConfig.domIds.contentArea;
     contentAreaElement;
 
-    constructor() {
+    init() {
         // Should be called every time login button is clicked
         this.contentAreaElement = document.querySelector(`#${this.contentAreaId}`);
         this.registerCallbacks();
@@ -19,9 +24,9 @@ class Login {
         // When login button is clicked, login
         const loginButton = this.contentAreaElement.querySelector(`.login-btn`);
         EventHandler.overwriteEvent({
-            'id': 'loginEvent', 
-            'eventType': 'click', 
-            'element': loginButton, 
+            'id': 'loginEvent',
+            'eventType': 'click',
+            'element': loginButton,
             'callback': () => {
                 this.login();
             }
@@ -29,6 +34,9 @@ class Login {
     }
 
     async login() {
+        this._activeController = new AbortController();
+        this.signal = this._activeController?.signal;
+
         const user = this.getCredentials();
         // move to general validate user
         if (!user.username | !user.password) {
@@ -36,13 +44,17 @@ class Login {
             return;
         }
 
-        await LoginHelper.login(user);
+        LoadingScreen.showFullScreenLoader();
+        await LoginHelper.login(user, this.signal);
+        LoadingScreen.hideFullScreenLoader();
 
-        if (LoginHelper.loggedIn){
+        if (this._cancelled) return;
+
+        if (LoginHelper.loggedIn) {
             toastService.addToast('Logged in.', GlobalConfig.LOG_LEVEL.INFO);
             menuHelper.loadHomePage();
         }
-        else{
+        else {
             toastService.addToast('Failed to log in.', GlobalConfig.LOG_LEVEL.ERROR);
         }    
     }
@@ -58,4 +70,16 @@ class Login {
 }
 
 // Called by contentLoader, when loading the correspond page.
-window.scripts = { init: () => { new Login(); } }
+window.scripts = {
+    app: null,
+
+    init: function () {
+        this.app = new Login();
+        this.app.init();
+    },
+
+    destroy: function () {
+        this.app?._activeController?.abort();
+        this.app._cancelled = true;
+    }
+}

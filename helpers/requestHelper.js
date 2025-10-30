@@ -46,10 +46,11 @@ export default class RequestHelper {
         return this.#interceptedFetch(url, options);
     }
 
-    static async GetText(url) {
+    static async GetText(url, signal = null) {
         try {
             const response = await this.#fetch(url, {
-                method: 'Get'
+                method: 'Get',
+                signal: signal
             });
 
             this.handleNotOkResponse(response);
@@ -60,10 +61,11 @@ export default class RequestHelper {
         }
     }
 
-    static async GetJson(url) {
+    static async GetJson(url, signal = null) {
         try {
             const response = await this.#fetch(url, {
-                method: 'Get'
+                method: 'Get',
+                signal: signal,
             });
 
             this.handleNotOkResponse(response);
@@ -74,10 +76,11 @@ export default class RequestHelper {
         }
     }
 
-    static async GetJsonWithAuth(url) {
+    static async GetJsonWithAuth(url, signal = null) {
         try {
             const response = await this.#fetchWithToken(url, {
-                method: 'Get'
+                method: 'Get',
+                signal: signal
             });
 
             this.handleNotOkResponse(response);
@@ -91,7 +94,7 @@ export default class RequestHelper {
         }
     }
 
-    static async PostJson(url, object, withAuth = false) {
+    static async PostJson(url, object, {withAuth = false, signal = null}) {
         const myHeaders = new Headers();
         myHeaders.append('Content-Type', 'application/json');
         const fetchMethod = withAuth ? this.#fetchWithToken : this.#fetch;
@@ -101,6 +104,7 @@ export default class RequestHelper {
                 method: 'POST',
                 headers: myHeaders,
                 body: JSON.stringify(object),
+                signal: signal,
             });
             this.handleNotOkResponse(response);
             const json = await response.json();
@@ -110,7 +114,7 @@ export default class RequestHelper {
         }
     }
 
-    static async PutJson(url, object, withAuth = false) {
+    static async PutJson(url, object, {withAuth = false, signal = null}) {
         const myHeaders = new Headers();
         myHeaders.append('Content-Type', 'application/json');
         const fetchMethod = withAuth ? this.#fetchWithToken : this.#fetch;
@@ -120,6 +124,7 @@ export default class RequestHelper {
                 method: 'PUT',
                 headers: myHeaders,
                 body: JSON.stringify(object),
+                signal: signal
             });
             this.handleNotOkResponse(response);
         } catch (error) {
@@ -128,11 +133,11 @@ export default class RequestHelper {
     }
 
     static async PostJsonWithAuth(url, object) {
-        return this.PostJson(url, object, true);
+        return this.PostJson(url, object, {withAuth: true});
     }
 
-    static async PutJsonWithAuth(url, object) {
-        return this.PutJson(url, object, true);
+    static async PutJsonWithAuth(url, object, signal = null) {
+        return this.PutJson(url, object, {withAuth: true, signal: signal});
     }
 
     static async DeleteWithAuth(url) {

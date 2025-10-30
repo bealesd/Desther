@@ -9,15 +9,15 @@ export default new class LoginHelper {
 
     constructor() { }
 
-    async login(user) {
-        const jwtToken = await this.#GetToken(user);
+    async login(user, signal) {
+        const jwtToken = await this.#GetToken(user, signal);
         if (!jwtToken) {
             this.loggedIn = false;
             return;
         }
         this.jwtToken = jwtToken;
 
-        this.usernameId = await this.#GetUsernameId(user.username);
+        this.usernameId = await this.GetUsernameId(user.username, signal);
         if (!this.usernameId) {
             this.loggedIn = false;
             return;
@@ -33,17 +33,17 @@ export default new class LoginHelper {
         this.loggedIn = false;
     }
 
-    async #GetToken(user) {
+    async #GetToken(user, signal = null) {
         const url = `${GlobalConfig.apis.auth}/Login`;
-        const token = await RequestHelper.PostJson(url, user);
+        const token = await RequestHelper.PostJson(url, user, {signal: signal});
         if (token?.error)
             return null;
         return token;
     }
 
-    async #GetUsernameId(username) {
+    async GetUsernameId(username, signal = null) {
         const url = `${GlobalConfig.apis.auth}/GetUsernameId?username=${username}`;
-        const id = await await RequestHelper.GetJson(url);
+        const id = await await RequestHelper.GetJson(url, signal);
         if (id?.error)
             return null;
         return id;

@@ -1,33 +1,40 @@
 
 import GlobalConfig from "../../config.js";
 import EventHandler from "../../helpers/eventHandler.js";
-import PageInfo from "../../helpers/pageInfo.js";
 import RequestHelper from "../../helpers/requestHelper.js";
 import toastService from "../../helpers/toastService.js";
+import LoadingScreen from '../../helpers/loadingScreen.js'
 
 class WeightChartSetup {
+    _cancelled = false;
+    _activeController = null;
+    signal = null;
+
     weighIns = [];
     updateIntervalInSeconds = 10;
 
-    constructor() {
-        this.init();
-    }
-
     async init() {
+        this._activeController = new AbortController();
+        this.signal = this._activeController?.signal;
+
+        LoadingScreen.showFullScreenLoader();
         this.weighIns = await this.#GetWeighIns();
+        LoadingScreen.hideFullScreenLoader();
+
+        if (this._cancelled) return;
+
         if (this.weighIns.length === 0) {
             const message = `No weigh ins found.`;
             toastService.addToast(message, GlobalConfig.LOG_LEVEL.WARNING);
             return;
         }
 
-        // const ctx = this.canvas.getContext('2d');
         new WeightChart(this.weighIns);
     }
 
     async #GetWeighIns() {
         const url = `${GlobalConfig.apis.weighIns}/GetWeighIns`;
-        const weights = await RequestHelper.GetJsonWithAuth(url);
+        const weights = await RequestHelper.GetJsonWithAuth(url, this.signal);
         if (weights?.error)
             return [];
         return weights;
@@ -35,7 +42,20 @@ class WeightChartSetup {
 }
 
 // Called by contentLoader, when loading the correspond page.
-window.scripts = { init: () => { new WeightChartSetup(); } }
+window.scripts = {
+    app: null,
+
+    init: function () {
+        this.app = new WeightChartSetup();
+        this.app.init();
+    },
+
+    destroy: function () {
+        this.app?._activeController?.abort();
+        this.app._cancelled = true;
+    }
+}
+
 
 
 class WeightChart {

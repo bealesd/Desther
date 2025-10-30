@@ -77,12 +77,12 @@ const routes = {
         auth: false,
         title: 'Weigh Ins Entry',
     },
-     '/pension': {
-        link: 'pages/civilServicePension/pension.html',
-        css: 'pages/civilServicePension/pension.css',
-        js: 'pages/civilServicePension/pension.js',
+     '/alpha-added-pension': {
+        link: 'pages/alpha-added-pension/alpha-added-pension.html',
+        css: 'pages/alpha-added-pension/alpha-added-pension.css',
+        js: 'pages/alpha-added-pension/alpha-added-pension.js',
         auth: true,
-        title: 'Alpha Pension',
+        title: 'Alpha Added Pension',
     },
 };
 export default routes;

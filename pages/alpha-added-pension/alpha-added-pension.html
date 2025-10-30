@@ -1,0 +1,41 @@
+<div id="pension-area">
+
+    <div class="options-bar">
+        <label for="year-selector">Tax Year:</label>
+        <select id="year-selector">
+            <option value="24_25">2024-2025</option>
+            <option value="23_24">2023-2024</option>
+            <option value="22_23">2022-2023</option>
+        </select>
+    </div>
+
+    <form id="pension-form" class="pension-form">
+        <h2>Added Pension Forecaster</h2>
+
+        <label>
+            Age
+            <input type="number" id="age" name="age" min="16" max="100" required>
+        </label>
+
+        <br>
+
+        <label>
+            Normal Pension Age
+            <input type="number" id="normal-pension-age" name="normal-pension-age" min="50" max="75" required>
+        </label>
+
+        <br>
+
+        <div id="added-pension-container"></div>
+
+        <button type="button" id="add-another-pension-payment">Add Another</button>
+
+        <br>
+
+        <button type="submit">Calculate Forecast</button>
+    </form>
+
+    <div id="pension-results">
+    </div>
+
+</div>

@@ -20,13 +20,11 @@
 
 <body>
 
-
     <!-- #region Top Navigation -->
     <div class="top-bar">
         <button data-router href="/index" id="home-button">Home</button>
         <div class="page-info">
             <div id="page-info-title">Page Title</div>
-            <p id="page-info-content">Some details about this page</p>
         </div>
 
         <div class="page-info-extra">
@@ -40,7 +38,8 @@
                 </span>
                 <!-- Tooltip text that appears on hover -->
                 <div class="page-info-tooltip">
-                    JavaScript is not working as expected. It might not be enabled or supported properly by your browser.
+                    JavaScript is not working as expected. It might not be enabled or supported properly by your
+                    browser.
                 </div>
             </div>
         </div>
@@ -85,19 +84,34 @@
                     </button>
                 </li>
 
+                <li class="menu-li">
+                    <button class="menu-button" data-router="true" href="/calendar">
+                        Calendar
+                    </button>
+                </li>
+
+                <li class="menu-li">
+                    <button class="menu-button" data-router="true" href="/alpha-added-pension">
+                        Civil Service Pension
+                    </button>
+                </li>
+
             </ul>
         </div>
     </div>
     <!-- #endregion Main Menu -->
 
 
+    <div id="full-screen-loader">
+        <div class="spinner"></div>
+    </div>
+
+
     <div id="content-area"></div>
 
 
-    <div id="message-area"></div>
-
-
     <div class="toast-container" id="toast-container"></div>
+
 
     <script>
         const isGithubPages = location.hostname === 'bealesd.github.io';

@@ -4,8 +4,13 @@ import GlobalConfig from "../../config.js";
 import toastService from "../toastService.js";
 import ContentLoader from "../contentLoader.js"
 import eventEmitter from "../../helpers/eventEmitter.js";
+import LoadingScreen from '../../helpers/loadingScreen.js'
 
 export default class RecipeFormManager {
+    _cancelled = false;
+    _activeController = null;
+    signal = null;
+
     domClasses = Object.freeze({
         addButton: 'add-btn',
         editButton: 'edit-btn',
@@ -30,16 +35,25 @@ export default class RecipeFormManager {
     editRecipeId = -1;
 
     async renderForm(containerElement) {
-        const htmlLoaded = await ContentLoader.loadHtml(containerElement, this.htmlPath);
+        const htmlLoaded = await ContentLoader.loadHtml(containerElement, this.htmlPath, this.signal);
         if (!htmlLoaded)
             Logger.log(`No HTML loaded for : ${path}`, GlobalConfig.LOG_LEVEL.WARNING);
 
-        await ContentLoader.loadCss(containerElement, this.cssPath);
+        ContentLoader.loadCss(containerElement, this.cssPath);
     }
 
     async renderAddForm() {
+        this._activeController = new AbortController();
+        this.signal = this._activeController.signal;
+
         const contentArea = document.querySelector(`#${GlobalConfig.domIds.contentArea}`);
+
+        LoadingScreen.showFullScreenLoader();
         await this.renderForm(contentArea);
+        LoadingScreen.hideFullScreenLoader();
+
+        if (this._cancelled) return;
+
         document.querySelector(`#${this.domIds.recipeEditButton}`).classList.add('hidden-btn');
         document.querySelector(`#${this.domIds.recipeCloseButton}`).classList.add('hidden-btn');
 
@@ -52,10 +66,18 @@ export default class RecipeFormManager {
     }
 
     async renderEditForm({ oldRecipe, containerElement }) {
+        this._activeController = new AbortController();
+        this.signal = this._activeController.signal;
+
         // Store recipe card
         this.recipeCard = containerElement.cloneNode(true);
 
+        LoadingScreen.showFullScreenLoader();
         await this.renderForm(containerElement);
+        LoadingScreen.hideFullScreenLoader();
+
+        if (this._cancelled) return;
+
         containerElement.querySelector(`#${this.domIds.recipeAddButton}`).classList.add('hidden-btn');
 
         this.editRecipeId = oldRecipe.id;
@@ -115,7 +137,12 @@ export default class RecipeFormManager {
             cookTime: formData.get('cookTime')
         };
 
+        LoadingScreen.showFullScreenLoader();
         await this.postRecipe(newRecipe); // Post the new recipe to the server
+        LoadingScreen.hideFullScreenLoader();
+
+        if (this._cancelled) return;
+
         recipeForm.reset(); // Clear the form fields
     }
 
@@ -135,7 +162,12 @@ export default class RecipeFormManager {
             cookTime: formData.get('cookTime'),
         };
 
+        LoadingScreen.showFullScreenLoader();
         const recipeUpdated = await this.patchRecipe(updatedRecipe); // Post the new recipe to the server
+        LoadingScreen.hideFullScreenLoader();
+
+        if (this._cancelled) return;
+
         if (recipeUpdated) {
             console.log('Recipe updated:', updatedRecipe);
             eventEmitter.emit('recipe:edit', updatedRecipe);
@@ -150,7 +182,7 @@ export default class RecipeFormManager {
             Text: JSON.stringify(newRecipe)
         };
 
-        const response = await RequestHelper.PostJsonWithAuth(this.addNotepadUrl, content);
+        const response = await RequestHelper.PostJsonWithAuth(this.addNotepadUrl, content, {signal: this.signal});
 
         if (response?.error) {
             toastService.addToast('Failed to add recipe.', GlobalConfig.LOG_LEVEL.ERROR);
@@ -169,7 +201,7 @@ export default class RecipeFormManager {
             Id: this.editRecipeId // Include the recipe ID for updating
         };
 
-        const response = await RequestHelper.PutJsonWithAuth(this.updateNotepadUrl, content);
+        const response = await RequestHelper.PutJsonWithAuth(this.updateNotepadUrl, content, this.signal);
 
         if (response?.error) {
             toastService.addToast('Failed to update recipe.', GlobalConfig.LOG_LEVEL.ERROR);

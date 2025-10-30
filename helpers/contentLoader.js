@@ -1,10 +1,11 @@
 import RequestHelper from "./requestHelper.js";
 
 export default new class ContentLoader {
-    scriptCallbacks = {};
+    startupScripts = {};
+    currentScript = null;
 
-    async loadHtml(div, html) {
-        const rawHtml = await RequestHelper.GetText(html);
+    async loadHtml(div, html, signal = null) {
+        const rawHtml = await RequestHelper.GetText(html, signal);
         if (rawHtml?.error)
             return false;
         div.innerHTML = rawHtml;
@@ -32,11 +33,8 @@ export default new class ContentLoader {
             div.appendChild(script);
         });
 
-        // Each script that is loaded assigns it start up logic to window.scripts.init.
-        const scriptInitilizer = window.scripts.init;
-        const scriptCallback = () => { scriptInitilizer(); }
-        // A script is loaded once due to browser caching, so we use callbacks to call its' start up logic.
-        this.scriptCallbacks[`${js}`] = this.scriptCallbacks[`${js}`] ?? scriptCallback;
-        this.scriptCallbacks[`${js}`]();
+        // A script is loaded once due to browser caching. The windows.script function must be stored to be loaded again.
+        this.startupScripts[`${js}`] = this.startupScripts[`${js}`] ?? window.scripts;
+        this.startupScripts[`${js}`].init();
     }
 }

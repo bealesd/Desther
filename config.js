@@ -11,6 +11,7 @@ class GlobalConfig {
         url.auth = `${url.chatCoreUrl}/auth`;
         url.chatGroup = `${url.chatCoreUrl}/chatGroups`;
         url.chat = `${url.chatCoreUrl}/chat`;
+        url.chatsRead = `${url.chatCoreUrl}/chatsRead`;
         url.weighIns = `${url.chatCoreUrl}/weighIns`;
         url.recipes = `${url.chatCoreUrl}/notepad`;
         return url;

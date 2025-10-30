@@ -20,7 +20,7 @@ export default new class Router {
         window.addEventListener('popstate', () => this.handleNavigation());
         // Listen to any click events on website
         document.addEventListener('click', (event) => this.handleLinkClick(event));
-        
+
         // show any stored toasts after a page redirect
         persistentToastService.showToasts();
     }
@@ -67,6 +67,10 @@ export default new class Router {
     }
 
     async loadContent() {
+        // cancel code running on previous page.
+        for (const script of Object.keys(ContentLoader.startupScripts)) {
+            ContentLoader.startupScripts[script]?.destroy?.();
+        }
         eventHandler.removeEvents();
         eventHandler.removeIntervals();
 

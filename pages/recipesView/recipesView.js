@@ -4,8 +4,13 @@ import EventHandler from "../../helpers/eventHandler.js";
 import RequestHelper from "../../helpers/requestHelper.js";
 import RecipeFormManager from "../../helpers/recipeFormManager/recipeFormManager.js";
 import eventEmitter from "../../helpers/eventEmitter.js";
+import LoadingScreen from "../../helpers/LoadingScreen.js";
 
 class RecipeApp {
+    _cancelled = false;
+    _activeController = null;
+    signal = null;
+
     domClasses = Object.freeze({
         recipeCard: 'recipe-card',
     });
@@ -31,7 +36,15 @@ class RecipeApp {
 
     // Initialization method
     async init() {
-        this.recipes = await this.getRecipes(); // Fetch recipes from the server
+        LoadingScreen.showFullScreenLoader();
+
+        this._activeController = new AbortController();
+        this.signal = this._activeController?.signal;
+
+        this.recipes = await this.getRecipes();
+        LoadingScreen.hideFullScreenLoader();
+
+        if (this._cancelled) return;
 
         this.expandedRecipes = new Set(); // Set to store titles of expanded recipes to maintain state
 
@@ -52,7 +65,7 @@ class RecipeApp {
 
     async getRecipes() {
         const recipes = [];
-        const recipeResults = await RequestHelper.GetJsonWithAuth(this.getRecipesUrl);
+        const recipeResults = await RequestHelper.GetJsonWithAuth(this.getRecipesUrl, this.signal);
         if (recipeResults?.error)
             return [];
 
@@ -68,7 +81,7 @@ class RecipeApp {
     async getRecipe(id) {
         const url = `${GlobalConfig.apis.recipes}/GetNotepad?id=${id}`
 
-        const recipe = await RequestHelper.GetJsonWithAuth(url);
+        const recipe = await RequestHelper.GetJsonWithAuth(url, this.signal);
         if (recipe?.error)
             return {};
 
@@ -202,8 +215,8 @@ class RecipeApp {
                 this.deleteRecipe(recipe.id)
             }
             else if (isEditBtnClick) {
-                const recipeFormManager = new RecipeFormManager();
-                recipeFormManager.renderEditForm({ oldRecipe: recipe, containerElement: recipeCard });
+                this.recipeFormManager = new RecipeFormManager();
+                this.recipeFormManager.renderEditForm({ oldRecipe: recipe, containerElement: recipeCard });
                 recipeCard.dataset.editing = true;
             }
             else {
@@ -352,4 +365,21 @@ class RecipeApp {
 }
 
 // Called by contentLoader, when loading the correspond page.
-window.scripts = { init: () => { const app = new RecipeApp(); app.init(); } }
+window.scripts = {
+    app: null,
+
+    init: function () {
+        this.app = new RecipeApp();
+        this.app.init();
+    },
+
+    destroy: function () {
+        this.app?._activeController?.abort();
+        this.app._cancelled = true;
+
+        if (this.app?.recipeFormManager) {
+            this.app.recipeFormManager._activeController?.abort();
+            this.app.recipeFormManager._cancelled = true;
+        }
+    }
+}

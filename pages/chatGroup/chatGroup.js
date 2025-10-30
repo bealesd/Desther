@@ -6,6 +6,10 @@ import RequestHelper from "../../helpers/requestHelper.js";
 import toastService from "../../helpers/toastService.js";
 
 class ChatGroup {
+    _cancelled = false;
+    _activeController = null;
+    signal = null;
+
     domClasses = Object.freeze({
         chatGroupContainer: 'chat-group-container'
     });
@@ -14,11 +18,10 @@ class ChatGroup {
         chatGroupArea: 'chat-group-area',
     });
 
-    constructor() {
-        this.init();
-    }
-
     async init() {
+        this._activeController = new AbortController();
+        this.signal = this._activeController?.signal;
+
         const chatGroups = await this.#GetChatGroups();
         this.renderChatGroups(chatGroups);
         toastService.addToast('On Chat Group Page.', GlobalConfig.LOG_LEVEL.WARNING, true);
@@ -64,10 +67,22 @@ class ChatGroup {
         Logger.log(LoginHelper.usernameId);
         const url = `${GlobalConfig.apis.chatGroup}/GetChatGroupsById/${LoginHelper.usernameId}`;
 
-        const records = await RequestHelper.GetJsonWithAuth(url);
+        const records = await RequestHelper.GetJsonWithAuth(url, this.signal);
         return records;
     }
 }
 
 // Called by contentLoader, when loading the correspond page.
-window.scripts = { init: () => { new ChatGroup(); } }
+window.scripts = {
+    app: null,
+
+    init: function () {
+        this.app = new ChatGroup();
+        this.app.init();
+    },
+
+    destroy: function () {
+        this.app?._activeController?.abort();
+        this.app._cancelled = true;
+    }
+}
