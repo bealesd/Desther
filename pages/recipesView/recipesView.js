@@ -4,7 +4,7 @@ import EventHandler from "../../helpers/eventHandler.js";
 import RequestHelper from "../../helpers/requestHelper.js";
 import RecipeFormManager from "../../helpers/recipeFormManager/recipeFormManager.js";
 import eventEmitter from "../../helpers/eventEmitter.js";
-import LoadingScreen from "../../helpers/LoadingScreen.js";
+import LoadingScreen from "../../helpers/loadingScreen.js";
 
 class RecipeApp {
     _cancelled = false;
