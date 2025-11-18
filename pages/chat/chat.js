@@ -16,30 +16,30 @@ class Chat {
         chatContainer: 'chat-container',
         chatInput: 'chat-input',
         chatHeader: 'chat-header',
+        messageHeader: 'message-header',
+        messageContent: 'message-content',
+        username: 'username',
+        datetime: 'datetime',
+        status: 'status'
     });
 
     domIds = Object.freeze({
     });
 
     guid = null;
-    dateHeaders = null;
+    dateHeaders = [];
     chats = [];
     updateIntervalInSeconds = 10;
 
     async init() {
-        this.dateHeaders = [];
-
         this._activeController = new AbortController();
         this.signal = this._activeController?.signal;
 
-        //Get url params - guid
         const url = new URL(window.location);
         this.guid = url.searchParams.get('guid');
 
         this.container = document.querySelector(`.${this.domClasses.chatContainer}`);
 
-        // only get last 100 messages
-        // then on scroll-up get next 100 messages
         LoadingScreen.showFullScreenLoader();
 
         const chats = await this.#GetLast100Chats();
@@ -62,7 +62,6 @@ class Chat {
         await this.getChatsSubscription();
 
         this.createObserver();
-        // document.querySelectorAll('.chat-message').forEach(msg => this.observeMessage(msg));
         this.createLoadMoreSentinel();
     }
 
@@ -154,6 +153,8 @@ class Chat {
             return;
         }
 
+        if (this._cancelled) return;
+
         // Save scroll position
         const scrollHeight = this.container.scrollHeight;
 
@@ -164,8 +165,6 @@ class Chat {
         // Restore scroll position (prevent jump)
         const newScrollHeight = this.container.scrollHeight;
         this.container.scrollTop += (newScrollHeight - scrollHeight);
-
-        // this.observeMessage(chatEl);
     }
 
     registerCallbacks() {
@@ -184,8 +183,9 @@ class Chat {
             'id': 'chatSendEvent',
             'eventType': 'click',
             'element': chatSendButton,
-            'callback': () => {
-                this.sendChat();
+            'callback': async () => {
+                await this.sendChat();
+                this.scrollToBottom();
             }
         });
     }
@@ -203,9 +203,8 @@ class Chat {
             return;
         }
 
-        this.updatePageChats([chatRecord]);
-
-        // this.chats = [...this.chats, chatRecord];
+        this.chats = [...this.chats, chatRecord];
+        this.renderChats();
 
         // clear chat input
         document.querySelector(`.${this.domClasses.chatInput}`).textContent = '';
@@ -214,9 +213,8 @@ class Chat {
     deduplicateChats(chatMessages) {
         const seen = new Set();
         return chatMessages.filter(msg => {
-            if (seen.has(msg.Id)) {
-                return false; // Duplicate
-            }
+            if (seen.has(msg.Id))
+                return false; // Duplicate     
             seen.add(msg.id);
             return true;
         });
@@ -243,7 +241,6 @@ class Chat {
         EventHandler.overwriteIntervals('getNewChats', async () => {
             const id = this.getNewestChatId();
             const newChats = await this.#GetChatsAfterId(id);
-
             if (newChats?.error) {
                 toastService.addToast(`Error: ${newChats.error}.`, GlobalConfig.LOG_LEVEL.ERROR)
                 return;
@@ -251,7 +248,11 @@ class Chat {
             if (newChats.length === 0)
                 return;
 
+            if (this._cancelled) return;
+
             await this.getChatReadStatus(newChats);
+
+            if (this._cancelled) return;
 
             this.chats = [...this.chats, ...newChats];
             this.chats = this.deduplicateChats(this.chats);
@@ -277,7 +278,6 @@ class Chat {
     getNewestChatId() {
         if (this.chats.length > 0)
             return Math.max(...this.chats.map(x => x.Id));
-        // return this.chats[this.chats.length - 1].Id;
         else
             return null;
     }
@@ -285,7 +285,6 @@ class Chat {
     getOldestChatId() {
         if (this.chats.length > 0)
             return Math.min(...this.chats.map(x => x.Id));
-        // return this.chats[this.chats.length - 1].Id;
         else
             return null;
     }
@@ -305,8 +304,11 @@ class Chat {
     }
 
     renderChats() {
-        this.orderChats();
         this.updateDateHeaders();
+
+        this.orderChatsAsc();
+        this.orderDateHeadersAsc();
+
         this.syncToDOM();
     }
 
@@ -322,35 +324,26 @@ class Chat {
             );
             for (const msg of messagesForDate) {
                 if (!msg.Dom || !this.container.contains(msg.Dom))
-                    this.renderChatMessage(msg, dateHeader.Dom);
+                    this.renderChatMessage(msg, dateHeader);
             }
         }
     }
 
-    // Render a date header in the correct position
+    /**
+     * Render a date header in the correct position.
+     * Assumption - this.dateHeaders are ordered by datetime ascending.
+     * @param {*} dateHeader  - an unrendered in the DOM custom object
+     * {LocalDate - yyyy/mm/dd, Dom - reference to render date, Date - Date object}
+     */
     renderDateHeader(dateHeader) {
+        if (dateHeader.Dom) return; // Already in DOM
+
         const headerElement = document.createElement('div');
         headerElement.className = this.domClasses.chatHeader;
         headerElement.textContent = dateHeader.LocalDate;
 
-        // Find insertion point
-        // const existingHeaders = Array.from(this.container.querySelectorAll(`.${this.domClasses.chatHeader}`));
-        let insertBefore = null;
-
-        for (let dateHeader of this.dateHeaders.filter(header => header.Dom !== null)) {
-            if (dateHeader.Datetime > dateHeader.Datetime) {
-                insertBefore = existing.Dom;
-                break;
-            }
-        }
-
-        // for (let existing of existingHeaders) {
-        //     const existingDate = this.parseLocalDate(existing.textContent.trim());
-        //     if (existingDate > dateHeader.Datetime) {
-        //         insertBefore = existing;
-        //         break;
-        //     }
-        // }
+        const renderedDateHeaders = this.dateHeaders.filter(h => h.Dom !== null);
+        const insertBefore = renderedDateHeaders.find(h => h.Datetime > dateHeader.Datetime)?.Dom;
 
         if (insertBefore)
             this.container.insertBefore(headerElement, insertBefore);
@@ -361,28 +354,28 @@ class Chat {
     }
 
     // Render a chat message after its date header
-    renderChatMessage(message, headerElement) {
+    renderChatMessage(message, dateHeader) {
         const messageElement = document.createElement('div');
         messageElement.className = `chat-message`;
         messageElement.dataset.chatId = message.Id;
         const isOutgoingUser = this.isOutgoingUser(message.Name);
         messageElement.classList.add(isOutgoingUser ? 'outgoing' : 'incoming');
 
-        const messageHtml = `<div class="message-header">
-                                <span class="username">${isOutgoingUser ? '' : message.Name}</span>
-                                <span class="datetime">${message.Datetime.toLocaleTimeString()}</span>
-                                <span class="status">${isOutgoingUser ? message.Read ? '✓' : '✗' : ''}</span>
+        const messageHtml = `<div class="${this.domClasses.messageHeader}">
+                                <span class="${this.domClasses.username}">${isOutgoingUser ? '' : message.Name}</span>
+                                <span class="${this.domClasses.datetime}">${message.Datetime.toLocaleTimeString()}</span>
+                                <span class="${this.domClasses.status}">${isOutgoingUser ? message.Read ? '✓' : '✗' : ''}</span>
                             </div>
-                            <div class="message-content">
+                            <div class="${this.domClasses.messageContent}">
                                 ${message.Message}
                         </div>`;
         messageElement.innerHTML = messageHtml;
 
-        // Insert after the header (or after last message for this date)
-        const nextHeader = this.findNextDateHeader(headerElement);
+        const renderedDateHeaders = this.dateHeaders.filter(h => h.Dom !== null);
+        const insertBefore = renderedDateHeaders.find(h => h.Datetime > dateHeader.Datetime)?.Dom;
 
-        if (nextHeader)
-            this.container.insertBefore(messageElement, nextHeader);
+        if (insertBefore)
+            this.container.insertBefore(messageElement, insertBefore);
         else
             this.container.appendChild(messageElement);
 
@@ -390,34 +383,13 @@ class Chat {
         this.observeMessage(messageElement);
     }
 
-    findNextDateHeader(currentHeader) {
-        let sibling = currentHeader.nextElementSibling;
-
-        while (sibling) {
-            if (sibling.classList.contains('chat-header')) {
-                return sibling;
-            }
-            sibling = sibling.nextElementSibling;
-        }
-
-        return null;
-    }
-
     updateDateHeaders() {
         for (const chat of this.chats) {
-            const dateStr = chat.Datetime.toLocaleDateString();
-            const index = this.dateHeaders.findIndex(obj => obj.LocalDate === dateStr);
+            const index = this.dateHeaders.findIndex(obj => obj.LocalDate === chat.LocalDate);
 
             if (index === -1)
-                this.dateHeaders.push({ LocalDate: dateStr, Dom: null, Datetime: chat.Datetime });
+                this.dateHeaders.push({ LocalDate: chat.LocalDate, Dom: null, Datetime: chat.Datetime });
         }
-        this.orderDateHeaders();
-    }
-
-    // Parse DD/MM/YYYY format
-    parseLocalDate(localDateStr) {
-        const [day, month, year] = localDateStr.split('/').map(Number);
-        return new Date(year, month - 1, day);
     }
 
     // Escape HTML to prevent XSS
@@ -431,17 +403,18 @@ class Chat {
         return LoginHelper.username === name;
     }
 
-    orderChats() {
-        this.chats.sort((a, b) => a.Date - b.Date);
+    orderChatsAsc() {
+        this.chats.sort((a, b) => a.Datetime - b.Datetime);
     }
 
-    orderDateHeaders() {
+    orderDateHeadersAsc() {
         this.dateHeaders.sort((a, b) => a.Datetime - b.Datetime);
     }
 
     parseDatetimeInChats(chats) {
         for (const chat of chats) {
             chat.Datetime = new Date(chat.Datetime);
+            chat.LocalDate = chat.Datetime.toLocaleDateString();
         }
     }
 
@@ -491,15 +464,6 @@ class Chat {
         return chatRecord;
     }
 }
-
-// Example chat record
-// {
-//     "Id": 1234,
-//     "Name": "joe",
-//     "Message": "cat jumped on sofa",
-//     "Datetime": "2084-01-11T12:01:39.47",
-//     "Guid": "guid"
-// }
 
 // Called by contentLoader, when loading the correspond page.
 window.scripts = {
