@@ -11,6 +11,15 @@ class Login {
     _activeController = null;
     signal = null;
 
+    domClasses = Object.freeze({
+        loginButton: 'login-btn'
+    });
+
+    domIds = Object.freeze({
+        username: 'username',
+        password: 'password'
+    });
+
     contentAreaId = GlobalConfig.domIds.contentArea;
     contentAreaElement;
 
@@ -22,7 +31,7 @@ class Login {
 
     registerCallbacks() {
         // When login button is clicked, login
-        const loginButton = this.contentAreaElement.querySelector(`.login-btn`);
+        const loginButton = this.contentAreaElement.querySelector(`.${this.domClasses.loginButton}`);
         EventHandler.overwriteEvent({
             'id': 'loginEvent',
             'eventType': 'click',
@@ -60,8 +69,8 @@ class Login {
     }
 
     getCredentials() {
-        const username = this.contentAreaElement.querySelector('#username')?.value ?? null;
-        const password = this.contentAreaElement.querySelector('#password')?.value ?? null;
+        const username = this.contentAreaElement.querySelector(`#${this.domIds.username}`)?.value ?? null;
+        const password = this.contentAreaElement.querySelector(`#${this.domIds.password}`)?.value ?? null;
         return {
             username: username,
             password: password

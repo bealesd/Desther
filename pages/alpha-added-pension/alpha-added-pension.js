@@ -12,6 +12,7 @@ class Pension {
         addedPensionType: 'added-pension-type',
         addedPensionPeriod: 'added-pension-period',
         addedPensionAmount: 'added-pension-amount',
+        pensionSectionHeader: 'pension-section-header',
     });
 
     domIds = Object.freeze({
@@ -233,8 +234,8 @@ class Pension {
 
         const html = `
             <div class="section-header-row">
-                <h3 class="pension-section-header">Pension Payment ${index}</h3>
-                <button type="button" class="remove-section-btn">Remove Section</button>
+                <h3 class="${this.domClasses.pensionSectionHeader}">Pension Payment ${index}</h3>
+                <button type="button" class="${this.domClasses.removeSectionBtn}">Remove Section</button>
             </div>
 
             <div class="form-row">

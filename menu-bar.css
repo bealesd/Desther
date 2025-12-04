@@ -121,3 +121,11 @@
     color: #2563eb;
     /* Blue color */
 }
+
+.page-info-logged-out circle{
+    fill: red;
+}
+
+.page-info-logged-in circle{
+    fill: lightgreen;
+}

@@ -134,8 +134,7 @@ class Chat {
     }
 
     async markMessageAsRead(chat) {
-        const usernameId = await LoginHelper.GetUsernameId(chat.Name);
-        await this.#AddChatRead(chat.Id, usernameId);
+        await this.#AddChatRead(chat.Id, chat.Name);
     }
 
     async getOlderChats() {
@@ -225,9 +224,7 @@ class Chat {
             .filter(chat => chat.Name === LoginHelper.username)
             .map(chat => chat.Id);
 
-        const usernameId = await LoginHelper.GetUsernameId(LoginHelper.username, this.signal);
-
-        const readChats = await this.#GetChatsThatAreRead(outgoingChatIds, usernameId);
+        const readChats = await this.#GetChatsThatAreRead(outgoingChatIds, LoginHelper.username);
         const readChatsIds = readChats.map(c => c.ChatId);
         const readIdsSet = new Set(readChatsIds);
 
@@ -439,14 +436,14 @@ class Chat {
         return records;
     }
 
-    async #GetChatsThatAreRead(chatsIds, usernameId) {
-        const url = `${GlobalConfig.apis.chatsRead}/GetChatsThatAreRead?usernameId=${usernameId}`;
+    async #GetChatsThatAreRead(chatsIds, username) {
+        const url = `${GlobalConfig.apis.chatsRead}/GetChatsThatAreRead?username=${username}`;
         const records = await RequestHelper.PostJsonWithAuth(url, chatsIds, { signal: this.signal });
         return records;
     }
 
-    async #AddChatRead(chatId, usernameId) {
-        const url = `${GlobalConfig.apis.chatsRead}/AddChatRead?usernameId=${usernameId}&chatId=${chatId}`;
+    async #AddChatRead(chatId, username) {
+        const url = `${GlobalConfig.apis.chatsRead}/AddChatRead?username=${username}&chatId=${chatId}`;
         const result = await RequestHelper.PostJsonWithAuth(url, { signal: this.signal });
         return result;
     }

@@ -12,21 +12,28 @@ class WeighInsEntry {
 
     domClasses = Object.freeze({
         weighInContainer: 'weigh-ins-entry-container',
+        stoneInputDavid: 'stone-input-david',
+        stoneInputEsther: 'stone-input-esther',
+        poundInputDavid: 'pound-input-david',
+        poundInputEsther: 'pound-input-esther',
+        dateInput: 'date-input',
+        weightId: 'weight-id',
     });
 
     domIds = Object.freeze({
-        weighInTableFooter: 'weigh-in-table-footer'
+        weighInTableFooter: 'weigh-in-table-footer',
+        addWeighIn: 'add-weigh-in',
     });
 
     async init() {
         this._activeController = new AbortController();
         this.signal = this._activeController?.signal;
 
-        document.querySelector('#addWeighIn').addEventListener('click', (evt) => {
+        document.querySelector(`#${this.domIds.addWeighIn}`).addEventListener('click', (evt) => {
             this.addWeighIn(evt);
         });
-        
-        document.querySelector('.dateInput').value = this.#dateOfToday();
+
+        document.querySelector(`.${this.domClasses.dateInput}`).value = this.#dateOfToday();
 
         LoadingScreen.showFullScreenLoader();
         const weighIns = await this.#GetWeighIns();
@@ -87,12 +94,12 @@ class WeighInsEntry {
         const row = document.createElement('tr');
         const isoDate = this.#getISO8060DateStringFromDateObject(weighIn.Date);
         row.innerHTML = `
-          <td hidden class="weight-Id" data-id=${weighIn.Id}></td>
-          <td class="dateInput" value=${isoDate}>${isoDate}</td>
-          <td data-label="David Stone" class="dStoneInput">${weighIn.DavidStone}</td>
-          <td data-label="David Pounds" class="dPoundsInput">${weighIn.DavidPounds}</td>
-          <td data-label="Esther Stone" class="eStoneInput">${weighIn.EstherStone}</td>
-          <td data-label="Esther Pounds" class="ePoundsInput">${weighIn.EstherPounds}</td>
+          <td hidden class="${this.domClasses.weightId}" data-id=${weighIn.Id}></td>
+          <td class="${this.domClasses.dateInput}" value=${isoDate}>${isoDate}</td>
+          <td data-label="David Stone" class="${this.domClasses.stoneInputDavid}">${weighIn.DavidStone}</td>
+          <td data-label="David Pounds" class="${this.domClasses.poundInputDavid}">${weighIn.DavidPounds}</td>
+          <td data-label="Esther Stone" class="${this.domClasses.stoneInputEsther}">${weighIn.EstherStone}</td>
+          <td data-label="Esther Pounds" class="${this.domClasses.poundInputEsther}">${weighIn.EstherPounds}</td>
           <td><button class="delete">Delete</button></td>
         `;
 
@@ -120,11 +127,11 @@ class WeighInsEntry {
 
     getWeighInObject(clickAddButtonEvent) {
         const weighInTableRow = clickAddButtonEvent.target.closest('tr')
-        const rawDate = weighInTableRow.querySelector('.dateInput').value;
-        const rawDavidStone = weighInTableRow.querySelector('.dStoneInput').value;
-        const rawDavidPounds = weighInTableRow.querySelector('.dPoundsInput').value;
-        const rawEstherStone = weighInTableRow.querySelector('.eStoneInput').value;
-        const rawEstherPounds = weighInTableRow.querySelector('.ePoundsInput').value;
+        const rawDate = weighInTableRow.querySelector(`.${this.domClasses.dateInput}`).value;
+        const rawDavidStone = weighInTableRow.querySelector(`.${this.domClasses.stoneInputDavid}`).value;
+        const rawDavidPounds = weighInTableRow.querySelector(`.${this.domClasses.poundInputDavid}`).value;
+        const rawEstherStone = weighInTableRow.querySelector(`.${this.domClasses.stoneInputEsther}`).value;
+        const rawEstherPounds = weighInTableRow.querySelector(`.${this.domClasses.poundInputEsther}`).value;
 
         if (!this.validateWeighInRequest({
             DavidStone: rawDavidStone,
@@ -169,18 +176,18 @@ class WeighInsEntry {
     }
 
     resetAddRow() {
-        document.querySelector('.dateInput').value = '';
-        document.querySelector('.dStoneInput').value = '';
-        document.querySelector('.dPoundsInput').value = '';
-        document.querySelector('.eStoneInput').value = '';
-        document.querySelector('.ePoundsInput').value = '';
+        document.querySelector(`.${this.domClasses.dateInput}`).value = '';
+        document.querySelector(`.${this.domClasses.stoneInputDavid}`).value = '';
+        document.querySelector(`.${this.domClasses.stoneInputEsther}`).value = '';
+        document.querySelector(`.${this.domClasses.poundInputDavid}`).value = '';
+        document.querySelector(`.${this.domClasses.poundInputEsther}`).value = '';
     }
 
     async deleteRow(evt) {
         const btn = evt.target;
         const row = btn.parentNode.parentNode;
 
-        const id = row.querySelector('.weight-Id')?.getAttribute('data-id');
+        const id = row.querySelector(`.${this.domClasses.weightId}`)?.getAttribute('data-id');
         if (!id)
             toastService.addToast('Failed to delete weigh in, no ID.', GlobalConfig.LOG_LEVEL.ERROR);
 
