@@ -1,6 +1,6 @@
 import ContentLoader from "../contentLoader.js"
 
-class Modal {
+class CreateModal {
     constructor({
         title = '',
         content = '',
@@ -68,7 +68,7 @@ class Modal {
 
         this.modalOverlay.appendChild(this.modalElement);
 
-        await ContentLoader.loadCss(this.modalOverlay, 'helpers/modal/modal.css');
+        await ContentLoader.loadCss(this.modalOverlay, 'helpers/create-modal/create-modal.css');
 
         // Event listeners
         this.modalElement.querySelector('.modal-cancel')
@@ -85,4 +85,4 @@ class Modal {
     }
 }
 
-export default Modal;
+export default CreateModal;

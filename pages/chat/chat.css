@@ -182,3 +182,76 @@
 .chat-extra-btn:hover {
     background-color: #333;
 }
+
+#load-more-sentinel{
+    color: transparent;
+}
+
+
+
+.chat-header-bar {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 10px 15px;
+    background-color: #121212;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 12px 12px 0 0;
+}
+
+.chat-title {
+    font-size: 14px;
+    color: #e0e0e0;
+}
+
+/* Triple dot button */
+.chat-menu {
+    position: relative;
+}
+
+.chat-menu-btn {
+    background: none;
+    border: none;
+    color: #9a9a9a;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.chat-menu-btn:hover {
+    color: #ffffff;
+}
+
+/* Dropdown */
+.chat-menu-dropdown {
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);
+    min-width: 160px;
+    display: none;
+    flex-direction: column;
+    z-index: 100;
+}
+
+.chat-menu-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #e0e0e0;
+}
+
+.chat-menu-item:hover {
+    background-color: #2a2a2a;
+}
+
+.chat-menu-item.danger {
+    color: #ff5c5c;
+}
+
+.chat-menu-item.danger:hover {
+    background-color: rgba(255, 92, 92, 0.15);
+}

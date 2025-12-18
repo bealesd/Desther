@@ -6,6 +6,7 @@ import EventHandler from "../../helpers/eventHandler.js";
 import Logger from "../../helpers/logger.js";
 import LoadingScreen from "../../helpers/loadingScreen.js";
 import toastService from "../../helpers/toastService.js";
+import DeleteModal from "../../helpers/delete-modal/delete-modal.js";
 
 class Chat {
     _cancelled = false;
@@ -40,13 +41,20 @@ class Chat {
 
         this.container = document.querySelector(`.${this.domClasses.chatContainer}`);
 
+        this.createObserver();
+        this.createLoadMoreSentinel();
+
         LoadingScreen.showFullScreenLoader();
 
         const chats = await this.#GetLast100Chats();
+        if (chats === null)
+            chat = [];
+
         if (chats?.error) {
-            toastService.addToast(`Error: ${this.chats?.error}.`, GlobalConfig.LOG_LEVEL.ERROR)
-            return;
+            toastService.addToast(`Failed to get chats. Error: ${chats.error}.`, GlobalConfig.LOG_LEVEL.ERROR)
+            chats = [];
         }
+        this.parseDatetimeInChats(chats);
 
         this.chats = chats;
         await this.getChatReadStatus(this.chats);
@@ -60,9 +68,6 @@ class Chat {
 
         this.registerCallbacks();
         await this.getChatsSubscription();
-
-        this.createObserver();
-        this.createLoadMoreSentinel();
     }
 
     getChatById(chatId) {
@@ -138,19 +143,26 @@ class Chat {
     }
 
     async getOlderChats() {
+        if (this.chats === null || this.chats.length === 0) {
+            this.areOlderChats = false;
+            return;
+        }
+
         if (this.areOlderChats === false)
             return;
 
         const getOldestChatId = this.getOldestChatId();
         const oldChats = await this.#GetChatsBeforeId(getOldestChatId);
         if (oldChats?.error) {
-            toastService.addToast(`Error: ${oldChats.error}.`, GlobalConfig.LOG_LEVEL.ERROR)
+            toastService.addToast(`Failed to get chats. Error: ${oldChats.error}.`, GlobalConfig.LOG_LEVEL.ERROR)
             return;
         }
         if (oldChats.length === 0) {
             this.areOlderChats = false;
             return;
         }
+
+        this.parseDatetimeInChats(oldChats);
 
         if (this._cancelled) return;
 
@@ -167,6 +179,44 @@ class Chat {
     }
 
     registerCallbacks() {
+        const menuBtn = document.querySelector(".chat-menu-btn");
+        const menu = document.querySelector(".chat-menu-dropdown");
+
+        menuBtn.addEventListener("click", e => {
+            e.stopPropagation();
+            menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+        });
+
+        document.addEventListener("click", () => {
+            menu.style.display = "none";
+        });
+
+        document.querySelector('.chat-menu-dropdown').addEventListener("click", e => {
+            e.stopPropagation();
+            const item = e.target.closest('.chat-menu-item');
+            if (item.classList.contains('danger')) {
+                DeleteModal.open('Are you sure you want to delete this group?', async () => {
+                    // const url = `${GlobalConfig.apis.recipes}/DeleteNotepad?id=${id}`;
+                    // const response = await RequestHelper.DeleteWithAuth(url);
+                    // if (response?.error)
+                    //     return toastService.addToast('Failed to delete recipe.', GlobalConfig.LOG_LEVEL.ERROR);
+                    // else
+                    //     toastService.addToast('Recipe deleted.', GlobalConfig.LOG_LEVEL.INFO);
+
+                    // this.recipes = this.recipes.filter(recipe => recipe.id !== id);
+                    // this.expandedRecipes.delete(id); // Also remove from expanded state
+                    // this.renderRecipes(this.searchInput.value); // Re-render with current search filter
+                });
+            }
+
+        });
+
+
+
+
+
+
+
         const chatScrollToBottomButton = document.querySelector(`.chat-extra-btn`);
         EventHandler.overwriteEvent({
             'id': 'chatScrollToBottomEvent',
@@ -198,7 +248,7 @@ class Chat {
 
         const chatRecord = await this.#SendChat(chatMessage);
         if (chatRecord?.error) {
-            toastService.addToast(`Error: ${chatGroups.error}.`, GlobalConfig.LOG_LEVEL.ERROR);
+            toastService.addToast(`Failed to send chat. Error: ${chatGroups.error}.`, GlobalConfig.LOG_LEVEL.ERROR);
             return;
         }
 
@@ -220,11 +270,18 @@ class Chat {
     }
 
     async getChatReadStatus(chats) {
+        if (chats === null || chats.length === 0)
+            return;
         const outgoingChatIds = chats
             .filter(chat => chat.Name === LoginHelper.username)
             .map(chat => chat.Id);
 
         const readChats = await this.#GetChatsThatAreRead(outgoingChatIds, LoginHelper.username);
+        if (readChats?.error) {
+            toastService.addToast('Failed to get chat read chats.', GlobalConfig.LOG_LEVEL.ERROR);
+            Logger.log(`Failed to get read chats. Error: ${JSON.stringify(readChats.error)}`, GlobalConfig.LOG_LEVEL.ERROR);
+            return;
+        }
         const readChatsIds = readChats.map(c => c.ChatId);
         const readIdsSet = new Set(readChatsIds);
 
@@ -237,6 +294,9 @@ class Chat {
     async getChatsSubscription() {
         EventHandler.overwriteIntervals('getNewChats', async () => {
             const id = this.getNewestChatId();
+            if (id === null)
+                return;
+
             const newChats = await this.#GetChatsAfterId(id);
             if (newChats?.error) {
                 toastService.addToast(`Error: ${newChats.error}.`, GlobalConfig.LOG_LEVEL.ERROR)
@@ -244,6 +304,8 @@ class Chat {
             }
             if (newChats.length === 0)
                 return;
+
+            this.parseDatetimeInChats(newChats);
 
             if (this._cancelled) return;
 
@@ -418,21 +480,18 @@ class Chat {
     async #GetLast100Chats() {
         const url = `${GlobalConfig.apis.chat}/GetChats?guid=${this.guid}`;
         const records = await RequestHelper.GetJsonWithAuth(url, this.signal);
-        this.parseDatetimeInChats(records);
         return records;
     }
 
     async #GetChatsBeforeId(id) {
         const url = `${GlobalConfig.apis.chat}/GetChatsBeforeId?id=${id}&chatGroupGuid=${this.guid}`;
         const records = await RequestHelper.GetJsonWithAuth(url, this.signal);
-        this.parseDatetimeInChats(records);
         return records;
     }
 
     async #GetChatsAfterId(id) {
         const url = `${GlobalConfig.apis.chat}/GetChatsAfterId?id=${id}&guid=${this.guid}`;
         const records = await RequestHelper.GetJsonWithAuth(url, this.signal);
-        this.parseDatetimeInChats(records);
         return records;
     }
 

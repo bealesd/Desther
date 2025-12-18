@@ -5,7 +5,7 @@ import LoginHelper from "../../helpers/loginHelper.js";
 import RequestHelper from "../../helpers/requestHelper.js";
 import toastService from "../../helpers/toastService.js";
 import EventHandler from "../../helpers/eventHandler.js";
-import Modal from "../../helpers/modal/modal.js";
+import CreateModal from "../../helpers/create-modal/create-modal.js";
 
 class ChatGroup {
     _cancelled = false;
@@ -26,7 +26,15 @@ class ChatGroup {
         this.signal = this._activeController?.signal;
 
         const chatGroups = await this.#GetChatGroups();
-        this.renderChatGroups(chatGroups);
+        if (chatGroups?.error) {
+            toastService.addToast('Failed to get chat groups.', GlobalConfig.LOG_LEVEL.ERROR);
+            Logger.log(`Failed to get chat groups. Error: ${JSON.stringify(chatGroups.error)}`, GlobalConfig.LOG_LEVEL.ERROR);
+            this.chatGroups = [];
+        }
+
+        this.chatGroups = chatGroups;
+
+        this.renderChatGroups();
         toastService.addToast('On Chat Group Page.', GlobalConfig.LOG_LEVEL.WARNING, true);
 
         this.registerCallbacks();
@@ -44,10 +52,10 @@ class ChatGroup {
         });
     }
 
-    renderChatGroups(chatGroups) {
+    renderChatGroups() {
         const chatGroupElement = document.querySelector(`#${this.domIds.chatGroupArea} .${this.domClasses.chatGroupContainer} ul`);
 
-        if (chatGroups?.error) {
+        if (this.chatGroups?.error) {
             chatGroupElement.innerHTML =
                 `<details>
                     <summary>Failed to get chat groups</summary>
@@ -56,7 +64,7 @@ class ChatGroup {
             return;
         }
 
-        else if (chatGroups.length === 0) {
+        else if (this.chatGroups.length === 0) {
             chatGroupElement.innerHTML =
                 `<details>
                     <summary>No chat groups</summary>
@@ -65,7 +73,10 @@ class ChatGroup {
             return;
         }
 
-        for (const chatGroup of chatGroups) {
+        for (const chatGroup of this.chatGroups) {
+            if (chatGroup.Dom && !chatGroupElement.contains(chatGroup.Dom))
+                continue;
+
             const li = document.createElement('li');
             const button = document.createElement('button');
             // Show users in chat group
@@ -77,6 +88,8 @@ class ChatGroup {
 
             li.appendChild(button);
             chatGroupElement.appendChild(li);
+
+            chatGroup.Dom = li;
         }
     }
 
@@ -108,8 +121,8 @@ class ChatGroup {
 
     async #createGroup(usernames) {
         const url = `${GlobalConfig.apis.chatGroup}/AddChatGroup`;
-        const isUsername = await RequestHelper.PostJsonWithAuth(url, usernames, this.signal);
-        return isUsername;
+        const guid = await RequestHelper.PostJsonWithAuth(url, usernames, this.signal);
+        return guid;
     }
 
     showCreateGroupModal() {
@@ -122,13 +135,24 @@ class ChatGroup {
         <button id="addUserBtn">Add</button>
         <ul id="selectedUsers"></ul>`;
 
-        const modal = new Modal({
+        const modal = new CreateModal({
             title: "Create New Group",
             content: content,
             submitText: "Create",
             cancelText: "Cancel",
             onSubmit: async () => {
-                this.#createGroup([LoginHelper.username, ...this.selectedUsers]);
+                const usernames = [LoginHelper.username, ...this.selectedUsers];
+                const guid = this.#createGroup(usernames);
+                if (guid?.error) {
+                    toastService.addToast('Failed to get chat groups.', GlobalConfig.LOG_LEVEL.ERROR);
+                    Logger.log(`Failed to get chat groups. Error: ${JSON.stringify(guid.error)}`, GlobalConfig.LOG_LEVEL.ERROR);
+                    return;
+                }
+                this.chatGroups.push({
+                    Guid: guid,
+                    Usernames: usernames
+                });
+                this.renderChatGroups();
             }
         });
 
