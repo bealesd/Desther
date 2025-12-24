@@ -30,11 +30,11 @@
         <div class="page-info-extra">
             <div class="page-info-tooltip-container">
                 <!-- Info icon (SVG for better control and scalability) -->
-                <span class="page-info-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                        <path
-                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                <span class="page-info-icon page-info-logged-out">
+                    <svg viewBox="0 0 24 24" width="16" height="16">
+                        <circle cx="12" cy="12" r="8" />
                     </svg>
+
                 </span>
                 <!-- Tooltip text that appears on hover -->
                 <div class="page-info-tooltip">
@@ -48,59 +48,6 @@
     <!-- #endregion Top Navigation -->
 
     <div id="top-bar-end"></div>
-
-    <!-- #region Main Menu -->
-    <div id="menu-area">
-        <div id="menu-container">
-            <ul class="menu-ul">
-
-                <li class="menu-li">
-                    <button class="menu-button" data-router="true" href="/login">
-                        Login
-                    </button>
-                </li>
-
-                <li class="menu-li">
-                    <button class="menu-button" data-router="true" href="/logout" style="display: none;">
-                        Logout
-                    </button>
-                </li>
-
-                <li class="menu-li">
-                    <button class="menu-button" data-router="true" href="/chatGroup">
-                        Chat
-                    </button>
-                </li>
-
-                <li class="menu-li">
-                    <button class="menu-button" data-router="true" href="/weighIns">
-                        Weigh Ins
-                    </button>
-                </li>
-
-                <li class="menu-li">
-                    <button class="menu-button" data-router="true" href="/recipes">
-                        Recipes
-                    </button>
-                </li>
-
-                <li class="menu-li">
-                    <button class="menu-button" data-router="true" href="/calendar">
-                        Calendar
-                    </button>
-                </li>
-
-                <li class="menu-li">
-                    <button class="menu-button" data-router="true" href="/alpha-added-pension">
-                        Civil Service Pension
-                    </button>
-                </li>
-
-            </ul>
-        </div>
-    </div>
-    <!-- #endregion Main Menu -->
-
 
     <div id="full-screen-loader">
         <div class="spinner"></div>
