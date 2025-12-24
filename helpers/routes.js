@@ -1,6 +1,7 @@
 const routes = {
     '/index': {
-        link: 'index.html',
+        link: 'pages/menu/menu.html',
+        js: 'pages/menu/menu.js',
         auth: false,
         title: 'Home',
     },

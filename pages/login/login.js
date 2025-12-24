@@ -2,9 +2,9 @@ import GlobalConfig from "../../config.js";
 import Logger from "../../helpers/logger.js";
 import EventHandler from "../../helpers/eventHandler.js";
 import LoginHelper from "../../helpers/loginHelper.js";
-import menuHelper from "../../helpers/menuHelper.js";
 import toastService from "../../helpers/toastService.js";
 import LoadingScreen from "../../helpers/loadingScreen.js";
+import Router from "../../helpers/router.js";
 
 class Login {
     _cancelled = false;
@@ -61,7 +61,7 @@ class Login {
 
         if (LoginHelper.loggedIn) {
             toastService.addToast('Logged in.', GlobalConfig.LOG_LEVEL.INFO);
-            menuHelper.loadHomePage();
+            Router.navigate('index');
         }
         else {
             toastService.addToast('Failed to log in.', GlobalConfig.LOG_LEVEL.ERROR);

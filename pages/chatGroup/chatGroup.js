@@ -81,10 +81,11 @@ class ChatGroup {
             const button = document.createElement('button');
             // Show users in chat group
             const chatGroupText = chatGroup['Usernames'].join(' and ');
+            const shortChatGroupText = chatGroup['Usernames'].join(', ');
             button.textContent = chatGroupText;
             // Add chat link for each chat group
             button.dataset.router = true;
-            button.setAttribute('href', `/chat?guid=${chatGroup['Guid']}`)
+            button.setAttribute('href', `/chat?guid=${chatGroup['Guid']}&name=${shortChatGroupText}`)
 
             li.appendChild(button);
             chatGroupElement.appendChild(li);

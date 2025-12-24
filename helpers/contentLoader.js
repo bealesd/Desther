@@ -2,6 +2,7 @@ import RequestHelper from "./requestHelper.js";
 
 export default new class ContentLoader {
     startupScripts = {};
+    script = null;
     currentScript = null;
 
     async loadHtml(div, html, signal = null) {
@@ -33,7 +34,8 @@ export default new class ContentLoader {
             div.appendChild(script);
         });
 
-        // A script is loaded once due to browser caching. The windows.script function must be stored to be loaded again.
+        // A script is loaded once due to browser caching!
+        // The windows.script function must be stored to be loaded again.
         this.startupScripts[`${js}`] = this.startupScripts[`${js}`] ?? window.scripts;
         this.startupScripts[`${js}`].init();
     }

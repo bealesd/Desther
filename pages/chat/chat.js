@@ -7,6 +7,7 @@ import Logger from "../../helpers/logger.js";
 import LoadingScreen from "../../helpers/loadingScreen.js";
 import toastService from "../../helpers/toastService.js";
 import DeleteModal from "../../helpers/delete-modal/delete-modal.js";
+import Router from "../../helpers/router.js";
 
 class Chat {
     _cancelled = false;
@@ -38,8 +39,11 @@ class Chat {
 
         const url = new URL(window.location);
         this.guid = url.searchParams.get('guid');
+        this.name = url.searchParams.get('name');
 
         this.container = document.querySelector(`.${this.domClasses.chatContainer}`);
+
+        this.setChatName();
 
         this.createObserver();
         this.createLoadMoreSentinel();
@@ -68,6 +72,10 @@ class Chat {
 
         this.registerCallbacks();
         await this.getChatsSubscription();
+    }
+
+    setChatName(){
+        document.querySelector('.chat-title').innerText = this.name;
     }
 
     getChatById(chatId) {
@@ -194,28 +202,9 @@ class Chat {
         document.querySelector('.chat-menu-dropdown').addEventListener("click", e => {
             e.stopPropagation();
             const item = e.target.closest('.chat-menu-item');
-            if (item.classList.contains('danger')) {
-                DeleteModal.open('Are you sure you want to delete this group?', async () => {
-                    // const url = `${GlobalConfig.apis.recipes}/DeleteNotepad?id=${id}`;
-                    // const response = await RequestHelper.DeleteWithAuth(url);
-                    // if (response?.error)
-                    //     return toastService.addToast('Failed to delete recipe.', GlobalConfig.LOG_LEVEL.ERROR);
-                    // else
-                    //     toastService.addToast('Recipe deleted.', GlobalConfig.LOG_LEVEL.INFO);
-
-                    // this.recipes = this.recipes.filter(recipe => recipe.id !== id);
-                    // this.expandedRecipes.delete(id); // Also remove from expanded state
-                    // this.renderRecipes(this.searchInput.value); // Re-render with current search filter
-                });
-            }
-
+            if (item.classList.contains('danger'))
+                this.deleteGroup();
         });
-
-
-
-
-
-
 
         const chatScrollToBottomButton = document.querySelector(`.chat-extra-btn`);
         EventHandler.overwriteEvent({
@@ -236,6 +225,18 @@ class Chat {
                 await this.sendChat();
                 this.scrollToBottom();
             }
+        });
+    }
+
+    async deleteGroup() {
+        DeleteModal.open('Are you sure you want to delete this group?', async () => {
+            const response = await this.#DeleteChatGroup();
+            if (response?.error)
+                return toastService.addToast('Failed to delete chat group.', GlobalConfig.LOG_LEVEL.ERROR);
+            else
+                toastService.addToast('Chat group deleted.', GlobalConfig.LOG_LEVEL.INFO);
+
+            Router.navigate('chatGroup');
         });
     }
 
@@ -504,6 +505,12 @@ class Chat {
     async #AddChatRead(chatId, username) {
         const url = `${GlobalConfig.apis.chatsRead}/AddChatRead?username=${username}&chatId=${chatId}`;
         const result = await RequestHelper.PostJsonWithAuth(url, { signal: this.signal });
+        return result;
+    }
+
+    async #DeleteChatGroup() {
+        const url = `${GlobalConfig.apis.chatGroup}/DeleteChatGroup?guid=${this.guid}`;
+        const result = await RequestHelper.DeleteWithAuth(url, { signal: this.signal });
         return result;
     }
 

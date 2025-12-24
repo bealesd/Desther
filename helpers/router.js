@@ -2,7 +2,6 @@ import routes from './routes.js';
 import GlobalConfig from "../config.js";
 import ContentLoader from "./contentLoader.js"
 import LoginHelper from "../helpers/loginHelper.js";
-import menuHelper from "./menuHelper.js";
 import eventHandler from './eventHandler.js';
 import persistentToastService from './persistentToastService.js';
 import Logger from './logger.js';
@@ -15,6 +14,7 @@ export default new class Router {
         this.homeButtonId = GlobalConfig.domIds.homeButton;
         this.contentAreaId = GlobalConfig.domIds.contentArea;
         this.rootElement = document.getElementById('content');
+        this.contentArea = document.querySelector(`#${this.contentAreaId}`);
 
         // Initialize routing
         window.addEventListener('popstate', () => this.handleNavigation());
@@ -67,27 +67,15 @@ export default new class Router {
     }
 
     async loadContent() {
-        // cancel code running on previous page.
-        for (const script of Object.keys(ContentLoader.startupScripts)) {
-            ContentLoader.startupScripts[script]?.destroy?.();
-        }
-        eventHandler.removeEvents();
-        eventHandler.removeIntervals();
+        this.destroyActiveContentAreaScripts();
 
         let path = window.location.pathname;
+        path = (path.startsWith(this.basePath)
+            ? path.slice(this.basePath.length)
+            : path
+        ).replace(/\.html$/, '') || '/index';
 
-        // Strip base path and .html
-        if (path.startsWith(this.basePath)) {
-            path = path.slice(this.basePath.length);
-        }
-        path = path.replace(/\.html$/, '') || '/index';
-
-        const route = routes[path];
-
-        if (path === '/index' || !route) {
-            // If no route is found, or if the path is index, load the home page
-            return this.loadHomePage();
-        }
+        const route = routes[path] ?? routes['/index'];
 
         // Check you are logged in, if not return
         if (route.auth && !LoginHelper.loggedIn) {
@@ -97,36 +85,46 @@ export default new class Router {
 
         this.setPageInfo(route);
 
-        // Turn off home menu
-        document.querySelector(`#${this.menuAreaId}`).style.display = 'none';
-
-        // Turn on home button
-        const homeButton = document.querySelector(`#${this.homeButtonId}`);
-        homeButton.style.display = 'block';
-
-        // Turn on content area
-        const contentArea = document.querySelector(`#${this.contentAreaId}`);
-        contentArea.style.display = 'block';
-
-        //remove old css and js file on contentArea
-        while (contentArea.firstChild) {
-            contentArea.removeChild(contentArea.firstChild);
-        }
-
-        let htmlLoaded = false;
-        if (route.link)
-            htmlLoaded = await ContentLoader.loadHtml(contentArea, route.link);
-
-        if (!route.link || !htmlLoaded)
-            Logger.log(`No HTML loaded for : ${path}`, GlobalConfig.LOG_LEVEL.WARNING);
-
-        if (route.css)
-            await ContentLoader.loadCss(contentArea, route.css);
-        if (route.js)
-            await ContentLoader.loadJs(contentArea, route.js);
+        this.removeContentAreaAssets();
+        await this.loadHtml(route, path);
+        await this.loadCss(route);
+        await this.loadJs(route);
     }
 
-    loadHomePage() {
-        menuHelper.loadHomePage();
+    destroyActiveContentAreaScripts() {
+        // Cancel code running on previous page.
+        // All pages have to be cancelled because we do not know previous page.
+        // This could be gotten from history, but is easier to destroy all.
+        for (const script of Object.keys(ContentLoader.startupScripts)) {
+            ContentLoader.startupScripts[script]?.destroy?.();
+        }
+        eventHandler.removeEvents();
+        eventHandler.removeIntervals();
+    }
+
+    removeContentAreaAssets() {
+        //remove old css and js file on contentArea
+        while (this.contentArea.firstChild)
+            this.contentArea.removeChild(this.contentArea.firstChild);
+    }
+
+    async loadHtml(route, path) {
+        let htmlLoaded = false;
+
+        if (route.link)
+            htmlLoaded = await ContentLoader.loadHtml(this.contentArea, route.link);
+
+        if (!htmlLoaded)
+            Logger.log(`No HTML loaded for : ${path}`, GlobalConfig.LOG_LEVEL.WARNING);
+    }
+
+    async loadCss(route) {
+        if (route.css)
+            await ContentLoader.loadCss(this.contentArea, route.css);
+    }
+
+    async loadJs(route) {
+        if (route.js)
+            await ContentLoader.loadJs(this.contentArea, route.js);
     }
 }
