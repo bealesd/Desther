@@ -24,8 +24,6 @@ export default new class ContentLoader {
         await new Promise((res, rej) => {
             const script = document.createElement('script');
             script.setAttribute('type', 'module');
-            // We could use cachebusting i.e. + '?cachebuster='+ new Date().getTime());
-            // But this would stop breakpoints working.
             script.setAttribute('src', js);
 
             script.addEventListener('load', res);

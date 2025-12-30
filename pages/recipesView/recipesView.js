@@ -64,21 +64,6 @@ class RecipeApp {
         this.handleRecipeCardClick(); // Handle clicks on recipe cards
     }
 
-    async getRecipes() {
-        const recipes = [];
-        const recipeResults = await RequestHelper.GetJsonWithAuth(this.getRecipesUrl, this.signal);
-        if (recipeResults?.error)
-            return [];
-
-        for (const recipeResult of recipeResults) {
-            const recipe = await this.getRecipe(recipeResult.Id);
-            recipe.id = recipeResult.Id; // Store the ID for deletion purposes
-            recipes.push(recipe);
-        }
-
-        return recipes;
-    }
-
     async getRecipe(id) {
         const url = `${GlobalConfig.apis.recipes}/GetNotepad?id=${id}`
 
@@ -217,7 +202,7 @@ class RecipeApp {
             }
             else if (isEditBtnClick) {
                 this.recipeFormManager = new RecipeFormManager();
-                this.recipeFormManager.renderEditForm({ oldRecipe: recipe, containerElement: recipeCard });
+                this.recipeFormManager.renderEditForm({ oldRecipe: recipe, containerElement: recipeCard, signal: this.signal });
                 recipeCard.dataset.editing = true;
             }
             else {
@@ -243,25 +228,6 @@ class RecipeApp {
             this.expandedRecipes.add(recipeId);
             cardElement.querySelector('.toggle-icon').innerHTML = '&#9660;'; // Down arrow
         }
-    }
-
-    /**
-     * Deletes a recipe from the array based on its title.
-     * @param {string} recipeId - The id of the recipe to delete.
-     */
-    async deleteRecipe(id) {
-        DeleteModal.open('Are you sure you want to delete this recipe?', async () => {
-            const url = `${GlobalConfig.apis.recipes}/DeleteNotepad?id=${id}`;
-            const response = await RequestHelper.DeleteWithAuth(url);
-            if (response?.error)
-                return toastService.addToast('Failed to delete recipe.', GlobalConfig.LOG_LEVEL.ERROR);
-            else
-                toastService.addToast('Recipe deleted.', GlobalConfig.LOG_LEVEL.INFO);
-
-            this.recipes = this.recipes.filter(recipe => recipe.id !== id);
-            this.expandedRecipes.delete(id); // Also remove from expanded state
-            this.renderRecipes(this.searchInput.value); // Re-render with current search filter
-        });
     }
 
     /**
@@ -291,6 +257,46 @@ class RecipeApp {
             }
         });
     }
+
+    async getRecipes() {
+        const recipes = [];
+        const getRecipesUrl = `${GlobalConfig.apis.recipes}/GetRecipes`;
+        const recipeResults = await RequestHelper.GetJsonWithAuth(getRecipesUrl, this.signal);
+        if (recipeResults?.error)
+            return [];
+
+        for (const recipe of recipeResults) {
+            recipes.push({
+                title: recipe.Title,
+                ingredients: recipe.Ingredients,
+                instructions: recipe.Instructions,
+                id: recipe.Id,
+                prepTime: recipe.PrepTime,
+                cookTime: recipe.CookTime
+            });
+        }
+        return recipes;
+    }
+
+    /**
+     * Deletes a recipe from the array based on its title.
+     * @param {string} recipeId - The id of the recipe to delete.
+     */
+    async deleteRecipe(id) {
+        DeleteModal.open('Are you sure you want to delete this recipe?', async () => {
+            const url = `${GlobalConfig.apis.recipes}/DeleteRecipe?id=${id}`;
+            const response = await RequestHelper.DeleteWithAuth(url);
+            if (response?.error)
+                return toastService.addToast('Failed to delete recipe.', GlobalConfig.LOG_LEVEL.ERROR);
+            else
+                toastService.addToast('Recipe deleted.', GlobalConfig.LOG_LEVEL.INFO);
+
+            this.recipes = this.recipes.filter(recipe => recipe.id !== id);
+            this.expandedRecipes.delete(id); // Also remove from expanded state
+            this.renderRecipes(this.searchInput.value); // Re-render with current search filter
+        });
+    }
+
 }
 
 // Called by contentLoader, when loading the correspond page.

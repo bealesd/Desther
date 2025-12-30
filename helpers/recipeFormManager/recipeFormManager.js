@@ -42,9 +42,8 @@ export default class RecipeFormManager {
         ContentLoader.loadCss(containerElement, this.cssPath);
     }
 
-    async renderAddForm() {
-        this._activeController = new AbortController();
-        this.signal = this._activeController.signal;
+    async renderAddForm({signal}) {
+        this.signal = signal
 
         const contentArea = document.querySelector(`#${GlobalConfig.domIds.contentArea}`);
 
@@ -65,9 +64,10 @@ export default class RecipeFormManager {
         });
     }
 
-    async renderEditForm({ oldRecipe, containerElement }) {
-        this._activeController = new AbortController();
-        this.signal = this._activeController.signal;
+    async renderEditForm({ oldRecipe, containerElement, signal }) {
+        // this._activeController = new AbortController();
+        // this.signal = this._activeController.signal;
+        this.signal = signal;
 
         // Store recipe card
         this.recipeCard = containerElement.cloneNode(true);
@@ -130,20 +130,21 @@ export default class RecipeFormManager {
 
         const formData = new FormData(recipeForm);
         const newRecipe = {
-            title: formData.get('title'),
-            ingredients: formData.get('ingredients').split('\n').map(item => item.trim()).filter(item => item !== ''),
-            instructions: formData.get('instructions'),
-            prepTime: formData.get('prepTime'),
-            cookTime: formData.get('cookTime')
+            Title: formData.get('title'),
+            Ingredients: formData.get('ingredients').split('\n').map(item => item.trim()).filter(item => item !== ''),
+            Instructions: formData.get('instructions'),
+            PrepTime: formData.get('prepTime'),
+            CookTime: formData.get('cookTime')
         };
 
         LoadingScreen.showFullScreenLoader();
-        await this.postRecipe(newRecipe); // Post the new recipe to the server
+        const recipePosted = await this.postRecipe(newRecipe); // Post the new recipe to the server
         LoadingScreen.hideFullScreenLoader();
 
         if (this._cancelled) return;
 
-        recipeForm.reset(); // Clear the form fields
+        if (recipePosted)
+            recipeForm.reset(); // Clear the form fields
     }
 
     /**
@@ -155,15 +156,15 @@ export default class RecipeFormManager {
 
         const formData = new FormData(recipeForm);
         const updatedRecipe = {
-            title: formData.get('title'),
-            ingredients: formData.get('ingredients').split('\n').map(item => item.trim()).filter(item => item !== ''),
-            instructions: formData.get('instructions'),
-            prepTime: formData.get('prepTime'),
-            cookTime: formData.get('cookTime'),
+            Title: formData.get('title'),
+            Ingredients: formData.get('ingredients').split('\n').map(item => item.trim()).filter(item => item !== ''),
+            Instructions: formData.get('instructions'),
+            PrepTime: formData.get('prepTime'),
+            CookTime: formData.get('cookTime'),
         };
 
         LoadingScreen.showFullScreenLoader();
-        const recipeUpdated = await this.patchRecipe(updatedRecipe); // Post the new recipe to the server
+        const recipeUpdated = await this.putRecipe(updatedRecipe); // Post the new recipe to the server
         LoadingScreen.hideFullScreenLoader();
 
         if (this._cancelled) return;
@@ -175,33 +176,20 @@ export default class RecipeFormManager {
     }
 
     async postRecipe(newRecipe) {
-        const content = {
-            Path: this.recipesNotepadPath,
-            Type: 'json',
-            Name: newRecipe.title,
-            Text: JSON.stringify(newRecipe)
-        };
-
-        const response = await RequestHelper.PostJsonWithAuth(this.addNotepadUrl, content, {signal: this.signal});
-
+        const url = `${GlobalConfig.apis.recipes}/PostRecipe`;
+        const response = await RequestHelper.PostJsonWithAuth(url, newRecipe, { signal: this.signal });
         if (response?.error) {
             toastService.addToast('Failed to add recipe.', GlobalConfig.LOG_LEVEL.ERROR);
             return false;
         }
         console.log('Recipe added:', newRecipe);
-        toastService.addToast(`Recipe added: ${newRecipe.title}.`, GlobalConfig.LOG_LEVEL.INFO);
+        toastService.addToast(`Recipe added: ${newRecipe.Title}.`, GlobalConfig.LOG_LEVEL.INFO);
+        return true;
     }
 
-    async patchRecipe(updatedRecipe) {
-        const content = {
-            Path: this.recipesNotepadPath,
-            Type: 'json',
-            Name: updatedRecipe.title,
-            Text: JSON.stringify(updatedRecipe),
-            Id: this.editRecipeId // Include the recipe ID for updating
-        };
-
-        const response = await RequestHelper.PutJsonWithAuth(this.updateNotepadUrl, content, this.signal);
+    async putRecipe(updatedRecipe) {
+        const url = `${GlobalConfig.apis.recipes}/PutRecipe/${this.editRecipeId}`;
+        const response = await RequestHelper.PutJsonWithAuth(url, updatedRecipe, this.signal);
 
         if (response?.error) {
             toastService.addToast('Failed to update recipe.', GlobalConfig.LOG_LEVEL.ERROR);
