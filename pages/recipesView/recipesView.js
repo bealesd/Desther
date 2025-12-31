@@ -30,9 +30,8 @@ class RecipeApp {
         toastService.addToast('On Recipes View Page.', GlobalConfig.LOG_LEVEL.INFO, true);
 
         // Listen for recipe edit events to re-render recipes
-        eventEmitter.on('recipe:edit', () => {
-            this.init();
-        });
+        this.boundInit = this.init.bind(this);
+        eventEmitter.on('recipe:edit', this.boundInit);
     }
 
     // Initialization method
@@ -60,8 +59,6 @@ class RecipeApp {
         this.addEventListeners();
 
         this.renderRecipes();
-
-        this.handleRecipeCardClick(); // Handle clicks on recipe cards
     }
 
     async getRecipe(id) {
@@ -94,6 +91,13 @@ class RecipeApp {
             'eventType': 'click',
             'element': this.collapseAllBtn,
             'callback': () => this.collapseAllRecipes()
+        });
+
+        EventHandler.overwriteEvent({
+            'id': 'recipeCardClick',
+            'eventType': 'click',
+            'element': this.recipesContainer,
+            'callback': () => this.handleRecipeCardClick()
         });
     }
 
@@ -169,47 +173,47 @@ class RecipeApp {
         });
     }
 
+
+
     /**
      * Handles click events on recipe cards for edit, delete, and expand/collapse actions.
      * This method is bound to the recipesContainer element.
      * It uses event delegation to handle clicks on recipe cards.
      */
     handleRecipeCardClick() {
-        this.recipesContainer.addEventListener('click', (event) => {
-            if (document.querySelector('#noRecipesMessage')?.checkVisibility())
-                return; // Ignore clicks if no recipes are displayed
+        if (document.querySelector('#noRecipesMessage')?.checkVisibility())
+            return; // Ignore clicks if no recipes are displayed
 
-            const recipeCard = event.target.closest('.recipe-card');
-            if (!recipeCard) return; // Ignore clicks outside recipe cards
+        const recipeCard = event.target.closest('.recipe-card');
+        if (!recipeCard) return; // Ignore clicks outside recipe cards
 
-            const notEditing = recipeCard.dataset.editing !== 'true';
-            if (!notEditing)
-                return; // Ignore clicks if the card is in edit mode
+        const notEditing = recipeCard.dataset.editing !== 'true';
+        if (!notEditing)
+            return; // Ignore clicks if the card is in edit mode
 
-            const stringRecipeId = recipeCard.querySelector('.recipe-card-header')?.dataset?.recipeId;
-            const recipeId = Number(stringRecipeId, 10);
-            if (isNaN(recipeId)) {
-                toastService.addToast(`Invalid recipe ID: ${stringRecipeId}.`, GlobalConfig.LOG_LEVEL.ERROR);
-                return; // Ignore clicks if recipeId is not a valid number
-            }
-            const recipe = this.filteredRecipes.find(recipe => recipe.id === recipeId);
+        const stringRecipeId = recipeCard.querySelector('.recipe-card-header')?.dataset?.recipeId;
+        const recipeId = Number(stringRecipeId, 10);
+        if (isNaN(recipeId)) {
+            toastService.addToast(`Invalid recipe ID: ${stringRecipeId}.`, GlobalConfig.LOG_LEVEL.ERROR);
+            return; // Ignore clicks if recipeId is not a valid number
+        }
+        const recipe = this.filteredRecipes.find(recipe => recipe.id === recipeId);
 
-            const isDeleteBtnClick = event.target.classList.contains('delete-btn');
-            const isEditBtnClick = event.target.classList.contains('edit-btn');
+        const isDeleteBtnClick = event.target.classList.contains('delete-btn');
+        const isEditBtnClick = event.target.classList.contains('edit-btn');
 
-            if (isDeleteBtnClick) {
-                this.deleteRecipe(recipe.id)
-            }
-            else if (isEditBtnClick) {
-                this.recipeFormManager = new RecipeFormManager();
-                this.recipeFormManager.renderEditForm({ oldRecipe: recipe, containerElement: recipeCard, signal: this.signal });
-                recipeCard.dataset.editing = true;
-            }
-            else {
-                if (notEditing)
-                    this.toggleExpand(recipe.title, recipeCard);
-            }
-        });
+        if (isDeleteBtnClick) {
+            this.deleteRecipe(recipe.id)
+        }
+        else if (isEditBtnClick) {
+            this.recipeFormManager = new RecipeFormManager();
+            this.recipeFormManager.renderEditForm({ oldRecipe: recipe, containerElement: recipeCard, signal: this.signal });
+            recipeCard.dataset.editing = true;
+        }
+        else {
+            if (notEditing)
+                this.toggleExpand(recipe.title, recipeCard);
+        }
     }
 
     /**
@@ -311,6 +315,8 @@ window.scripts = {
     destroy: function () {
         this.app?._activeController?.abort();
         this.app._cancelled = true;
+
+        eventEmitter.off('recipe:edit', this.app.boundInit);
 
         if (this.app?.recipeFormManager) {
             this.app.recipeFormManager._activeController?.abort();

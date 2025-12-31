@@ -6,8 +6,8 @@ class GlobalConfig {
         const url = {
             // TODO add node js build step for locally and pipeline changing of config values 
             // files would have to put in dist folder for github to pick up
-            chatCoreUrl: 'https://localhost:7103',
-            // chatCoreUrl: 'https://corechatapivwindows.azurewebsites.net',
+            // chatCoreUrl: 'https://localhost:7103',
+            chatCoreUrl: 'https://corechatapivwindows.azurewebsites.net',
         };
         url.auth = `${url.chatCoreUrl}/auth`;
         url.chatGroup = `${url.chatCoreUrl}/chatGroups`;

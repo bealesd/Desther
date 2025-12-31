@@ -65,8 +65,6 @@ export default class RecipeFormManager {
     }
 
     async renderEditForm({ oldRecipe, containerElement, signal }) {
-        // this._activeController = new AbortController();
-        // this.signal = this._activeController.signal;
         this.signal = signal;
 
         // Store recipe card
@@ -170,7 +168,7 @@ export default class RecipeFormManager {
         if (this._cancelled) return;
 
         if (recipeUpdated) {
-            console.log('Recipe updated:', updatedRecipe);
+            toastService.addToast('Recipe updated', GlobalConfig.LOG_LEVEL.INFO);
             eventEmitter.emit('recipe:edit', updatedRecipe);
         }
     }
@@ -195,7 +193,6 @@ export default class RecipeFormManager {
             toastService.addToast('Failed to update recipe.', GlobalConfig.LOG_LEVEL.ERROR);
             return false;
         }
-        toastService.addToast('Recipe updated.', GlobalConfig.LOG_LEVEL.INFO);
         return true;
     }
 }

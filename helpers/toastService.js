@@ -3,7 +3,7 @@ import Logger from "./logger.js";
 
 class ToastService {
     MAX_TOASTS = 4;
-    TOAST_TIMEOUT_SECONDS = 20;
+    TOAST_TIMEOUT_SECONDS = 10;
     toastQueue = [];
 
     addToast(message, type = GlobalConfig.TOAST_TYPE.INFO, debug = false) {

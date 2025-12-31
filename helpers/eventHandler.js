@@ -57,7 +57,7 @@ export default new class EventHandler {
             return;
         }
 
-        event['element'].removeEventListener(event['eventType'], event['cb']);
+        event['element'].removeEventListener(event['eventType'], event['callback']);
         delete window.events[lifetime][id];
         Logger.log(`Removed id: ${id} from window.events.${lifetime}.`)
     }
