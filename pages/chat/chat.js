@@ -147,7 +147,7 @@ class Chat {
     }
 
     async markMessageAsRead(chat) {
-        await this.#AddChatRead(chat.Id, chat.Name);
+        await this.#AddChatRead(chat.Id, chat.UsernameId);
     }
 
     async getOlderChats() {
@@ -274,12 +274,12 @@ class Chat {
         if (chats === null || chats.length === 0)
             return;
         const outgoingChatIds = chats
-            .filter(chat => chat.Name === LoginHelper.username)
+            .filter(chat => chat.UsernameId === LoginHelper.usernameId)
             .map(chat => chat.Id);
 
-        const readChats = await this.#GetChatsThatAreRead(outgoingChatIds, LoginHelper.username);
+        const readChats = await this.#GetChatsThatAreRead(outgoingChatIds, LoginHelper.usernameId);
         if (readChats?.error) {
-            toastService.addToast('Failed to get chat read chats.', GlobalConfig.LOG_LEVEL.ERROR);
+            toastService.addToast('Failed to get read chats.', GlobalConfig.LOG_LEVEL.ERROR);
             Logger.log(`Failed to get read chats. Error: ${JSON.stringify(readChats.error)}`, GlobalConfig.LOG_LEVEL.ERROR);
             return;
         }
@@ -287,7 +287,7 @@ class Chat {
         const readIdsSet = new Set(readChatsIds);
 
         for (const chat of chats) {
-            if (chat.Name === LoginHelper.username)
+            if (chat.UsernameId === LoginHelper.usernameId)
                 chat.Read = readIdsSet.has(chat.Id);
         }
     }
@@ -322,7 +322,7 @@ class Chat {
 
         EventHandler.overwriteIntervals('getChatReadStatus', async () => {
             const unreadChats = this.chats
-                .filter(chat => chat.Name === LoginHelper.username)
+                .filter(chat => chat.UsernameId === LoginHelper.usernameId)
                 .filter(chat => !chat.Read);
             await this.getChatReadStatus(unreadChats);
             const readChats = unreadChats.filter(chat => chat.Read);
@@ -418,7 +418,7 @@ class Chat {
         const messageElement = document.createElement('div');
         messageElement.className = `chat-message`;
         messageElement.dataset.chatId = message.Id;
-        const isOutgoingUser = this.isOutgoingUser(message.Name);
+        const isOutgoingUser = this.isOutgoingUser(message.UsernameId);
         messageElement.classList.add(isOutgoingUser ? 'outgoing' : 'incoming');
 
         const messageHtml = `<div class="${this.domClasses.messageHeader}">
@@ -459,8 +459,8 @@ class Chat {
         return div.innerHTML;
     }
 
-    isOutgoingUser(name) {
-        return LoginHelper.username === name;
+    isOutgoingUser(usernameId) {
+        return usernameId === LoginHelper.usernameId;
     }
 
     orderChatsAsc() {
@@ -479,7 +479,7 @@ class Chat {
     }
 
     async #GetLast100Chats() {
-        const url = `${GlobalConfig.apis.chat}/GetChats?guid=${this.guid}`;
+        const url = `${GlobalConfig.apis.chat}/GetChats?chatGroupGuid=${this.guid}`;
         const records = await RequestHelper.GetJsonWithAuth(url, this.signal);
         return records;
     }
@@ -491,19 +491,19 @@ class Chat {
     }
 
     async #GetChatsAfterId(id) {
-        const url = `${GlobalConfig.apis.chat}/GetChatsAfterId?id=${id}&guid=${this.guid}`;
+        const url = `${GlobalConfig.apis.chat}/GetChatsAfterId?id=${id}&chatGroupGuid=${this.guid}`;
         const records = await RequestHelper.GetJsonWithAuth(url, this.signal);
         return records;
     }
 
-    async #GetChatsThatAreRead(chatsIds, username) {
-        const url = `${GlobalConfig.apis.chatsRead}/GetChatsThatAreRead?username=${username}`;
+    async #GetChatsThatAreRead(chatsIds, usernameId) {
+        const url = `${GlobalConfig.apis.chatsRead}/GetChatsThatAreRead?usernameId=${usernameId}`;
         const records = await RequestHelper.PostJsonWithAuth(url, chatsIds, { signal: this.signal });
         return records;
     }
 
-    async #AddChatRead(chatId, username) {
-        const url = `${GlobalConfig.apis.chatsRead}/AddChatRead?username=${username}&chatId=${chatId}`;
+    async #AddChatRead(chatId, usernameId) {
+        const url = `${GlobalConfig.apis.chatsRead}/AddChatRead?usernameId=${usernameId}&chatId=${chatId}`;
         const result = await RequestHelper.PostJsonWithAuth(url, { signal: this.signal });
         return result;
     }
@@ -518,7 +518,7 @@ class Chat {
         const payload = {
             name: LoginHelper.username,
             message: message,
-            guid: this.guid
+            chatGroupGuid: this.guid
         }
 
         const url = `${GlobalConfig.apis.chat}/AddChat`;

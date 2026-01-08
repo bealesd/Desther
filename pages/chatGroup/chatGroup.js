@@ -108,8 +108,8 @@ class ChatGroup {
     }
 
     async #GetChatGroups() {
-        Logger.log(LoginHelper.username);
-        const url = `${GlobalConfig.apis.chatGroup}/GetChatGroupsById/${LoginHelper.username}`;
+        Logger.log(LoginHelper.usernameId);
+        const url = `${GlobalConfig.apis.chatGroup}/GetChatGroupsById/${LoginHelper.usernameId}`;
         const records = await RequestHelper.GetJsonWithAuth(url, this.signal);
         return records;
     }
