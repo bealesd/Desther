@@ -4,6 +4,8 @@ import EventHandler from "../../helpers/eventHandler.js";
 import RequestHelper from "../../helpers/requestHelper.js";
 import toastService from "../../helpers/toastService.js";
 import LoadingScreen from '../../helpers/loadingScreen.js'
+import loginHelper from "../../helpers/loginHelper.js";
+import weighInService from "../../services/weighInService.js";
 
 class WeightChartSetup {
     _cancelled = false;
@@ -18,7 +20,7 @@ class WeightChartSetup {
         this.signal = this._activeController?.signal;
 
         LoadingScreen.showFullScreenLoader();
-        this.weighIns = await this.#GetWeighIns();
+        this.weighIns = await weighInService.GetWeighIns(this.signal);
         LoadingScreen.hideFullScreenLoader();
 
         if (this._cancelled) return;
@@ -29,14 +31,21 @@ class WeightChartSetup {
             return;
         }
 
+        for (const weighIn of this.weighIns) {
+            weighInService.addImperialWeights(weighIn);
+        }
+
         new WeightChart(this.weighIns);
     }
 
     async #GetWeighIns() {
-        const url = `${GlobalConfig.apis.weighIns}/GetWeighIns`;
+        const url = `${GlobalConfig.apis.weighIns}/GetWeighIns?userId=${loginHelper.usernameId}`;
         const weights = await RequestHelper.GetJsonWithAuth(url, this.signal);
-        if (weights?.error)
+        if (weights?.error) {
+            toastService.addToast('Failed to load weigh ins.', GlobalConfig.LOG_LEVEL.ERROR);
+            Logger.log(`Failed to load weigh ins: ${JSON.stringify(weights)}`, GlobalConfig.LOG_LEVEL.ERROR);
             return [];
+        }
         return weights;
     }
 }
@@ -71,8 +80,12 @@ class WeightChart {
 
         this.ctx = ctx;
         this.weighIns = weighIns;
-        this._averageWeightDavid = this.calculateAverage('David');
-        this._averageWeightEsther = this.calculateAverage('Esther');
+        this._averageWeight = this.calculateAverage();
+
+        this._averageKilo = this.weighIns.length
+            ? this.weighIns.reduce((sum, w) => sum + w.WeightKg, 0) / this.weighIns.length
+            : 0;
+
         this.chart = this.createChart();
 
         this.addResetButtonHandler();
@@ -91,11 +104,9 @@ class WeightChart {
         });
     }
 
-    calculateAverage(person) {
+    calculateAverage() {
         const total = this.weighIns.reduce((sum, entry) => {
-            const value = person === 'David'
-                ? entry.DavidStone + entry.DavidPounds / 14
-                : entry.EstherStone + entry.EstherPounds / 14;
+            const value = entry.Stone + entry.Pounds / 14;
             return sum + value;
         }, 0);
         return total / this.weighIns.length;
@@ -108,32 +119,34 @@ class WeightChart {
     }
 
     createChart() {
+        const isPink = loginHelper.usernameId === 5;
         return new Chart(this.ctx, {
             type: 'line',
             data: {
                 labels: this.weighIns.map(w => w.Date),
                 datasets: [
                     {
-                        label: 'Dave',
-                        data: this.weighIns.map(w => w.DavidStone + w.DavidPounds / 14),
-                        borderColor: 'rgba(20,20,255,1)',
-                        backgroundColor: 'rgba(20,20,255,0.3)',
+                        label: 'Imperial',
+                        data: this.weighIns.map(w => w.Stone + w.Pounds / 14),
+                        borderColor: !isPink ? 'rgba(20,20,255,1)' : 'rgba(255,20,147,1)',
+                        backgroundColor: !isPink ? 'rgba(20,20,255,0.3)' : 'rgba(255,20,147,0.3)',
                         fill: true,
                         tension: 0.5,
                         borderWidth: 0.5,
-                        pointBackgroundColor: 'rgba(29,20,255,0.7)',
-                        pointBorderColor: 'rgba(29,20,255,0.9)'
+                        pointBackgroundColor: !isPink ? 'rgba(29,20,255,0.7)' : 'rgba(255,20,147,0.7)',
+                        pointBorderColor: !isPink ? 'rgba(29,20,255,0.9)' : 'rgba(255,20,147,0.9)'
                     },
                     {
-                        label: 'Esther',
-                        data: this.weighIns.map(w => w.EstherStone + w.EstherPounds / 14),
-                        borderColor: 'rgba(255,20,147,1)',
-                        backgroundColor: 'rgba(255,20,147,0.3)',
+                        label: 'Metric',
+                        data: this.weighIns.map(w => w.WeightKg),
+                        borderColor: !isPink ? 'rgba(20,20,255,1)' : 'rgba(255,20,147,1)',
+                        backgroundColor: !isPink ? 'rgba(20,20,255,0.3)' : 'rgba(255,20,147,0.3)',
                         fill: true,
                         tension: 0.5,
                         borderWidth: 0.5,
-                        pointBackgroundColor: 'rgba(255,20,147,0.7)',
-                        pointBorderColor: 'rgba(255,20,147,0.9)'
+                        pointBackgroundColor: !isPink ? 'rgba(29,20,255,0.7)' : 'rgba(255,20,147,0.7)',
+                        pointBorderColor: !isPink ? 'rgba(29,20,255,0.9)' : 'rgba(255,20,147,0.9)',
+                         hidden: true 
                     }
                 ]
             },
@@ -148,19 +161,34 @@ class WeightChart {
                     tooltip: {
                         callbacks: {
                             label: (context) => {
-                                const date = new Date(context.label).toLocaleDateString('en-GB');
+                                const date = new Date(context.label)
+                                    .toLocaleDateString('en-GB');
+
+                                const isMetric = context.dataset.label === 'Metric';
+
+                                if (isMetric) {
+                                    const kg = context.parsed.y;
+                                    const avgKg = this._averageKilo;
+
+                                    return [
+                                        'Metric',
+                                        `Date: ${date}`,
+                                        `Weight: ${kg.toFixed(1)} kg`,
+                                        `Average: ${avgKg.toFixed(1)} kg`
+                                    ];
+                                }
+
+                                // Imperial
                                 const weight = this.decimalToStonePounds(context.parsed.y);
-                                const average = context.dataset.label === 'Dave'
-                                    ? this.decimalToStonePounds(this._averageWeightDavid)
-                                    : this.decimalToStonePounds(this._averageWeightEsther);
+                                const average = this.decimalToStonePounds(this._averageWeight);
 
                                 return [
-                                    context.dataset.label,
+                                    'Imperial',
                                     `Date: ${date}`,
                                     `Weight: ${weight.stone} st ${weight.pounds} lbs`,
                                     `Average: ${average.stone} st ${average.pounds} lbs`
                                 ];
-                            }
+                            },
                         }
                     },
                     zoom: {
@@ -191,7 +219,7 @@ class WeightChart {
                     y: {
                         title: {
                             display: true,
-                            text: 'Weight (stone)',
+                            text: 'Weight',
                             color: '#00f'
                         }
                     }
