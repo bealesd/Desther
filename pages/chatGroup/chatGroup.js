@@ -6,6 +6,7 @@ import RequestHelper from "../../helpers/requestHelper.js";
 import toastService from "../../helpers/toastService.js";
 import EventHandler from "../../helpers/eventHandler.js";
 import CreateModal from "../../helpers/create-modal/create-modal.js";
+import state from "../../helpers/state.js";
 
 class ChatGroup {
     _cancelled = false;
@@ -79,32 +80,21 @@ class ChatGroup {
 
             const li = document.createElement('li');
             const button = document.createElement('button');
-            // Show users in chat group
-            const chatGroupText = chatGroup['Usernames'].join(' and ');
-            const shortChatGroupText = chatGroup['Usernames'].join(', ');
-            button.textContent = chatGroupText;
+
+            const users = chatGroup['Users'];
+            const guid = chatGroup['Guid'];
+            state.set(`Chat:${guid}:Users`, users);
+
+            button.textContent = users.map(u => u.Username).join(', ');
             // Add chat link for each chat group
             button.dataset.router = true;
-            button.setAttribute('href', `/chat?guid=${chatGroup['Guid']}&name=${shortChatGroupText}`)
+            button.setAttribute('href', `/chat?guid=${guid}`)
 
             li.appendChild(button);
             chatGroupElement.appendChild(li);
 
             chatGroup.Dom = li;
         }
-    }
-
-    async #IsValidUsername(username) {
-        if (username === LoginHelper.username) {
-            toastService.addToast('Cannot add self.', GlobalConfig.LOG_LEVEL.WARNING);
-            return false;
-        }
-        const isUsername = await this.#IsUsername(username);
-        if (isUsername !== true) {
-            toastService.addToast(`User not found.`, GlobalConfig.LOG_LEVEL.WARNING);
-            return false;
-        };
-        return true;
     }
 
     async #GetChatGroups() {
@@ -114,20 +104,21 @@ class ChatGroup {
         return records;
     }
 
-    async #IsUsername(username) {
+    async #GetUsernameId(username) {
         const url = `${GlobalConfig.apis.auth}/IsUsername?username=${username}`;
-        const isUsername = await RequestHelper.GetJsonWithAuth(url, this.signal);
-        return isUsername;
+        const userId = await RequestHelper.GetJsonWithAuth(url, this.signal);
+        return userId;
     }
 
-    async #createGroup(usernames) {
+    async #createGroup(usernameIds, name) {
         const url = `${GlobalConfig.apis.chatGroup}/AddChatGroup`;
-        const guid = await RequestHelper.PostJsonWithAuth(url, usernames, this.signal);
+        const guid = await RequestHelper.PostJsonWithAuth(url, { UsernameIds: usernameIds, Name: name }, this.signal);
         return guid;
     }
 
     showCreateGroupModal() {
         this.selectedUsers = [];
+        this.selectedUserIds = [];
 
         const content = document.createElement('div');
         content.innerHTML = `
@@ -142,8 +133,9 @@ class ChatGroup {
             submitText: "Create",
             cancelText: "Cancel",
             onSubmit: async () => {
-                const usernames = [LoginHelper.username, ...this.selectedUsers];
-                const guid = this.#createGroup(usernames);
+                const name = [LoginHelper.username, ...this.selectedUsers];
+
+                const guid = await this.#createGroup(this.selectedUserIds, name);
                 if (guid?.error) {
                     toastService.addToast('Failed to get chat groups.', GlobalConfig.LOG_LEVEL.ERROR);
                     Logger.log(`Failed to get chat groups. Error: ${JSON.stringify(guid.error)}`, GlobalConfig.LOG_LEVEL.ERROR);
@@ -151,7 +143,7 @@ class ChatGroup {
                 }
                 this.chatGroups.push({
                     Guid: guid,
-                    Usernames: usernames
+                    Usernames: name
                 });
                 this.renderChatGroups();
             }
@@ -162,12 +154,12 @@ class ChatGroup {
         addUserBtn.addEventListener('click', async () => {
             const username = content.querySelector('#usernameInput').value;
 
-            if (await this.#IsValidUsername(username)) {
-                this.selectedUsers.push(username);
-                content.querySelector('#selectedUsers')
-                    .insertAdjacentHTML("beforeend", `<li>${username}</li>`);
-                content.querySelector('#usernameInput').value = '';
-            }
+            const userId = await this.#GetUsernameId(username);
+            this.selectedUserIds.push(userId);
+            this.selectedUsers.push(username);
+
+            content.querySelector('#selectedUsers').insertAdjacentHTML("beforeend", `<li>${username}</li>`);
+            content.querySelector('#usernameInput').value = '';
         });
 
         modal.open();

@@ -65,8 +65,6 @@ window.scripts = {
     }
 }
 
-
-
 class WeightChart {
     domIds = Object.freeze({
         weighInChart: 'weighInChart',

@@ -8,6 +8,7 @@ import LoadingScreen from "../../helpers/loadingScreen.js";
 import toastService from "../../helpers/toastService.js";
 import DeleteModal from "../../helpers/delete-modal/delete-modal.js";
 import Router from "../../helpers/router.js";
+import state from "../../helpers/state.js";
 
 class Chat {
     _cancelled = false;
@@ -39,7 +40,8 @@ class Chat {
 
         const url = new URL(window.location);
         this.guid = url.searchParams.get('guid');
-        this.name = url.searchParams.get('name');
+
+        this.users = state.get(`Chat:${this.guid}:Users`);
 
         this.container = document.querySelector(`.${this.domClasses.chatContainer}`);
 
@@ -75,7 +77,7 @@ class Chat {
     }
 
     setChatName(){
-        document.querySelector('.chat-title').innerText = this.name;
+        document.querySelector('.chat-title').innerText = this.users.map(u => u.Username).join(', ');
     }
 
     getChatById(chatId) {
