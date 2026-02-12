@@ -15,6 +15,7 @@ class GlobalConfig {
         url.chatsRead = `${url.chatCoreUrl}/chatsRead`;
         url.weighIns = `${url.chatCoreUrl}/weighIns`;
         url.recipes = `${url.chatCoreUrl}/recipes`;
+        url.userPicture = `${url.chatCoreUrl}/userPicture`;
         return url;
     }
 
