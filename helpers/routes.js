@@ -17,10 +17,7 @@ const routes = {
         auth: true
     },
     '/calendar': {
-        link: 'pages/calendar/calendar.html',
-        css: 'pages/calendar/calendar.css',
-        js: 'pages/calendar/calendar.js',
-        auth: true,
+        link: 'https://calendar.google.com/calendar/embed?src=esthersullywedding%40gmail.com&ctz=Europe%2FLondon target=',
         title: 'Calendar',
     },
     '/chatGroup': {

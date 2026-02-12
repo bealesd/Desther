@@ -29,8 +29,16 @@ export default new class Router {
         const target = event.target.closest('button');
 
         if (target && target.hasAttribute('data-router')) {
-            event.preventDefault(); // Prevent default link behavior
             const path = target.getAttribute('href');
+           
+            const link = routes?.[path]?.link;
+            if (link?.includes('calendar.google.com')) {
+                window.open(link, '_blank');
+                return;
+            }
+
+            event.preventDefault(); // Prevent default link behavior
+
             this.navigate(path);
         }
     }
