@@ -17,16 +17,29 @@ class Chat {
 
     domClasses = Object.freeze({
         chatContainer: 'chat-container',
-        chatInput: 'chat-input',
+
+        chatMenuBtn: 'chat-menu-btn',
+        chatMenuDropdown: 'chat-menu-dropdown',
+        chatMenuItem: 'chat-menu-item',
+
         chatHeader: 'chat-header',
+        chatMessage: 'chat-message',
+        incoming: 'incoming',
+        outgoing: 'outgoing',
+        intersecting: 'intersecting',
         messageHeader: 'message-header',
-        messageContent: 'message-content',
         username: 'username',
         datetime: 'datetime',
-        status: 'status'
+        status: 'status',
+        messageContent: 'message-content',
+
+        chatInput: 'chat-input',
+        scrollToBottomBtn: 'chat-extra-btn',
+        chatSendBtn: 'chat-send-btn',
     });
 
     domIds = Object.freeze({
+        loadMoreSentinel: 'load-more-sentinel',
     });
 
     guid = null;
@@ -63,7 +76,8 @@ class Chat {
         this.parseDatetimeInChats(chats);
 
         this.chats = chats;
-        await this.getChatReadStatus(this.chats);
+        await this.getChatReadStatusForMyMessages(this.chats);
+        await this.getChatReadStatusForMessageToMe(this.chats);
 
         LoadingScreen.hideFullScreenLoader();
 
@@ -76,7 +90,7 @@ class Chat {
         await this.getChatsSubscription();
     }
 
-    setChatName(){
+    setChatName() {
         document.querySelector('.chat-title').innerText = this.users.map(u => u.Username).join(', ');
     }
 
@@ -92,14 +106,18 @@ class Chat {
     createObserver() {
         this.observer = new IntersectionObserver(entries => {
             for (const { isIntersecting, target } of entries) {
-                if (!target.classList.contains('chat-message'))
+                if (!target.classList.contains(this.domClasses.chatMessage))
                     return;
 
-                if (target.classList.contains('incoming'))
-                    target.classList.toggle('intersecting', isIntersecting);
+                if (target.classList.contains(this.domClasses.incoming))
+                    target.classList.toggle(this.domClasses.intersecting, isIntersecting);
 
                 if (isIntersecting) {
-                    const chat = this.getChatById(target.dataset.chatId);
+                    const chatId = target.dataset.chatId;
+                    // don't say it has been read again
+                    if (this.readIdsForMessageToMe.has(Number(chatId)))
+                        return;
+                    const chat = this.getChatById(chatId);
                     if (this.shouldMessageBeMarkedAsRead(target))
                         this.markMessageAsRead(chat);
                 }
@@ -109,7 +127,7 @@ class Chat {
 
         this.loadMoreObserver = new IntersectionObserver(entries => {
             entries.forEach(({ isIntersecting, target }) => {
-                if (target.id !== 'load-more-sentinel')
+                if (target.id !== this.domIds.loadMoreSentinel)
                     return;
 
                 if (isIntersecting) {
@@ -129,7 +147,7 @@ class Chat {
 
     createLoadMoreSentinel() {
         this.sentinel = document.createElement('div');
-        this.sentinel.id = 'load-more-sentinel';
+        this.sentinel.id = this.domIds.loadMoreSentinel;
         this.sentinel.style.height = '20px'; // Small visible area
         this.sentinel.style.width = '100%';
         this.sentinel.textContent = 'SENTINEL';
@@ -140,7 +158,7 @@ class Chat {
 
     shouldMessageBeMarkedAsRead(chatMessageElement) {
         // check message is incoming
-        if (!chatMessageElement.classList.contains('incoming'))
+        if (!chatMessageElement.classList.contains(this.domClasses.incoming))
             return false;
 
         // additional check to confirm message is incoming
@@ -189,8 +207,8 @@ class Chat {
     }
 
     registerCallbacks() {
-        const menuBtn = document.querySelector(".chat-menu-btn");
-        const menu = document.querySelector(".chat-menu-dropdown");
+        const menuBtn = document.querySelector(`.${this.domClasses.chatMenuBtn}`);
+        const menu = document.querySelector(`.${this.domClasses.chatMenuDropdown}`);
 
         menuBtn.addEventListener("click", e => {
             e.stopPropagation();
@@ -201,14 +219,14 @@ class Chat {
             menu.style.display = "none";
         });
 
-        document.querySelector('.chat-menu-dropdown').addEventListener("click", e => {
+        document.querySelector(`.${this.domClasses.chatMenuDropdown}`).addEventListener("click", e => {
             e.stopPropagation();
-            const item = e.target.closest('.chat-menu-item');
+            const item = e.target.closest(`.${this.domClasses.chatMenuItem}`);
             if (item.classList.contains('danger'))
                 this.deleteGroup();
         });
 
-        const chatScrollToBottomButton = document.querySelector(`.chat-extra-btn`);
+        const chatScrollToBottomButton = document.querySelector(`.${this.domClasses.scrollToBottomBtn}`);
         EventHandler.overwriteEvent({
             'id': 'chatScrollToBottomEvent',
             'eventType': 'click',
@@ -218,7 +236,7 @@ class Chat {
             }
         });
 
-        const chatSendButton = document.querySelector(`.chat-send-btn`);
+        const chatSendButton = document.querySelector(`.${this.domClasses.chatSendBtn}`);
         EventHandler.overwriteEvent({
             'id': 'chatSendEvent',
             'eventType': 'click',
@@ -251,7 +269,7 @@ class Chat {
 
         const chatRecord = await this.#SendChat(chatMessage);
         if (chatRecord?.error) {
-            toastService.addToast(`Failed to send chat. Error: ${chatGroups.error}.`, GlobalConfig.LOG_LEVEL.ERROR);
+            toastService.addToast(`Failed to send chat. Error: ${chatRecord.error}.`, GlobalConfig.LOG_LEVEL.ERROR);
             return;
         }
 
@@ -272,7 +290,28 @@ class Chat {
         });
     }
 
-    async getChatReadStatus(chats) {
+    async getChatReadStatusForMessageToMe(chats) {
+        // chats is all chats, i.e. on getting older or newer the total chats always goes up
+        if (chats === null || chats.length === 0)
+            return;
+        const messageToMeChatIds = chats
+            .filter(chat => chat.UsernameId !== LoginHelper.usernameId)
+            .map(chat => chat.Id);
+
+        const userIds = this.users.filter(x => x.UserId !== LoginHelper.usernameId).map(x => x.UserId);
+
+        const readChats = await this.#GetChatsThatAreRead2(messageToMeChatIds, userIds);
+
+        if (readChats?.error) {
+            toastService.addToast('Failed to get read chats.', GlobalConfig.LOG_LEVEL.ERROR);
+            Logger.log(`Failed to get read chats. Error: ${JSON.stringify(readChats.error)}`, GlobalConfig.LOG_LEVEL.ERROR);
+            return;
+        }
+   
+        this.readIdsForMessageToMe = new Set(readChats);
+    }
+
+    async getChatReadStatusForMyMessages(chats) {
         if (chats === null || chats.length === 0)
             return;
         const outgoingChatIds = chats
@@ -312,7 +351,8 @@ class Chat {
 
             if (this._cancelled) return;
 
-            await this.getChatReadStatus(newChats);
+            await this.getChatReadStatusForMyMessages(newChats);
+            await this.getChatReadStatusForMessageToMe(newChats);
 
             if (this._cancelled) return;
 
@@ -326,7 +366,7 @@ class Chat {
             const unreadChats = this.chats
                 .filter(chat => chat.UsernameId === LoginHelper.usernameId)
                 .filter(chat => !chat.Read);
-            await this.getChatReadStatus(unreadChats);
+            await this.getChatReadStatusForMyMessages(unreadChats);
             const readChats = unreadChats.filter(chat => chat.Read);
 
             for (const chat of readChats) {
@@ -418,13 +458,13 @@ class Chat {
     // Render a chat message after its date header
     renderChatMessage(message, dateHeader) {
         const messageElement = document.createElement('div');
-        messageElement.className = `chat-message`;
+        messageElement.className = this.domClasses.chatMessage;
         messageElement.dataset.chatId = message.Id;
         const isOutgoingUser = this.isOutgoingUser(message.UsernameId);
-        messageElement.classList.add(isOutgoingUser ? 'outgoing' : 'incoming');
+        messageElement.classList.add(isOutgoingUser ? this.domClasses.outgoing : this.domClasses.incoming);
 
         const messageHtml = `<div class="${this.domClasses.messageHeader}">
-                                <span class="${this.domClasses.username}">${isOutgoingUser ? '' : message.Name}</span>
+                                <span class="${this.domClasses.username}">${isOutgoingUser ? '' : message.Username}</span>
                                 <span class="${this.domClasses.datetime}">${message.Datetime.toLocaleTimeString()}</span>
                                 <span class="${this.domClasses.status}">${isOutgoingUser ? message.Read ? '✓' : '✗' : ''}</span>
                             </div>
@@ -504,6 +544,12 @@ class Chat {
         return records;
     }
 
+     async #GetChatsThatAreRead2(chatsIds, usernameIds) {
+        const url = `${GlobalConfig.apis.chatsRead}/GetChatsThatAreRead2`;
+        const records = await RequestHelper.PostJsonWithAuth(url, {chatIds: chatsIds, userIds: usernameIds}, { signal: this.signal });
+        return records;
+    }
+
     async #AddChatRead(chatId, usernameId) {
         const url = `${GlobalConfig.apis.chatsRead}/AddChatRead?usernameId=${usernameId}&chatId=${chatId}`;
         const result = await RequestHelper.PostJsonWithAuth(url, { signal: this.signal });
@@ -518,7 +564,7 @@ class Chat {
 
     async #SendChat(message) {
         const payload = {
-            name: LoginHelper.username,
+            usernameId: LoginHelper.usernameId,
             message: message,
             chatGroupGuid: this.guid
         }

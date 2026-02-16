@@ -3,7 +3,7 @@ import Logger from "./logger.js";
 
 class ToastService {
     MAX_TOASTS = 4;
-    TOAST_TIMEOUT_SECONDS = 10;
+    TOAST_TIMEOUT_SECONDS = 5;
     toastQueue = [];
 
     addToast(message, type = GlobalConfig.TOAST_TYPE.INFO, debug = false) {
@@ -45,7 +45,7 @@ class ToastService {
         const timeoutId = setTimeout(() => {
             this.#removeToast(toastElement);
         }, this.TOAST_TIMEOUT_SECONDS * 1000);
-        
+
         toastElement.dataset['timeoutId'] = timeoutId;
     }
 
@@ -59,13 +59,22 @@ class ToastService {
         const timeoutId = toastElement.dataset.timeoutId;
         if (timeoutId)
             clearTimeout(timeoutId)
-        toastElement.remove();
 
-        // Add the oldest message to the screen if there is a toast queue, FIFO
-        if (this.toastQueue.length > 0) {
-            const toast = this.toastQueue.shift();
-            this.addToast(toast.message, toast.type);
-        }
+
+        // 1. Trigger the slide-out animation
+        toastElement.classList.add('hide');
+
+        // 2. Wait for animation to finish, then remove from DOM
+        toastElement.addEventListener('animationend', () => {
+            toastElement.remove();
+
+            // Add the oldest message to the screen if there is a toast queue, FIFO
+            if (this.toastQueue.length > 0) {
+                const toast = this.toastQueue.shift();
+                this.addToast(toast.message, toast.type);
+            }
+
+        }, { once: true }); // 'once' ensures the listener is cleaned up
     }
 }
 

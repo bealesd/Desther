@@ -6,6 +6,7 @@ import toastService from "../../helpers/toastService.js";
 import LoadingScreen from "../../helpers/loadingScreen.js";
 import loginHelper from "../../helpers/loginHelper.js";
 import weighInService from "../../services/weighInService.js";
+import DeleteModal from "../../helpers/delete-modal/delete-modal.js";
 
 class WeighInsEntry {
     _cancelled = false;
@@ -157,6 +158,17 @@ class WeighInsEntry {
         document.querySelector(`.${this.domClasses.poundInput}`).value = '';
     }
 
+    async deleteWeighIn(id, row) {
+        DeleteModal.open('Are you sure you want to delete this weigh in?', async () => {
+            const url = `${GlobalConfig.apis.weighIns}/DeleteWeighIn?id=${id}`;
+            const response = await RequestHelper.DeleteWithAuth(url);
+            if (response?.error)
+                return toastService.addToast('Failed to delete weigh in.', GlobalConfig.LOG_LEVEL.ERROR);
+
+            row.parentNode.removeChild(row);
+        });
+    }
+
     async deleteRow(evt) {
         const btn = evt.target;
         const row = btn.parentNode.parentNode;
@@ -165,15 +177,7 @@ class WeighInsEntry {
         if (!id)
             toastService.addToast('Failed to delete weigh in, no ID.', GlobalConfig.LOG_LEVEL.ERROR);
 
-        if (!confirm('Are you sure you want to delete this weigh in?'))
-            return;
-
-        const url = `${GlobalConfig.apis.weighIns}/DeleteWeighIn?id=${id}`;
-        const response = await RequestHelper.DeleteWithAuth(url);
-        if (response?.error)
-            return toastService.addToast('Failed to delete weigh in.', GlobalConfig.LOG_LEVEL.ERROR);
-
-        row.parentNode.removeChild(row);
+        this.deleteWeighIn(id, row);
     }
 
     #dateOfToday() {
