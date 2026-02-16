@@ -47,6 +47,7 @@ class Chat {
     chats = [];
     updateIntervalInSeconds = 10;
 
+
     async init() {
         this._activeController = new AbortController();
         this.signal = this._activeController?.signal;
@@ -57,6 +58,8 @@ class Chat {
         this.users = state.get(`Chat:${this.guid}:Users`);
 
         this.container = document.querySelector(`.${this.domClasses.chatContainer}`);
+
+        this.readIdsForMessageToMe = new Set();
 
         this.setChatName();
 
@@ -119,7 +122,7 @@ class Chat {
                         return;
                     const chat = this.getChatById(chatId);
                     if (this.shouldMessageBeMarkedAsRead(target))
-                        this.markMessageAsRead(chat);
+                        this.markMessageSentToMeAsRead(chat);
                 }
             }
             // 👇 Threshold is 100%
@@ -168,6 +171,10 @@ class Chat {
 
     async markMessageAsRead(chat) {
         await this.#AddChatRead(chat.Id, chat.UsernameId);
+    }
+
+     async markMessageSentToMeAsRead(chat) {
+        await this.#AddChatRead(chat.Id,  LoginHelper.usernameId);
     }
 
     async getOlderChats() {
@@ -300,15 +307,18 @@ class Chat {
 
         const userIds = this.users.filter(x => x.UserId !== LoginHelper.usernameId).map(x => x.UserId);
 
-        const readChats = await this.#GetChatsThatAreRead2(messageToMeChatIds, userIds);
+        const readChats = await this.#GetChatsThatAreRead(messageToMeChatIds, LoginHelper.usernameId);
 
         if (readChats?.error) {
             toastService.addToast('Failed to get read chats.', GlobalConfig.LOG_LEVEL.ERROR);
             Logger.log(`Failed to get read chats. Error: ${JSON.stringify(readChats.error)}`, GlobalConfig.LOG_LEVEL.ERROR);
             return;
         }
-   
-        this.readIdsForMessageToMe = new Set(readChats);
+
+        const readChatsIds = readChats.map(c => c.ChatId);
+        const readIdsSet = new Set(readChatsIds);
+
+        this.readIdsForMessageToMe = readIdsSet
     }
 
     async getChatReadStatusForMyMessages(chats) {
@@ -318,14 +328,15 @@ class Chat {
             .filter(chat => chat.UsernameId === LoginHelper.usernameId)
             .map(chat => chat.Id);
 
-        const readChats = await this.#GetChatsThatAreRead(outgoingChatIds, LoginHelper.usernameId);
+        const userIds = this.users.filter(x => x.UserId !== LoginHelper.usernameId).map(x => x.UserId);
+
+        const readChats = await this.#GetChatsThatAreReadByAllUserIds(outgoingChatIds, userIds);
         if (readChats?.error) {
             toastService.addToast('Failed to get read chats.', GlobalConfig.LOG_LEVEL.ERROR);
             Logger.log(`Failed to get read chats. Error: ${JSON.stringify(readChats.error)}`, GlobalConfig.LOG_LEVEL.ERROR);
             return;
         }
-        const readChatsIds = readChats.map(c => c.ChatId);
-        const readIdsSet = new Set(readChatsIds);
+        const readIdsSet = new Set(readChats);
 
         for (const chat of chats) {
             if (chat.UsernameId === LoginHelper.usernameId)
@@ -544,9 +555,9 @@ class Chat {
         return records;
     }
 
-     async #GetChatsThatAreRead2(chatsIds, usernameIds) {
+    async #GetChatsThatAreReadByAllUserIds(chatsIds, usernameIds) {
         const url = `${GlobalConfig.apis.chatsRead}/GetChatsThatAreRead2`;
-        const records = await RequestHelper.PostJsonWithAuth(url, {chatIds: chatsIds, userIds: usernameIds}, { signal: this.signal });
+        const records = await RequestHelper.PostJsonWithAuth(url, { chatIds: chatsIds, userIds: usernameIds }, { signal: this.signal });
         return records;
     }
 
