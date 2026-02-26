@@ -53,7 +53,7 @@ export default class RequestHelper {
                 signal: signal
             });
 
-            this.handleNotOkResponse(response);
+           await  this.handleNotOkResponse(response);
             const text = await response.text();
             return text;
         } catch (error) {
@@ -68,7 +68,7 @@ export default class RequestHelper {
                 signal: signal,
             });
 
-            this.handleNotOkResponse(response);
+            await this.handleNotOkResponse(response);
             const json = await response.json();
             return json;
         } catch (error) {
@@ -83,7 +83,7 @@ export default class RequestHelper {
                 signal: signal
             });
 
-            this.handleNotOkResponse(response);
+            await this.handleNotOkResponse(response);
             const json = await response.json();
 
             Logger.log(GeneralHelper.getTime());
@@ -94,7 +94,7 @@ export default class RequestHelper {
         }
     }
 
-    static async PostJson(url, object, {withAuth = false, signal = null}) {
+    static async PostJson(url, object, { withAuth = false, signal = null }) {
         const myHeaders = new Headers();
         myHeaders.append('Content-Type', 'application/json');
         const fetchMethod = withAuth ? this.#fetchWithToken : this.#fetch;
@@ -106,7 +106,7 @@ export default class RequestHelper {
                 body: JSON.stringify(object),
                 signal: signal,
             });
-            this.handleNotOkResponse(response);
+            await this.handleNotOkResponse(response);
             const json = await response.json();
             return json;
         } catch (error) {
@@ -114,7 +114,7 @@ export default class RequestHelper {
         }
     }
 
-    static async PutJson(url, object, {withAuth = false, signal = null}) {
+    static async PutJson(url, object, { withAuth = false, signal = null }) {
         const myHeaders = new Headers();
         myHeaders.append('Content-Type', 'application/json');
         const fetchMethod = withAuth ? this.#fetchWithToken : this.#fetch;
@@ -126,18 +126,18 @@ export default class RequestHelper {
                 body: JSON.stringify(object),
                 signal: signal
             });
-            this.handleNotOkResponse(response);
+            await this.handleNotOkResponse(response);
         } catch (error) {
             return this.handleFetchError(error);
         }
     }
 
     static async PostJsonWithAuth(url, object) {
-        return this.PostJson(url, object, {withAuth: true});
+        return this.PostJson(url, object, { withAuth: true });
     }
 
     static async PutJsonWithAuth(url, object, signal = null) {
-        return this.PutJson(url, object, {withAuth: true, signal: signal});
+        return this.PutJson(url, object, { withAuth: true, signal: signal });
     }
 
     static async DeleteWithAuth(url) {
@@ -150,20 +150,22 @@ export default class RequestHelper {
             const response = await fetchMethod.call(this, url, {
                 method: 'DELETE'
             });
-            this.handleNotOkResponse(response);
+            await this.handleNotOkResponse(response);
             return true;
         } catch (error) {
             return this.handleFetchError(error);
         }
     }
 
-    static handleNotOkResponse(response) {
-        if (!response.ok)
-            throw new Error(`${response.status} ${response.statusText}`);
+    static async handleNotOkResponse(response) {
+        if (!response.ok) {
+            const message = await response.text();
+            throw new Error(`Status:${response.status}. Message: ${message}`);
+        }
     }
 
     static handleFetchError(error) {
-        return { error: `Fetch failed.\t${error.message}` };
+        return { error: `Fetch failed.`, message: error.message };
     }
 
 }

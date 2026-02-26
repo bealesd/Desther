@@ -1,10 +1,7 @@
 /* ---------- MODAL OVERLAY ---------- */
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: rgba(0, 0, 0, 0.8);
     display: flex;
     align-items: center;
@@ -13,40 +10,63 @@
     animation: fadeIn 0.2s ease-in-out;
 }
 
-/* ---------- MODAL BOX ---------- */
+/* ---------- MODAL CONTAINER ---------- */
 .modal-container {
     background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
     padding: 25px;
     border-radius: 12px;
-    width: 350px;
-    color: white;
+    width: 380px;
+    color: #fff;
     box-shadow: 0 0 25px rgba(0, 162, 255, 0.6);
     animation: scaleIn 0.25s ease;
+    box-sizing: border-box;
 }
 
-/* Title */
-.modal-container h2 {
-    margin: 0 0 15px 0;
+/* ---------- HEADER ---------- */
+.modal-header h2 {
+    margin: 0 0 15px;
     color: #00a2ff;
     text-shadow: 0 0 8px rgba(0, 162, 255, 0.8);
 }
 
-/* Input row */
-.modal-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
+/* ---------- CONTENT ---------- */
+.modal-content {
+    display: block;
 }
 
-.modal-container input {
-    flex: 1;
+/* Labels always on own line */
+.modal-content label {
+    display: block;
+    margin: 14px 0 6px;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+/* Inputs full width */
+.modal-content input {
+    width: 100%;
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #00a2ff;
     background: #111;
-    color: white;
+    color: #fff;
+    box-sizing: border-box;
+    margin-bottom: 10px;
 }
 
+/* ---------- INPUT + BUTTON ROW ---------- */
+.input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.input-row input {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+/* ---------- BUTTONS ---------- */
 .modal-container button {
     padding: 10px 15px;
     border-radius: 8px;
@@ -54,7 +74,7 @@
     background: #111;
     color: #00a2ff;
     cursor: pointer;
-    transition: 0.25s;
+    transition: all 0.25s ease;
 }
 
 .modal-container button:hover {
@@ -64,31 +84,35 @@
     transform: scale(1.03);
 }
 
-/* Username list */
-#modal-user-list {
+/* ---------- USER LIST ---------- */
+#selectedUsers {
+    list-style: none;
+    padding: 10px;
+    margin: 10px 0 0;
     background: #121212;
     border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 20px;
-    min-height: 60px;
     border: 1px solid #00a2ff55;
+    min-height: 60px;
 }
 
-#modal-user-list p {
-    margin: 3px 0;
+#selectedUsers li {
+    padding: 4px 6px;
+    font-size: 0.9rem;
+    color: #ddd;
 }
 
-/* Bottom buttons */
-.modal-actions {
+/* ---------- FOOTER ---------- */
+.modal-footer {
     display: flex;
     justify-content: space-between;
+    margin-top: 20px;
 }
 
-.modal-actions button {
+.modal-footer button {
     width: 48%;
 }
 
-/* Animations */
+/* ---------- ANIMATIONS ---------- */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }

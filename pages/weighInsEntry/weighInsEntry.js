@@ -66,7 +66,7 @@ class WeighInsEntry {
         const weights = await RequestHelper.GetJsonWithAuth(url, this.signal);
         if (weights?.error) {
             toastService.addToast('Failed to load weigh ins.', GlobalConfig.LOG_LEVEL.ERROR);
-            Logger.log(`Failed to load weigh ins: ${JSON.stringify(weights)}`, GlobalConfig.LOG_LEVEL.ERROR);
+            Logger.log(`Failed to load weigh ins: ${weights.message}`, GlobalConfig.LOG_LEVEL.ERROR);
             return [];
         }
         return weights;

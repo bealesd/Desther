@@ -17,6 +17,7 @@ class Chat {
 
     domClasses = Object.freeze({
         chatContainer: 'chat-container',
+        chatTitle: 'chat-title',
 
         chatMenuBtn: 'chat-menu-btn',
         chatMenuDropdown: 'chat-menu-dropdown',
@@ -56,6 +57,7 @@ class Chat {
         this.guid = url.searchParams.get('guid');
 
         this.users = state.get(`Chat:${this.guid}:Users`);
+        this.name = state.get(`Chat:${this.guid}:Name`);
 
         this.container = document.querySelector(`.${this.domClasses.chatContainer}`);
 
@@ -73,7 +75,7 @@ class Chat {
             chat = [];
 
         if (chats?.error) {
-            toastService.addToast(`Failed to get chats. Error: ${chats.error}.`, GlobalConfig.LOG_LEVEL.ERROR)
+            toastService.addToast(`Failed to get chats. Error: ${chats.message}.`, GlobalConfig.LOG_LEVEL.ERROR)
             chats = [];
         }
         this.parseDatetimeInChats(chats);
@@ -94,7 +96,9 @@ class Chat {
     }
 
     setChatName() {
-        document.querySelector('.chat-title').innerText = this.users.map(u => u.Username).join(', ');
+        const chatTitleDom = document.querySelector(`.${this.domClasses.chatTitle}`)
+        chatTitleDom.innerText = this.name;
+        chatTitleDom.title = `Users: ${this.users.map(u => u.Username).join(', ')}`;
     }
 
     getChatById(chatId) {
@@ -173,8 +177,10 @@ class Chat {
         await this.#AddChatRead(chat.Id, chat.UsernameId);
     }
 
-     async markMessageSentToMeAsRead(chat) {
-        await this.#AddChatRead(chat.Id,  LoginHelper.usernameId);
+    async markMessageSentToMeAsRead(chat) {
+        await this.#AddChatRead(chat.Id, LoginHelper.usernameId);
+
+        chat.Read = true;
     }
 
     async getOlderChats() {
@@ -189,7 +195,7 @@ class Chat {
         const getOldestChatId = this.getOldestChatId();
         const oldChats = await this.#GetChatsBeforeId(getOldestChatId);
         if (oldChats?.error) {
-            toastService.addToast(`Failed to get chats. Error: ${oldChats.error}.`, GlobalConfig.LOG_LEVEL.ERROR)
+            toastService.addToast(`Failed to get chats. Error: ${oldChats.message}.`, GlobalConfig.LOG_LEVEL.ERROR)
             return;
         }
         if (oldChats.length === 0) {
@@ -276,7 +282,7 @@ class Chat {
 
         const chatRecord = await this.#SendChat(chatMessage);
         if (chatRecord?.error) {
-            toastService.addToast(`Failed to send chat. Error: ${chatRecord.error}.`, GlobalConfig.LOG_LEVEL.ERROR);
+            toastService.addToast(`Failed to send chat. Error: ${chatRecord.message}.`, GlobalConfig.LOG_LEVEL.ERROR);
             return;
         }
 
@@ -297,6 +303,8 @@ class Chat {
         });
     }
 
+    // On reading a message sent to me, check if it has been marked as read by me.
+    // This avoids sending read receipts when a message has already been read.
     async getChatReadStatusForMessageToMe(chats) {
         // chats is all chats, i.e. on getting older or newer the total chats always goes up
         if (chats === null || chats.length === 0)
@@ -305,13 +313,11 @@ class Chat {
             .filter(chat => chat.UsernameId !== LoginHelper.usernameId)
             .map(chat => chat.Id);
 
-        const userIds = this.users.filter(x => x.UserId !== LoginHelper.usernameId).map(x => x.UserId);
-
         const readChats = await this.#GetChatsThatAreRead(messageToMeChatIds, LoginHelper.usernameId);
 
         if (readChats?.error) {
             toastService.addToast('Failed to get read chats.', GlobalConfig.LOG_LEVEL.ERROR);
-            Logger.log(`Failed to get read chats. Error: ${JSON.stringify(readChats.error)}`, GlobalConfig.LOG_LEVEL.ERROR);
+            Logger.log(`Failed to get read chats. Error: ${readChats.message}`, GlobalConfig.LOG_LEVEL.ERROR);
             return;
         }
 
@@ -321,6 +327,7 @@ class Chat {
         this.readIdsForMessageToMe = readIdsSet
     }
 
+    // Check if my messages have been read by all users.
     async getChatReadStatusForMyMessages(chats) {
         if (chats === null || chats.length === 0)
             return;
@@ -333,7 +340,7 @@ class Chat {
         const readChats = await this.#GetChatsThatAreReadByAllUserIds(outgoingChatIds, userIds);
         if (readChats?.error) {
             toastService.addToast('Failed to get read chats.', GlobalConfig.LOG_LEVEL.ERROR);
-            Logger.log(`Failed to get read chats. Error: ${JSON.stringify(readChats.error)}`, GlobalConfig.LOG_LEVEL.ERROR);
+            Logger.log(`Failed to get read chats. Error: ${readChats.message}`, GlobalConfig.LOG_LEVEL.ERROR);
             return;
         }
         const readIdsSet = new Set(readChats);
@@ -352,7 +359,7 @@ class Chat {
 
             const newChats = await this.#GetChatsAfterId(id);
             if (newChats?.error) {
-                toastService.addToast(`Error: ${newChats.error}.`, GlobalConfig.LOG_LEVEL.ERROR)
+                toastService.addToast(`Error: ${newChats.message}.`, GlobalConfig.LOG_LEVEL.ERROR)
                 return;
             }
             if (newChats.length === 0)
@@ -556,7 +563,7 @@ class Chat {
     }
 
     async #GetChatsThatAreReadByAllUserIds(chatsIds, usernameIds) {
-        const url = `${GlobalConfig.apis.chatsRead}/GetChatsThatAreRead2`;
+        const url = `${GlobalConfig.apis.chatsRead}/GetChatsThatAreReadByAllUserIds`;
         const records = await RequestHelper.PostJsonWithAuth(url, { chatIds: chatsIds, userIds: usernameIds }, { signal: this.signal });
         return records;
     }

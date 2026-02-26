@@ -29,7 +29,7 @@ class ChatGroup {
         const chatGroups = await this.#GetChatGroups();
         if (chatGroups?.error) {
             toastService.addToast('Failed to get chat groups.', GlobalConfig.LOG_LEVEL.ERROR);
-            Logger.log(`Failed to get chat groups. Error: ${JSON.stringify(chatGroups.error)}`, GlobalConfig.LOG_LEVEL.ERROR);
+            Logger.log(`Failed to get chat groups. Error: ${chatGroups.message}`, GlobalConfig.LOG_LEVEL.ERROR);
             this.chatGroups = [];
         }
 
@@ -60,7 +60,7 @@ class ChatGroup {
             chatGroupElement.innerHTML =
                 `<details>
                     <summary>Failed to get chat groups</summary>
-                    Error: ${chatGroups.error}.
+                    Error: ${chatGroups.message}.
                 </details>`;
             return;
         }
@@ -75,17 +75,20 @@ class ChatGroup {
         }
 
         for (const chatGroup of this.chatGroups) {
-            if (chatGroup.Dom && !chatGroupElement.contains(chatGroup.Dom))
+            if (chatGroup.Dom && chatGroupElement.contains(chatGroup.Dom))
                 continue;
 
             const li = document.createElement('li');
             const button = document.createElement('button');
 
             const users = chatGroup['Users'];
+            const name = chatGroup['Name'];
             const guid = chatGroup['Guid'];
             state.set(`Chat:${guid}:Users`, users);
+            state.set(`Chat:${guid}:Name`,);
 
-            button.textContent = users.map(u => u.Username).join(', ');
+            button.textContent = name;
+            button.title = `Users: ${users.map(u => u.Username).join(', ')}`;
             // Add chat link for each chat group
             button.dataset.router = true;
             button.setAttribute('href', `/chat?guid=${guid}`)
@@ -117,15 +120,23 @@ class ChatGroup {
     }
 
     showCreateGroupModal() {
-        this.selectedUsers = [];
-        this.selectedUserIds = [];
+        this.selectedUsers = [LoginHelper.username];
+        this.selectedUserIds = [LoginHelper.usernameId];
 
         const content = document.createElement('div');
         content.innerHTML = `
-        <label>Add User</label>
-        <input id="usernameInput" type="text">
-        <button id="addUserBtn">Add</button>
-        <ul id="selectedUsers"></ul>`;
+            <label for="groupName">Group Name</label>
+            <input name="groupName" id="groupName" type="text" required>
+            
+            <label for="usernameInput">Add User</label>
+            <div class="input-row">
+                <input id="usernameInput" type="text">
+                <button id="addUserBtn">Add</button>
+            </div>
+
+            
+            <ul id="selectedUsers"></ul>
+        `;
 
         const modal = new CreateModal({
             title: "Create New Group",
@@ -133,17 +144,26 @@ class ChatGroup {
             submitText: "Create",
             cancelText: "Cancel",
             onSubmit: async () => {
-                const name = [LoginHelper.username, ...this.selectedUsers];
+                let name = content.querySelector('#groupName').value;
+                if ([null, undefined, ''].includes(name))
+                    name = this.selectedUsers.join(', ');
 
                 const guid = await this.#createGroup(this.selectedUserIds, name);
                 if (guid?.error) {
                     toastService.addToast('Failed to get chat groups.', GlobalConfig.LOG_LEVEL.ERROR);
-                    Logger.log(`Failed to get chat groups. Error: ${JSON.stringify(guid.error)}`, GlobalConfig.LOG_LEVEL.ERROR);
+                    Logger.log(`Failed to get chat groups. Error: ${guid.message}`, GlobalConfig.LOG_LEVEL.ERROR);
                     return;
                 }
+
+                const users = [];
+                for (const username of this.selectedUsers) {
+                    users.push({ Username: username });
+                }
+
                 this.chatGroups.push({
                     Guid: guid,
-                    Usernames: name
+                    Name: name,
+                    Users: users
                 });
                 this.renderChatGroups();
             }
@@ -154,8 +174,18 @@ class ChatGroup {
         addUserBtn.addEventListener('click', async () => {
             const username = content.querySelector('#usernameInput').value;
 
-            const userId = await this.#GetUsernameId(username);
-            this.selectedUserIds.push(userId);
+            if(username === LoginHelper.username){
+                alert('You can not add yourself!');
+                return;
+            }
+
+            const result = await this.#GetUsernameId(username);
+            if(result?.error){
+                alert(`Username not found. Error: ${result.message}`);
+                return;
+            }
+
+            this.selectedUserIds.push(result.Id);
             this.selectedUsers.push(username);
 
             content.querySelector('#selectedUsers').insertAdjacentHTML("beforeend", `<li>${username}</li>`);
